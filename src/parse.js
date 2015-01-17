@@ -5,7 +5,7 @@
 var events, JsonError, terminators;
 
 events = require('events');
-JsonError = require('JsonError');
+JsonError = require('./error');
 
 terminators = {
     object: '}',
