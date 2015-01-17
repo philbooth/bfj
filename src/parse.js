@@ -117,6 +117,9 @@ function parse (json) {
     }
 
     function name () {
+        ignoreWhitespace();
+        check(next(), '"');
+
         parseString('property');
 
         ignoreWhitespace();
@@ -127,9 +130,6 @@ function parse (json) {
 
     function parseString (event) {
         var string = '';
-
-        ignoreWhitespace();
-        check(next(), '"');
 
         while (character() !== '"') {
             string += next();
