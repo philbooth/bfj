@@ -1,15 +1,26 @@
 {
-    "name": "JSON.streamify",
+    "name": "bfj",
     "version": "0.0.1",
-    "description": "Map WebPageTest result data into human-readable document formats.",
-    "homepage": "https://github.com/philbooth/JSON.streamify",
-    "bugs": "https://github.com/philbooth/JSON.streamify/issues",
+    "description": "Big Friendly JSON",
+    "homepage": "https://github.com/philbooth/node-bfj",
+    "bugs": "https://github.com/philbooth/node-bfj/issues",
     "license": "MIT",
     "author": "Phil Booth (https://github.com/philbooth)",
     "main": "./src",
+    "keywords": [
+        "json",
+        "streamify",
+        "stringify",
+        "parse",
+        "serialise",
+        "serialize",
+        "read",
+        "write",
+        "fast"
+    ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/philbooth/JSON.streamify.git"
+        "url": "https://github.com/philbooth/node-bfj.git"
     },
     "dependencies": {
         "check-types": "2.2.x"
