@@ -34,10 +34,10 @@ function parse (json) {
         ignoreWhitespace();
 
         switch (next()) {
-            case '{':
-                return setImmediate(object);
             case '[':
                 return setImmediate(array);
+            case '{':
+                return setImmediate(object);
             case '"':
                 return setImmediate(string);
             case 0:
@@ -85,10 +85,6 @@ function parse (json) {
         return character();
     }
 
-    function character () {
-        return json[index];
-    }
-
     function end () {
         while (scopes.length > 0) {
             error('EOF', terminators[scopes.pop()]);
@@ -101,14 +97,23 @@ function parse (json) {
         emitter.emit('error', new JsonError(actual, expected, line, column));
     }
 
-    function object () {
-        scope('object');
-        setImmediate(name);
+    function character () {
+        return json[index];
+    }
+
+    function array () {
+        scope('array');
+        setImmediate(value);
     }
 
     function scope (type) {
         emitter.emit(type);
         scopes.push(type);
+    }
+
+    function object () {
+        scope('object');
+        setImmediate(name);
     }
 
     function name () {
@@ -137,11 +142,6 @@ function parse (json) {
         if (character !== expected) {
             error('`' + character + '`', expected);
         }
-    }
-
-    function array () {
-        scope('array');
-        setImmediate(value);
     }
 
     function string (event) {
