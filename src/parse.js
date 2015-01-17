@@ -2,7 +2,7 @@
 
 'use strict';
 
-var events, JsonError, terminators;
+var events, JsonError, terminators, literals;
 
 events = require('events');
 JsonError = require('./error');
@@ -10,6 +10,12 @@ JsonError = require('./error');
 terminators = {
     object: '}',
     array: ']'
+};
+
+literals = {
+    false: false,
+    null: null,
+    true: true
 };
 
 module.exports = parse;
@@ -204,7 +210,7 @@ function parse (json) {
     function parseDigits () {
         var number = '';
 
-        while (isNumber(character()) {
+        while (isNumber(character())) {
             number += next();
         }
 
@@ -217,7 +223,15 @@ function parse (json) {
         return code >= 30 && code <= 39;
     }
 
-    function literal () {
-        // TODO: Implement.
+    function literal (character) {
+        var literal = character;
+
+        while (isLowercase(character())) {
+            literal += next();
+        }
+
+        emitter.emit('literal', literals[literal]);
+        setImmediate(endValue);
     }
 }
+
