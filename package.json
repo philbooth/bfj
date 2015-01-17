@@ -1,0 +1,29 @@
+{
+    "name": "JSON.streamify",
+    "version": "0.0.1",
+    "description": "Map WebPageTest result data into human-readable document formats.",
+    "homepage": "https://github.com/philbooth/JSON.streamify",
+    "bugs": "https://github.com/philbooth/JSON.streamify/issues",
+    "license": "MIT",
+    "author": "Phil Booth (https://github.com/philbooth)",
+    "main": "./src",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/philbooth/JSON.streamify.git"
+    },
+    "dependencies": {
+        "check-types": "2.2.x"
+    },
+    "devDependencies": {
+        "jshint": "2.5.x",
+        "mocha": "2.1.x",
+        "chai": "1.10.x",
+        "mockery": "1.4.x",
+        "spooks": "2.0.x"
+    },
+    "scripts": {
+        "test": "mocha --ui tdd --reporter spec --recursive --colors test",
+        "lint": "jshint src"
+    }
+}
+
