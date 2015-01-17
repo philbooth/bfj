@@ -1,4 +1,4 @@
-/*globals require, module */
+/*globals require, module, setImmediate */
 
 'use strict';
 
@@ -17,7 +17,7 @@ module.exports = parse;
 function parse (json) {
     var emitter, index, line, column, scopes, handlers;
 
-    emitter = new events.EventEmitter;
+    emitter = new events.EventEmitter();
     index = 0;
     line = column = 1;
     scopes = [];
@@ -28,7 +28,7 @@ function parse (json) {
 
     setImmediate(value);
 
-    return result;
+    return emitter;
 
     function value () {
         ignoreWhitespace();
@@ -113,10 +113,10 @@ function parse (json) {
 
     function object () {
         scope('object');
-        setImmediate(name);
+        setImmediate(property);
     }
 
-    function name () {
+    function property () {
         ignoreWhitespace();
         check(next(), '"');
 
@@ -149,7 +149,7 @@ function parse (json) {
         }
     }
 
-    function string (event) {
+    function string () {
         parseString('string');
         setImmediate(endValue);
     }
@@ -174,5 +174,13 @@ function parse (json) {
 
         check(character, terminators[scope], 'end-' + scope);
         setImmediate(endValue);
+    }
+
+    function number () {
+        // TODO: Implement.
+    }
+
+    function literal () {
+        // TODO: Implement.
     }
 }

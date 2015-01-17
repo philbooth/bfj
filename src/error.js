@@ -13,7 +13,7 @@ JsonError.prototype =
         }
     });
 
-function JsonError (actual, expected) {
+function JsonError (actual, expected, line, column) {
     Error.call(
         this,
         'Encountered ' + actual +
