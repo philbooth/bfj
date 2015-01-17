@@ -187,51 +187,57 @@ function parse (json) {
     }
 
     function number (character) {
-        var number = character + parseDigits();
+        var digits = character + parseDigits();
 
         if (character() === '.') {
-            number += next() + parseDigits();
+            digits += next() + parseDigits();
         }
 
         if (character() === 'e' || character === 'E') {
-            number += next();
+            digits += next();
 
             if (character() === '+' || character === '-') {
-                number += next();
+                digits += next();
             }
 
-            number += parseDigits();
+            digits += parseDigits();
         }
 
-        emitter.emit('number', parseFloat(number));
+        emitter.emit('number', parseFloat(digits));
         setImmediate(endValue);
     }
 
     function parseDigits () {
-        var number = '';
+        var digits = '';
 
         while (isNumber(character())) {
-            number += next();
+            digits += next();
         }
 
-        return number;
+        return digits;
     }
 
     function isNumber (character) {
         var code = character.charCodeAt(0);
 
-        return code >= 30 && code <= 39;
+        return code >= 48 && code <= 57;
     }
 
     function literal (character) {
-        var literal = character;
+        var characters = character;
 
         while (isLowercase(character())) {
-            literal += next();
+            characters += next();
         }
 
-        emitter.emit('literal', literals[literal]);
+        emitter.emit('literal', literals[characters]);
         setImmediate(endValue);
+    }
+
+    function isLowercase (character) {
+        var code = character.charCodeAt(0);
+
+        return code >= 97 && code <= 122;
     }
 }
 
