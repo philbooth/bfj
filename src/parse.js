@@ -140,8 +140,7 @@ function parse (json) {
 
     function check (character, expected, event) {
         if (character !== expected) {
-            error('`' + character + '`', expected);
-            return;
+            return error('`' + character + '`', expected);
         }
 
         if (event) {
@@ -160,16 +159,14 @@ function parse (json) {
         ignoreWhitespace();
 
         if (scopes.length === 0) {
-            setImmediate(value);
-            return;
+            return setImmediate(value);
         }
 
         scope = scopes[scopes.length - 1];
         character = next();
 
         if (character === ',') {
-            setImmediate(handlers[scope]);
-            return;
+            return setImmediate(handlers[scope]);
         }
 
         check(character, terminators[scope], 'end-' + scope);
