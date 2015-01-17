@@ -31,9 +31,13 @@ function parse (json) {
     return emitter;
 
     function value () {
+        var character;
+
         ignoreWhitespace();
 
-        switch (next()) {
+        character = next();
+
+        switch (character) {
             case '[':
                 return setImmediate(array);
             case '{':
@@ -50,9 +54,11 @@ function parse (json) {
             case 7:
             case 8:
             case 9:
-                return setImmediate(number);
+            case '-':
+            case '.':
+                return setImmediate(number.bind(null, character));
             default:
-                return setImmediate(literal);
+                return setImmediate(literal.bind(null, character));
         }
     }
 
@@ -174,8 +180,41 @@ function parse (json) {
         setImmediate(endValue);
     }
 
-    function number () {
-        // TODO: Implement.
+    function number (character) {
+        var number = character + parseDigits();
+
+        if (character() === '.') {
+            number += next() + parseDigits();
+        }
+
+        if (character() === 'e' || character === 'E') {
+            number += next();
+
+            if (character() === '+' || character === '-') {
+                number += next();
+            }
+
+            number += parseDigits();
+        }
+
+        emitter.emit('number', parseFloat(number));
+        setImmediate(endValue);
+    }
+
+    function parseDigits () {
+        var number = '';
+
+        while (isNumber(character()) {
+            number += next();
+        }
+
+        return number;
+    }
+
+    function isNumber (character) {
+        var code = character.charCodeAt(0);
+
+        return code >= 30 && code <= 39;
     }
 
     function literal () {
