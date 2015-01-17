@@ -138,13 +138,9 @@ function parse (json) {
         emitter.emit(event, string);
     }
 
-    function check (character, expected, event) {
+    function check (character, expected) {
         if (character !== expected) {
-            return error('`' + character + '`', expected);
-        }
-
-        if (event) {
-            emitter.emit(event);
+            return error('`' + character + '`', '`' + expected + '`');
         }
     }
 
@@ -169,7 +165,12 @@ function parse (json) {
             return setImmediate(handlers[scope]);
         }
 
-        check(character, terminators[scope], 'end-' + scope);
+        check(character, terminators[scope]);
+
+        if (character === terminators[scope]) {
+            emitter.emit('end-' + scopes.pop());
+        }
+
         setImmediate(endValue);
     }
 
