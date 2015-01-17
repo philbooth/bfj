@@ -138,9 +138,14 @@ function parse (json) {
         emitter.emit(event, string);
     }
 
-    function check (character, expected) {
+    function check (character, expected, event) {
         if (character !== expected) {
             error('`' + character + '`', expected);
+            return;
+        }
+
+        if (event) {
+            emitter.emit(event);
         }
     }
 
@@ -167,7 +172,7 @@ function parse (json) {
             return;
         }
 
-        check(character, terminators[scope]);
+        check(character, terminators[scope], 'end-' + scope);
         setImmediate(endValue);
     }
 }
