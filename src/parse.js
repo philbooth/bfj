@@ -146,6 +146,7 @@ function parse (json) {
 
     function string (event) {
         parseString('string');
+        setImmediate(endValue);
     }
 
     function endValue () {
