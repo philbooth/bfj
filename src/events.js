@@ -10,8 +10,8 @@ modules.exports = {
     number: 'num',
     literal: 'lit',
     endPrefix: 'end-',
-    error: 'err',
-    end: 'end'
+    end: 'end',
+    error: 'err'
 };
 
 module.exports.endArray = modules.exports.endPrefix + modules.exports.array;
