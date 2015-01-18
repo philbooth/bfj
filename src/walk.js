@@ -18,9 +18,9 @@ literals = {
     true: true
 };
 
-module.exports = parse;
+module.exports = walk;
 
-function parse (json) {
+function walk (json) {
     var emitter, index, line, column, scopes, handlers;
 
     emitter = new events.EventEmitter();
@@ -132,7 +132,7 @@ function parse (json) {
         ignoreWhitespace();
         check(next(), '"');
 
-        parseString('property');
+        readString('property');
 
         ignoreWhitespace();
         check(next(), ':');
@@ -140,7 +140,7 @@ function parse (json) {
         setImmediate(value);
     }
 
-    function parseString (event) {
+    function readString (event) {
         var string = '';
 
         while (character() !== '"') {
@@ -157,7 +157,7 @@ function parse (json) {
     }
 
     function string () {
-        parseString('string');
+        readString('string');
         setImmediate(endValue);
     }
 
@@ -187,10 +187,10 @@ function parse (json) {
     }
 
     function number (character) {
-        var digits = character + parseDigits();
+        var digits = character + readDigits();
 
         if (character() === '.') {
-            digits += next() + parseDigits();
+            digits += next() + readDigits();
         }
 
         if (character() === 'e' || character === 'E') {
@@ -200,14 +200,14 @@ function parse (json) {
                 digits += next();
             }
 
-            digits += parseDigits();
+            digits += readDigits();
         }
 
         emitter.emit('number', parseFloat(digits));
         setImmediate(endValue);
     }
 
-    function parseDigits () {
+    function readDigits () {
         var digits = '';
 
         while (isNumber(character())) {

@@ -3,7 +3,7 @@
 'use strict';
 
 module.exports = {
-    parse: require('./parse'),
+    walk: require('./walk'),
     serialise: require('./serialise'),
     read: require('./read'),
     write: require('./write')
