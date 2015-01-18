@@ -6,6 +6,7 @@ module.exports = {
     walk: require('./walk'),
     serialise: require('./serialise'),
     read: require('./read'),
-    write: require('./write')
+    write: require('./write'),
+    events: require('./events')
 };
 
