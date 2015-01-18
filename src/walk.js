@@ -9,8 +9,8 @@ JsonError = require('./error');
 events = require('./events');
 
 terminators = {
-    object: '}',
-    array: ']'
+    obj: '}',
+    arr: ']'
 };
 
 literals = {
@@ -36,8 +36,8 @@ function walk (json) {
     line = column = 1;
     scopes = [];
     handlers = {
-        array: value,
-        object: property
+        arr: value,
+        obj: property
     };
 
     setImmediate(value);
