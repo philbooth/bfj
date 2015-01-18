@@ -31,20 +31,21 @@ codes = {
 module.exports = read;
 
 function read (json) {
-    var emitter, index, line, column, scopes, handlers;
+    var emitter, index, line, column, done, scopes, handlers;
 
     check.assert.string(json, 'JSON must be a string.');
 
     emitter = new EventEmitter();
     index = 0;
     line = column = 1;
+    done = false;
     scopes = [];
     handlers = {
         arr: value,
         obj: property
     };
 
-    setImmediate(value);
+    defer(value);
 
     return emitter;
 
@@ -57,56 +58,54 @@ function read (json) {
 
         switch (character) {
             case '[':
-                return setImmediate(array);
+                return array();
             case '{':
-                return setImmediate(object);
+                return object();
             case '"':
-                return setImmediate(string);
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
+                return string();
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
             case '-':
             case '.':
-                return setImmediate(number.bind(null, character));
+                return number(character);
             default:
-                return setImmediate(literal.bind(null, character));
+                return literal(character);
         }
     }
 
     function ignoreWhitespace () {
-        while (true) {
-            switch (next()) {
-                case ' ':
-                case '\t':
-                case '\r':
-                case '\n':
-                    continue;
-            }
-
-            break;
+        while (isWhitespace(character())) {
+            next();
         }
     }
 
     function next () {
+        var result;
+
         if (index === json.length) {
-            return end();
+            end();
         }
 
-        if (character() === '\n') {
+        result = character();
+
+        if (result === '\n') {
             line += 1;
             column = 1;
         } else {
             column += 1;
         }
 
-        return character();
+        index += 1;
+
+        return result;
     }
 
     function end () {
@@ -115,6 +114,8 @@ function read (json) {
         }
 
         emitter.emit(events.end);
+
+        throw events.end;
     }
 
     function error (actual, expected) {
@@ -126,18 +127,19 @@ function read (json) {
     }
 
     function array () {
-        scope(events.array);
-        setImmediate(value);
+        scope(events.array, value);
     }
 
-    function scope (event) {
+    function scope (event, contentHandler) {
         emitter.emit(event);
         scopes.push(event);
+        if (!endScope(event)) {
+            defer(contentHandler);
+        }
     }
 
     function object () {
-        scope(events.object);
-        setImmediate(property);
+        scope(events.object, property);
     }
 
     function property () {
@@ -149,7 +151,7 @@ function read (json) {
         ignoreWhitespace();
         checkCharacter(next(), ':');
 
-        setImmediate(value);
+        defer(value);
     }
 
     function readString (event) {
@@ -168,47 +170,51 @@ function read (json) {
         }
     }
 
-    function string () {
-        readString(events.string);
-        setImmediate(endValue);
+    function endScope (scope) {
+        if (character() === terminators[scope]) {
+            emitter.emit(events.endPrefix + scope);
+            scopes.pop();
+            next();
+            defer(endValue);
+            return true;
+        }
+
+        return false;
     }
 
     function endValue () {
-        var scope, character;
+        var scope;
 
         ignoreWhitespace();
 
         if (scopes.length === 0) {
-            return setImmediate(value);
+            return defer(value);
         }
 
         scope = scopes[scopes.length - 1];
-        character = next();
 
-        if (character === ',') {
-            return setImmediate(handlers[scope]);
+        if (!endScope(scope)) {
+            checkCharacter(next(), ',');
+            defer(handlers[scope]);
         }
-
-        checkCharacter(character, terminators[scope]);
-
-        if (character === terminators[scope]) {
-            emitter.emit(events.endPrefix + scopes.pop());
-        }
-
-        setImmediate(endValue);
     }
 
-    function number (character) {
-        var digits = character + readDigits();
+    function string () {
+        readString(events.string);
+        defer(endValue);
+    }
+
+    function number (firstCharacter) {
+        var digits = firstCharacter + readDigits();
 
         if (character() === '.') {
             digits += next() + readDigits();
         }
 
-        if (character() === 'e' || character === 'E') {
+        if (character() === 'e' || character() === 'E') {
             digits += next();
 
-            if (character() === '+' || character === '-') {
+            if (character() === '+' || character() === '-') {
                 digits += next();
             }
 
@@ -216,7 +222,7 @@ function read (json) {
         }
 
         emitter.emit(events.number, parseFloat(digits));
-        setImmediate(endValue);
+        defer(endValue);
     }
 
     function readDigits () {
@@ -229,16 +235,6 @@ function read (json) {
         return digits;
     }
 
-    function isNumber (character) {
-        return checkCode(character, codes.zero, codes.nine);
-    }
-
-    function checkCode (character, lower, upper) {
-        var code = character.charCodeAt(0);
-
-        return code >= codes[lower] && code <= codes[upper];
-    }
-
     function literal (character) {
         var characters = character;
 
@@ -246,12 +242,46 @@ function read (json) {
             characters += next();
         }
 
+        // TODO: Handle invalid literals
+
         emitter.emit(events.literal, literals[characters]);
-        setImmediate(endValue);
+        defer(endValue);
+    }
+}
+
+function defer (fn) {
+    setImmediate(function () {
+        try {
+            fn();
+        } catch (error) {
+            /*jshint noempty:false */
+        }
+    });
+}
+
+function isWhitespace (character) {
+    switch (character) {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            return true;
     }
 
-    function isLowercase (character) {
-        return checkCode(character, codes.a, codes.z);
-    }
+    return false;
+}
+
+function isNumber (character) {
+    return checkCode(character, codes.zero, codes.nine);
+}
+
+function checkCode (character, lower, upper) {
+    var code = character.charCodeAt(0);
+
+    return code >= codes[lower] && code <= codes[upper];
+}
+
+function isLowercase (character) {
+    return checkCode(character, codes.a, codes.z);
 }
 
