@@ -2,7 +2,7 @@
 
 'use strict';
 
-modules.exports = {
+module.exports = {
     array: 'arr',
     object: 'obj',
     property: 'pro',
@@ -14,6 +14,6 @@ modules.exports = {
     error: 'err'
 };
 
-module.exports.endArray = modules.exports.endPrefix + modules.exports.array;
-module.exports.endObject = modules.exports.endPrefix + modules.exports.object;
+module.exports.endArray = module.exports.endPrefix + module.exports.array;
+module.exports.endObject = module.exports.endPrefix + module.exports.object;
 
