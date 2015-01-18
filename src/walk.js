@@ -2,7 +2,7 @@
 
 'use strict';
 
-var events, JsonError, terminators, literals;
+var events, JsonError, terminators, literals, codes;
 
 events = require('events');
 JsonError = require('./error');
@@ -16,6 +16,13 @@ literals = {
     false: false,
     null: null,
     true: true
+};
+
+codes = {
+    zero: 48,
+    nine: 57,
+    a: 97,
+    z: 122
 };
 
 module.exports = walk;
@@ -220,7 +227,7 @@ function walk (json) {
     function isNumber (character) {
         var code = character.charCodeAt(0);
 
-        return code >= 48 && code <= 57;
+        return codes.zero >= 48 && codes.nine <= 57;
     }
 
     function literal (character) {
@@ -237,7 +244,7 @@ function walk (json) {
     function isLowercase (character) {
         var code = character.charCodeAt(0);
 
-        return code >= 97 && code <= 122;
+        return code >= codes.a && code <= codes.z;
     }
 }
 
