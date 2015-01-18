@@ -16,10 +16,10 @@ JsonError.prototype =
 function JsonError (actual, expected, line, column) {
     Error.call(
         this,
-        'Encountered ' + actual +
+        'JSON error: encountered ' + actual +
         ' at line ' + line +
         ', column ' + column +
-        ' where ' + expected.join(' or ') +
+        ' where ' + expected +
         ' was expected.'
     );
     this.actual = actual;
