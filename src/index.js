@@ -4,7 +4,8 @@
 
 module.exports = {
     walk: require('./walk'),
-    serialise: require('./serialise'),
+    parse: require('./parse'),
+    streamify: require('./streamify'),
     read: require('./read'),
     write: require('./write'),
     events: require('./events')
