@@ -230,9 +230,13 @@ function walk (json) {
     }
 
     function isNumber (character) {
+        return checkCode(character, codes.zero, codes.nine);
+    }
+
+    function checkCode (character, lower, upper) {
         var code = character.charCodeAt(0);
 
-        return codes.zero >= 48 && codes.nine <= 57;
+        return code >= codes[lower] && code <= codes[upper];
     }
 
     function literal (character) {
@@ -247,9 +251,7 @@ function walk (json) {
     }
 
     function isLowercase (character) {
-        var code = character.charCodeAt(0);
-
-        return code >= codes.a && code <= codes.z;
+        return checkCode(character, codes.a, codes.z);
     }
 }
 
