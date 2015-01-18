@@ -3,6 +3,7 @@
 'use strict';
 
 module.exports = JsonError;
+
 JsonError.prototype =
     Object.create(Error, {
         constructor: {
