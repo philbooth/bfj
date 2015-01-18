@@ -8,9 +8,7 @@ check = require('check-types');
 walk = require('./walk');
 events = require('./events');
 
-module.exports = {
-    parse: parse
-};
+module.exports = parse;
 
 function parse (json, callback) {
     var emitter, scopes, errors, done, key;
