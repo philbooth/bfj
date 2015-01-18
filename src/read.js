@@ -2,12 +2,12 @@
 
 'use strict';
 
-var check, EventEmitter, JsonError, events,
-    terminators, literals, codes;
+var check, EventEmitter, errors, events,
+    terminators, escapes, codes, literals;
 
 check = require('check-types');
 EventEmitter = require('events').EventEmitter;
-JsonError = require('./error');
+errors = require('./errors');
 events = require('./events');
 
 terminators = {
@@ -15,10 +15,16 @@ terminators = {
     arr: ']'
 };
 
-literals = {
-    false: false,
-    null: null,
-    true: true
+escapes = {
+    '"': '"',
+    '\\': '\\',
+    '/': '/',
+    'b': '\b',
+    'f': '\f',
+    'n': '\n',
+    'r': '\r',
+    't': '\t',
+    'u': '\\u'
 };
 
 codes = {
@@ -26,6 +32,12 @@ codes = {
     nine: 57,
     a: 97,
     z: 122
+};
+
+literals = {
+    false: false,
+    null: null,
+    true: true
 };
 
 module.exports = read;
@@ -119,7 +131,7 @@ function read (json) {
     }
 
     function error (actual, expected) {
-        emitter.emit(events.error, new JsonError(actual, expected, line, column));
+        emitter.emit(events.error, errors.create(actual, expected, line, column));
     }
 
     function character () {
@@ -155,13 +167,34 @@ function read (json) {
     }
 
     function readString (event) {
-        var string = '';
+        var quoting, string;
 
-        while (character() !== '"') {
-            string += next();
+        quoting = false;
+        string = '';
+
+        while (quoting || character() !== '"') {
+            if (quoting) {
+                quoting = false;
+                string += escape(next());
+            } else if (character() === '\\') {
+                quoting = true;
+                next();
+            } else {
+                string += next();
+            }
         }
 
         emitter.emit(event, string);
+    }
+
+    function escape (character) {
+        if (escapes[character]) {
+            return escapes[character];
+        }
+
+        error(character, 'escape character');
+
+        return '\\' + character;
     }
 
     function checkCharacter (character, expected) {
