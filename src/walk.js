@@ -2,8 +2,10 @@
 
 'use strict';
 
-var EventEmitter, JsonError, events, terminators, literals, codes;
+var check, EventEmitter, JsonError, events,
+    terminators, literals, codes;
 
+check = require('check-types');
 EventEmitter = require('events').EventEmitter;
 JsonError = require('./error');
 events = require('./events');
@@ -30,6 +32,8 @@ module.exports = walk;
 
 function walk (json) {
     var emitter, index, line, column, scopes, handlers;
+
+    check.assert.string(json, 'JSON must be a string.');
 
     emitter = new EventEmitter();
     index = 0;
@@ -138,12 +142,12 @@ function walk (json) {
 
     function property () {
         ignoreWhitespace();
-        check(next(), '"');
+        checkCharacter(next(), '"');
 
         readString(events.property);
 
         ignoreWhitespace();
-        check(next(), ':');
+        checkCharacter(next(), ':');
 
         setImmediate(value);
     }
@@ -158,7 +162,7 @@ function walk (json) {
         emitter.emit(event, string);
     }
 
-    function check (character, expected) {
+    function checkCharacter (character, expected) {
         if (character !== expected) {
             return error('`' + character + '`', '`' + expected + '`');
         }
@@ -185,7 +189,7 @@ function walk (json) {
             return setImmediate(handlers[scope]);
         }
 
-        check(character, terminators[scope]);
+        checkCharacter(character, terminators[scope]);
 
         if (character === terminators[scope]) {
             emitter.emit(events.endPrefix + scopes.pop());
