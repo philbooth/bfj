@@ -82,7 +82,7 @@ function parse (json, callback) {
 
     function end () {
         if (callback) {
-            return callback(scopes[0]);
+            return callback(errors[0], scopes[0]);
         }
 
         done = true;
