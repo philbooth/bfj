@@ -15,7 +15,7 @@ module.exports = {
 function parse (json, callback) {
     var emitter, scopes, errors, done, key;
 
-    check.assert.maybe.function(callback);
+    check.assert.maybe.function(callback, 'Callback must be a function.');
 
     emitter = walk(json);
     scopes = [];
