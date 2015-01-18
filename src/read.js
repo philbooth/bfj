@@ -28,9 +28,9 @@ codes = {
     z: 122
 };
 
-module.exports = walk;
+module.exports = read;
 
-function walk (json) {
+function read (json) {
     var emitter, index, line, column, scopes, handlers;
 
     check.assert.string(json, 'JSON must be a string.');
