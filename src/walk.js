@@ -2,10 +2,11 @@
 
 'use strict';
 
-var events, JsonError, terminators, literals, codes;
+var EventEmitter, JsonError, events, terminators, literals, codes;
 
-events = require('events');
+EventEmitter = require('events').EventEmitter;
 JsonError = require('./error');
+events = require('./events');
 
 terminators = {
     object: '}',
@@ -30,7 +31,7 @@ module.exports = walk;
 function walk (json) {
     var emitter, index, line, column, scopes, handlers;
 
-    emitter = new events.EventEmitter();
+    emitter = new EventEmitter();
     index = 0;
     line = column = 1;
     scopes = [];
@@ -109,11 +110,11 @@ function walk (json) {
             error('EOF', terminators[scopes.pop()]);
         }
 
-        emitter.emit('end');
+        emitter.emit(events.end);
     }
 
     function error (actual, expected) {
-        emitter.emit('error', new JsonError(actual, expected, line, column));
+        emitter.emit(events.error, new JsonError(actual, expected, line, column));
     }
 
     function character () {
@@ -121,17 +122,17 @@ function walk (json) {
     }
 
     function array () {
-        scope('array');
+        scope(events.array);
         setImmediate(value);
     }
 
-    function scope (type) {
-        emitter.emit(type);
-        scopes.push(type);
+    function scope (event) {
+        emitter.emit(event);
+        scopes.push(event);
     }
 
     function object () {
-        scope('object');
+        scope(events.object);
         setImmediate(property);
     }
 
@@ -139,7 +140,7 @@ function walk (json) {
         ignoreWhitespace();
         check(next(), '"');
 
-        readString('property');
+        readString(events.property);
 
         ignoreWhitespace();
         check(next(), ':');
@@ -164,7 +165,7 @@ function walk (json) {
     }
 
     function string () {
-        readString('string');
+        readString(events.string);
         setImmediate(endValue);
     }
 
@@ -187,7 +188,7 @@ function walk (json) {
         check(character, terminators[scope]);
 
         if (character === terminators[scope]) {
-            emitter.emit('end-' + scopes.pop());
+            emitter.emit(events.endPrefix + scopes.pop());
         }
 
         setImmediate(endValue);
@@ -210,7 +211,7 @@ function walk (json) {
             digits += readDigits();
         }
 
-        emitter.emit('number', parseFloat(digits));
+        emitter.emit(events.number, parseFloat(digits));
         setImmediate(endValue);
     }
 
@@ -237,7 +238,7 @@ function walk (json) {
             characters += next();
         }
 
-        emitter.emit('literal', literals[characters]);
+        emitter.emit(events.literal, literals[characters]);
         setImmediate(endValue);
     }
 
