@@ -324,20 +324,20 @@ function isWhitespace (character) {
 }
 
 function isHexit (character) {
-    return isDigit(character) || checkCharacter(character, 'a', 'f');
+    return isDigit(character) || isInRange(character, 'a', 'f');
 }
 
 function isDigit (character) {
-    return checkCharacter(character, '0', '9');
+    return isInRange(character, '0', '9');
 }
 
-function checkCharacter (character, lower, upper) {
+function isInRange (character, lower, upper) {
     var code = character.charCodeAt(0);
 
     return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0);
 }
 
 function isLowercase (character) {
-    return checkCharacter(character, 'a', 'z');
+    return isInRange(character, 'a', 'z');
 }
 
