@@ -180,7 +180,7 @@ function read (json) {
     }
 
     function escape (character) {
-        var hexits;
+        var hexits, i;
 
         if (escapes[character]) {
             return escapes[character];
@@ -189,16 +189,20 @@ function read (json) {
         if (character === 'u') {
             hexits = '';
 
-            do {
+            for (i = 0; i < 4; i += 1) {
                 character = next();
-                hexits += character;
-            } while (isHexit(character) && hexits.length < 4)
-
-            if (hexits.length !== 4) {
-                error(character, 'hex digit');
+                if (isHexit(character)) {
+                    hexits += character;
+                }
             }
 
-            return String.fromCharCode(parseInt(hexits, 16));
+            if (hexits.length === 4) {
+                return String.fromCharCode(parseInt(hexits, 16));
+            }
+
+            error(character, 'hex digit');
+
+            return '\\u' + hexits + character;
         }
 
         error(character, 'escape character');
@@ -314,7 +318,7 @@ function isWhitespace (character) {
 }
 
 function isHexit (character) {
-    return isDigit(character) || checkCharacter(character, 'a', 'h');
+    return isDigit(character) || checkCharacter(character, 'a', 'f');
 }
 
 function isDigit (character) {

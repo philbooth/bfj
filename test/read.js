@@ -280,7 +280,7 @@ suite('read:', function () {
             });
         });
 
-        suite('read string containing bad escape sequences:', function () {
+        suite('read string containing bad escape sequence:', function () {
             var emitter;
 
             setup(function (done) {
@@ -328,6 +328,89 @@ suite('read:', function () {
                 assert.strictEqual(log.args.error[0][0].expected, 'escape character');
                 assert.strictEqual(log.args.error[0][0].lineNumber, 2);
                 assert.strictEqual(log.args.error[0][0].columnNumber, 24);
+            });
+
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
+            test('object event did not occur', function () {
+                assert.strictEqual(log.counts.object, 0);
+            });
+
+            test('property event did not occur', function () {
+                assert.strictEqual(log.counts.property, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
+            test('endArray event did not occur', function () {
+                assert.strictEqual(log.counts.endArray, 0);
+            });
+
+            test('endObject event did not occur', function () {
+                assert.strictEqual(log.counts.endObject, 0);
+            });
+
+            test('endPrefix event did not occur', function () {
+                assert.strictEqual(log.counts.endPrefix, 0);
+            });
+        });
+
+        suite('read string containing bad unicode escape sequence:', function () {
+            var emitter;
+
+            setup(function (done) {
+                emitter = read('"\\u012g"');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.lengthOf(log.args.string[0], 1);
+                assert.strictEqual(log.args.string[0][0], '\\u012g');
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('end event was dispatched correctly', function () {
+                assert.lengthOf(log.args.end[0], 0);
+            });
+
+            test('error event occurred once', function () {
+                assert.strictEqual(log.counts.error, 1);
+            });
+
+            test('error event was dispatched correctly', function () {
+                assert.lengthOf(log.args.error[0], 1);
+                assert.instanceOf(log.args.error[0][0], Error);
+                assert.strictEqual(log.args.error[0][0].actual, 'g');
+                assert.strictEqual(log.args.error[0][0].expected, 'hex digit');
+                assert.strictEqual(log.args.error[0][0].lineNumber, 1);
+                assert.strictEqual(log.args.error[0][0].columnNumber, 8);
             });
 
             test('array event did not occur', function () {
