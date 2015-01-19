@@ -210,7 +210,7 @@ suite('read:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('"\\"the quick brown fox\r\n\\tjumps\\u00a0over the lazy\u1680dog\\""');
+                emitter = read('"\\"the quick brown fox\r\n\\tjumps\\u00a0over the lazy\\u1680dog\\""');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -232,7 +232,7 @@ suite('read:', function () {
 
             test('string event was dispatched correctly', function () {
                 assert.lengthOf(log.args.string[0], 1);
-                assert.strictEqual(log.args.string[0][0], '"the quick brown fox\r\n\tjumps\\u00a0over the lazy\u1680dog"');
+                assert.strictEqual(log.args.string[0][0], '"the quick brown fox\r\n\tjumps\u00a0over the lazy\u1680dog"');
             });
 
             test('end event occurred once', function () {

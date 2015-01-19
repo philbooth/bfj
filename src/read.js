@@ -3,7 +3,7 @@
 'use strict';
 
 var check, EventEmitter, errors, events,
-    terminators, escapes, codes, literals;
+    terminators, escapes, literals;
 
 check = require('check-types');
 EventEmitter = require('events').EventEmitter;
@@ -23,15 +23,7 @@ escapes = {
     'f': '\f',
     'n': '\n',
     'r': '\r',
-    't': '\t',
-    'u': '\\u'
-};
-
-codes = {
-    zero: 48,
-    nine: 57,
-    a: 97,
-    z: 122
+    't': '\t'
 };
 
 literals = {
@@ -188,8 +180,25 @@ function read (json) {
     }
 
     function escape (character) {
+        var hexits;
+
         if (escapes[character]) {
             return escapes[character];
+        }
+
+        if (character === 'u') {
+            hexits = '';
+
+            do {
+                character = next();
+                hexits += character;
+            } while (isHexit(character) && hexits.length < 4)
+
+            if (hexits.length !== 4) {
+                error(character, 'hex digit');
+            }
+
+            return String.fromCharCode(parseInt(hexits, 16));
         }
 
         error(character, 'escape character');
@@ -261,7 +270,7 @@ function read (json) {
     function readDigits () {
         var digits = '';
 
-        while (isNumber(character())) {
+        while (isDigit(character())) {
             digits += next();
         }
 
@@ -304,17 +313,21 @@ function isWhitespace (character) {
     return false;
 }
 
-function isNumber (character) {
-    return checkCode(character, codes.zero, codes.nine);
+function isHexit (character) {
+    return isDigit(character) || checkCharacter(character, 'a', 'h');
 }
 
-function checkCode (character, lower, upper) {
+function isDigit (character) {
+    return checkCharacter(character, '0', '9');
+}
+
+function checkCharacter (character, lower, upper) {
     var code = character.charCodeAt(0);
 
-    return code >= codes[lower] && code <= codes[upper];
+    return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0);
 }
 
 function isLowercase (character) {
-    return checkCode(character, codes.a, codes.z);
+    return checkCharacter(character, 'a', 'z');
 }
 
