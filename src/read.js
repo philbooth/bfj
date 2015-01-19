@@ -3,7 +3,7 @@
 'use strict';
 
 var check, EventEmitter, errors, events,
-    terminators, escapes, literals;
+    terminators, escapes;
 
 check = require('check-types');
 EventEmitter = require('events').EventEmitter;
@@ -24,12 +24,6 @@ escapes = {
     'n': '\n',
     'r': '\r',
     't': '\t'
-};
-
-literals = {
-    false: false,
-    null: null,
-    true: true
 };
 
 module.exports = read;
@@ -80,8 +74,14 @@ function read (json) {
             case '-':
             case '.':
                 return number(character);
+            case 'f':
+                return literalFalse();
+            case 'n':
+                return literalNull();
+            case 't':
+                return literalTrue();
             default:
-                return literal(character);
+                error(character, 'value');
         }
     }
 
@@ -184,8 +184,6 @@ function read (json) {
     }
 
     function escape (character) {
-        var hexits, i;
-
         if (escapes[character]) {
             return escapes[character];
         }
@@ -293,17 +291,40 @@ function read (json) {
         return digits;
     }
 
-    function literal (firstCharacter) {
-        var characters = firstCharacter;
+    function literalFalse () {
+        literal([ 'e', 's', 'l', 'a' ], false);
+    }
 
-        while (!isEnd() && isLowercase(character())) {
-            characters += next();
+    function literal (expectedCharacters, value) {
+        var actual, expected, invalid;
+
+        while (expectedCharacters.length > 0 && !isEnd()) {
+            actual = next();
+            expected = expectedCharacters.pop();
+
+            if (actual !== expected) {
+                invalid = true;
+                break;
+            }
         }
 
-        // TODO: Handle invalid literals
+        if (invalid) {
+            error(actual, expected);
+        } else if (expectedCharacters.length > 0) {
+            error('EOF', expectedCharacters.pop());
+        } else {
+            emitter.emit(events.literal, value);
+        }
 
-        emitter.emit(events.literal, literals[characters]);
         defer(endValue);
+    }
+
+    function literalNull () {
+        literal([ 'l', 'l', 'u' ], null);
+    }
+
+    function literalTrue () {
+        literal([ 'e', 'u', 'r' ], true);
     }
 }
 
@@ -341,9 +362,5 @@ function isInRange (character, lower, upper) {
     var code = character.charCodeAt(0);
 
     return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0);
-}
-
-function isLowercase (character) {
-    return isInRange(character, 'a', 'z');
 }
 
