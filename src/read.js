@@ -293,10 +293,10 @@ function read (json) {
         return digits;
     }
 
-    function literal (character) {
-        var characters = character;
+    function literal (firstCharacter) {
+        var characters = firstCharacter;
 
-        while (isLowercase(character())) {
+        while (!isEnd() && isLowercase(character())) {
             characters += next();
         }
 
