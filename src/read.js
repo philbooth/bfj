@@ -243,7 +243,8 @@ function read (json) {
 
         ignoreWhitespace();
 
-        if (scopes.length === 0) {
+        if (scopes.length === 0 && !isEnd()) {
+            error(character(), 'EOF');
             return defer(value);
         }
 
@@ -257,6 +258,7 @@ function read (json) {
 
     function string () {
         readString(events.string);
+        next();
         defer(endValue);
     }
 
