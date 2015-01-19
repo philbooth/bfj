@@ -94,7 +94,7 @@ function read (json) {
     function next () {
         var result;
 
-        if (index === json.length) {
+        if (isEnd()) {
             end();
         }
 
@@ -110,6 +110,10 @@ function read (json) {
         index += 1;
 
         return result;
+    }
+
+    function isEnd () {
+        return index === json.length;
     }
 
     function end () {
@@ -280,7 +284,7 @@ function read (json) {
     function readDigits () {
         var digits = '';
 
-        while (isDigit(character())) {
+        while (!isEnd() && isDigit(character())) {
             digits += next();
         }
 
