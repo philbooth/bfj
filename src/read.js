@@ -187,27 +187,33 @@ function read (json) {
         }
 
         if (character === 'u') {
-            hexits = '';
-
-            for (i = 0; i < 4; i += 1) {
-                character = next();
-                if (isHexit(character)) {
-                    hexits += character;
-                }
-            }
-
-            if (hexits.length === 4) {
-                return String.fromCharCode(parseInt(hexits, 16));
-            }
-
-            error(character, 'hex digit');
-
-            return '\\u' + hexits + character;
+            return escapeHex();
         }
 
         error(character, 'escape character');
 
         return '\\' + character;
+    }
+
+    function escapeHex () {
+        var hexits, i, character;
+
+        hexits = '';
+
+        for (i = 0; i < 4; i += 1) {
+            character = next();
+            if (isHexit(character)) {
+                hexits += character;
+            }
+        }
+
+        if (hexits.length === 4) {
+            return String.fromCharCode(parseInt(hexits, 16));
+        }
+
+        error(character, 'hex digit');
+
+        return '\\u' + hexits + character;
     }
 
     function checkCharacter (character, expected) {
