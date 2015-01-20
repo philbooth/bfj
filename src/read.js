@@ -29,14 +29,19 @@ escapes = {
 module.exports = read;
 
 function read (json) {
-    var emitter, index, line, column, done, scopes, handlers;
+    var emitter, position, column, scopes, handlers;
 
     check.assert.string(json, 'JSON must be a string.');
 
     emitter = new EventEmitter();
-    index = 0;
-    line = column = 1;
-    done = false;
+    position = {
+        index: 0,
+        current: {
+            line: 1,
+            column: 1
+        },
+        previous: {}
+    };
     scopes = [];
     handlers = {
         arr: value,
@@ -81,7 +86,7 @@ function read (json) {
             case 't':
                 return literalTrue();
             default:
-                error(character, 'value');
+                error(character, 'value', 'current');
         }
     }
 
@@ -100,25 +105,27 @@ function read (json) {
 
         result = character();
 
-        if (result === '\n') {
-            line += 1;
-            column = 1;
-        } else {
-            column += 1;
-        }
+        position.index += 1;
+        position.previous.line = position.current.line;
+        position.previous.column = position.current.column;
 
-        index += 1;
+        if (result === '\n') {
+            position.current.line += 1;
+            position.current.column = 1;
+        } else {
+            position.current.column += 1;
+        }
 
         return result;
     }
 
     function isEnd () {
-        return index === json.length;
+        return position.index === json.length;
     }
 
     function end () {
         while (scopes.length > 0) {
-            error('EOF', terminators[scopes.pop()]);
+            error('EOF', terminators[scopes.pop()], 'current');
         }
 
         emitter.emit(events.end);
@@ -126,12 +133,20 @@ function read (json) {
         throw events.end;
     }
 
-    function error (actual, expected) {
-        emitter.emit(events.error, errors.create(actual, expected, line, column));
+    function error (actual, expected, positionKey) {
+        emitter.emit(
+            events.error,
+            errors.create(
+                actual,
+                expected,
+                position[positionKey].line,
+                position[positionKey].column
+            )
+        );
     }
 
     function character () {
-        return json[index];
+        return json[position.index];
     }
 
     function array () {
@@ -192,7 +207,7 @@ function read (json) {
             return escapeHex();
         }
 
-        error(character, 'escape character');
+        error(character, 'escape character', 'previous');
 
         return '\\' + character;
     }
@@ -213,14 +228,14 @@ function read (json) {
             return String.fromCharCode(parseInt(hexits, 16));
         }
 
-        error(character, 'hex digit');
+        error(character, 'hex digit', 'previous');
 
         return '\\u' + hexits + character;
     }
 
     function checkCharacter (character, expected) {
         if (character !== expected) {
-            return error('`' + character + '`', '`' + expected + '`');
+            return error('`' + character + '`', '`' + expected + '`', 'current');
         }
     }
 
@@ -242,7 +257,7 @@ function read (json) {
         ignoreWhitespace();
 
         if (scopes.length === 0 && !isEnd()) {
-            error(character(), 'EOF');
+            error(character(), 'EOF', 'current');
             return defer(value);
         }
 
@@ -309,9 +324,9 @@ function read (json) {
         }
 
         if (invalid) {
-            error(actual, expected);
+            error(actual, expected, 'previous');
         } else if (expectedCharacters.length > 0) {
-            error('EOF', expectedCharacters.pop());
+            error('EOF', expectedCharacters.pop(), 'current');
         } else {
             emitter.emit(events.literal, value);
         }

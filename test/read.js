@@ -310,7 +310,7 @@ suite('read:', function () {
                 assert.strictEqual(log.args.error[0][0].actual, 'x');
                 assert.strictEqual(log.args.error[0][0].expected, 'escape character');
                 assert.strictEqual(log.args.error[0][0].lineNumber, 2);
-                assert.strictEqual(log.args.error[0][0].columnNumber, 24);
+                assert.strictEqual(log.args.error[0][0].columnNumber, 23);
             });
 
             test('string event occurred once', function () {
@@ -393,7 +393,7 @@ suite('read:', function () {
                 assert.strictEqual(log.args.error[0][0].actual, 'g');
                 assert.strictEqual(log.args.error[0][0].expected, 'hex digit');
                 assert.strictEqual(log.args.error[0][0].lineNumber, 1);
-                assert.strictEqual(log.args.error[0][0].columnNumber, 8);
+                assert.strictEqual(log.args.error[0][0].columnNumber, 7);
             });
 
             test('string event occurred once', function () {
@@ -686,6 +686,80 @@ suite('read:', function () {
             });
         });
 
+        suite('read literal null:', function () {
+            var emitter;
+
+            setup(function (done) {
+                emitter = read('null');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('literal event occurred once', function () {
+                assert.strictEqual(log.counts.literal, 1);
+            });
+
+            test('literal event was dispatched correctly', function () {
+                assert.lengthOf(log.args.literal[0], 1);
+                assert.strictEqual(log.args.literal[0][0], null);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('end event was dispatched correctly', function () {
+                assert.lengthOf(log.args.end[0], 0);
+            });
+
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
+            test('object event did not occur', function () {
+                assert.strictEqual(log.counts.object, 0);
+            });
+
+            test('property event did not occur', function () {
+                assert.strictEqual(log.counts.property, 0);
+            });
+
+            test('string event did not occur', function () {
+                assert.strictEqual(log.counts.string, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('endArray event did not occur', function () {
+                assert.strictEqual(log.counts.endArray, 0);
+            });
+
+            test('endObject event did not occur', function () {
+                assert.strictEqual(log.counts.endObject, 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+
+            test('endPrefix event did not occur', function () {
+                assert.strictEqual(log.counts.endPrefix, 0);
+            });
+        });
+
         suite('read literal true:', function () {
             var emitter;
 
@@ -760,11 +834,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read literal null:', function () {
+        suite('read bad literal false:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('null');
+                emitter = read('falsd');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -780,13 +854,17 @@ suite('read:', function () {
                 emitter = undefined;
             });
 
-            test('literal event occurred once', function () {
-                assert.strictEqual(log.counts.literal, 1);
+            test('error event occurred once', function () {
+                assert.strictEqual(log.counts.error, 1);
             });
 
-            test('literal event was dispatched correctly', function () {
-                assert.lengthOf(log.args.literal[0], 1);
-                assert.strictEqual(log.args.literal[0][0], null);
+            test('error event was dispatched correctly', function () {
+                assert.lengthOf(log.args.error[0], 1);
+                assert.instanceOf(log.args.error[0][0], Error);
+                assert.strictEqual(log.args.error[0][0].actual, 'd');
+                assert.strictEqual(log.args.error[0][0].expected, 'e');
+                assert.strictEqual(log.args.error[0][0].lineNumber, 1);
+                assert.strictEqual(log.args.error[0][0].columnNumber, 5);
             });
 
             test('end event occurred once', function () {
@@ -817,16 +895,16 @@ suite('read:', function () {
                 assert.strictEqual(log.counts.number, 0);
             });
 
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
             test('endArray event did not occur', function () {
                 assert.strictEqual(log.counts.endArray, 0);
             });
 
             test('endObject event did not occur', function () {
                 assert.strictEqual(log.counts.endObject, 0);
-            });
-
-            test('error event did not occur', function () {
-                assert.strictEqual(log.counts.error, 0);
             });
 
             test('endPrefix event did not occur', function () {
