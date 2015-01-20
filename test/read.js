@@ -549,17 +549,26 @@ suite('read:', function () {
                 assert.strictEqual(log.args.number[0][0], 42);
             });
 
-            test('error event occurred once', function () {
-                assert.strictEqual(log.counts.error, 1);
+            test('error event occurred twice', function () {
+                assert.strictEqual(log.counts.error, 2);
             });
 
-            test('error event was dispatched correctly', function () {
+            test('error event was dispatched correctly first time', function () {
                 assert.lengthOf(log.args.error[0], 1);
                 assert.instanceOf(log.args.error[0][0], Error);
                 assert.strictEqual(log.args.error[0][0].actual, 'f');
                 assert.strictEqual(log.args.error[0][0].expected, 'EOF');
                 assert.strictEqual(log.args.error[0][0].lineNumber, 1);
                 assert.strictEqual(log.args.error[0][0].columnNumber, 3);
+            });
+
+            test('error event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.error[1], 1);
+                assert.instanceOf(log.args.error[1][0], Error);
+                assert.strictEqual(log.args.error[1][0].actual, 'EOF');
+                assert.strictEqual(log.args.error[1][0].expected, 'a');
+                assert.strictEqual(log.args.error[1][0].lineNumber, 1);
+                assert.strictEqual(log.args.error[1][0].columnNumber, 4);
             });
 
             test('end event occurred once', function () {
