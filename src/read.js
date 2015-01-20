@@ -29,7 +29,7 @@ escapes = {
 module.exports = read;
 
 function read (json) {
-    var emitter, position, column, scopes, handlers;
+    var emitter, position, column, scopes, handlers, insideString;
 
     check.assert.string(json, 'JSON must be a string.');
 
@@ -86,7 +86,8 @@ function read (json) {
             case 't':
                 return literalTrue();
             default:
-                error(character, 'value', 'current');
+                error(character, 'value', 'previous');
+                value();
         }
     }
 
@@ -124,6 +125,10 @@ function read (json) {
     }
 
     function end () {
+        if (insideString) {
+            error('EOF', '"', 'current');
+        }
+
         while (scopes.length > 0) {
             error('EOF', terminators[scopes.pop()], 'current');
         }
@@ -180,6 +185,7 @@ function read (json) {
     function readString (event) {
         var quoting, string;
 
+        insideString = true;
         quoting = false;
         string = '';
 
@@ -194,6 +200,8 @@ function read (json) {
                 string += next();
             }
         }
+
+        insideString = false;
 
         emitter.emit(event, string);
     }
@@ -235,7 +243,7 @@ function read (json) {
 
     function checkCharacter (character, expected) {
         if (character !== expected) {
-            return error('`' + character + '`', '`' + expected + '`', 'current');
+            return error(character, expected, 'previous');
         }
     }
 
