@@ -3,9 +3,12 @@
 'use strict';
 
 module.exports = {
-    read: require('./read'),
+    walk: require('./walk'),
     parse: require('./parse'),
+    read: require('./read'),
     streamify: require('./streamify'),
+    stringify: require('./stringify'),
+    write: require('./write'),
     events: require('./events')
 };
 

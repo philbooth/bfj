@@ -2,10 +2,10 @@
 
 'use strict';
 
-var check, read, events;
+var check, walk, events;
 
 check = require('check-types');
-read = require('./read');
+walk = require('./walk');
 events = require('./events');
 
 module.exports = parse;
@@ -15,7 +15,7 @@ function parse (json, callback) {
 
     check.assert.maybe.function(callback, 'Callback must be a function.');
 
-    emitter = read(json);
+    emitter = walk(json);
     scopes = [];
     errors = [];
     done = false;

@@ -26,9 +26,9 @@ escapes = {
     't': '\t'
 };
 
-module.exports = read;
+module.exports = walk;
 
-function read (json) {
+function walk (json) {
     var emitter, position, column, scopes, handlers, insideString;
 
     check.assert.string(json, 'JSON must be a string.');
@@ -174,7 +174,7 @@ function read (json) {
         ignoreWhitespace();
         checkCharacter(next(), '"');
 
-        readString(events.property);
+        walkString(events.property);
 
         ignoreWhitespace();
         checkCharacter(next(), ':');
@@ -182,7 +182,7 @@ function read (json) {
         defer(value);
     }
 
-    function readString (event) {
+    function walkString (event) {
         var quoting, string;
 
         insideString = true;
@@ -278,16 +278,16 @@ function read (json) {
     }
 
     function string () {
-        readString(events.string);
+        walkString(events.string);
         next();
         defer(endValue);
     }
 
     function number (firstCharacter) {
-        var digits = firstCharacter + readDigits();
+        var digits = firstCharacter + walkDigits();
 
         if (character() === '.') {
-            digits += next() + readDigits();
+            digits += next() + walkDigits();
         }
 
         if (character() === 'e' || character() === 'E') {
@@ -297,14 +297,14 @@ function read (json) {
                 digits += next();
             }
 
-            digits += readDigits();
+            digits += walkDigits();
         }
 
         emitter.emit(events.number, parseFloat(digits));
         defer(endValue);
     }
 
-    function readDigits () {
+    function walkDigits () {
         var digits = '';
 
         while (!isEnd() && isDigit(character())) {

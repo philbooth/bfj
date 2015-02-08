@@ -11,6 +11,7 @@
         "json",
         "streamify",
         "stringify",
+        "walk",
         "parse",
         "serialise",
         "serialize",

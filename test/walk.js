@@ -6,9 +6,9 @@ assert = require('chai').assert;
 spooks = require('spooks');
 events = require('../src/events');
 
-modulePath = '../src/read';
+modulePath = '../src/walk';
 
-suite('read:', function () {
+suite('walk:', function () {
     var log;
 
     setup(function () {
@@ -30,33 +30,33 @@ suite('read:', function () {
     });
 
     suite('require:', function () {
-        var read;
+        var walk;
 
         setup(function () {
-            read = require(modulePath);
+            walk = require(modulePath);
         });
 
         teardown(function () {
-            read = undefined;
+            walk = undefined;
         });
 
-        test('read does not throw', function (done) {
+        test('walk does not throw', function (done) {
             assert.doesNotThrow(function () {
-                read('').on('end', function () { done(); });
+                walk('').on('end', function () { done(); });
             });
         });
 
-        test('read throws with non-string JSON', function () {
+        test('walk throws with non-string JSON', function () {
             assert.throws(function () {
-                read({ toString: function () { return ''; } });
+                walk({ toString: function () { return ''; } });
             });
         });
 
-        suite('read empty array:', function () {
+        suite('walk empty array:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('[]');
+                emitter = walk('[]');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -129,11 +129,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read badly-closed array:', function () {
+        suite('walk badly-closed array:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('[}');
+                emitter = walk('[}');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -220,11 +220,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read empty object:', function () {
+        suite('walk empty object:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('{}');
+                emitter = walk('{}');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -297,11 +297,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read badly-closed object:', function () {
+        suite('walk badly-closed object:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('{]');
+                emitter = walk('{]');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -397,11 +397,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read string:', function () {
+        suite('walk string:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('"\\"the quick brown fox\r\n\\tjumps\\u00a0over the lazy\\u1680dog\\""');
+                emitter = walk('"\\"the quick brown fox\r\n\\tjumps\\u00a0over the lazy\\u1680dog\\""');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -471,11 +471,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read string containing bad escape sequence:', function () {
+        suite('walk string containing bad escape sequence:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('"\\"the quick brown fox\r\n\\tjumps over the lazy\\xdog\\""');
+                emitter = walk('"\\"the quick brown fox\r\n\\tjumps over the lazy\\xdog\\""');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -554,11 +554,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read string containing bad unicode escape sequence:', function () {
+        suite('walk string containing bad unicode escape sequence:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('"\\u012g"');
+                emitter = walk('"\\u012g"');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -637,11 +637,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read unterminated string:', function () {
+        suite('walk unterminated string:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('"foo');
+                emitter = walk('"foo');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -715,11 +715,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read number:', function () {
+        suite('walk number:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('-3.14159265359e+42');
+                emitter = walk('-3.14159265359e+42');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -789,11 +789,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read bad number:', function () {
+        suite('walk bad number:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('42f');
+                emitter = walk('42f');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -881,11 +881,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read literal false:', function () {
+        suite('walk literal false:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('false');
+                emitter = walk('false');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -955,11 +955,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read literal null:', function () {
+        suite('walk literal null:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('null');
+                emitter = walk('null');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1029,11 +1029,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read literal true:', function () {
+        suite('walk literal true:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('true');
+                emitter = walk('true');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1103,11 +1103,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read bad literal false:', function () {
+        suite('walk bad literal false:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('falsd');
+                emitter = walk('falsd');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1181,11 +1181,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read bad literal null:', function () {
+        suite('walk bad literal null:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('nul');
+                emitter = walk('nul');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1259,11 +1259,11 @@ suite('read:', function () {
             });
         });
 
-        suite('read bad literal true:', function () {
+        suite('walk bad literal true:', function () {
             var emitter;
 
             setup(function (done) {
-                emitter = read('tRue');
+                emitter = walk('tRue');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({

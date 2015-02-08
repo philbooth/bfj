@@ -18,19 +18,19 @@ suite('parse:', function () {
     setup(function () {
         log = {};
         results = {
-            read: [ spooks.obj({ archetype: { on: nop }, log: log }) ]
+            walk: [ spooks.obj({ archetype: { on: nop }, log: log }) ]
         };
 
         mockery.enable({ useCleanCache: true });
-        mockery.registerMock('./read', spooks.fn({
-            name: 'read',
+        mockery.registerMock('./walk', spooks.fn({
+            name: 'walk',
             log: log,
-            results: results.read
+            results: results.walk
         }));
     });
 
     teardown(function () {
-        mockery.deregisterMock('./read');
+        mockery.deregisterMock('./walk');
         mockery.disable();
 
         log = results = undefined;
@@ -69,8 +69,8 @@ suite('parse:', function () {
             });
         });
 
-        test('read was not called', function () {
-            assert.strictEqual(log.counts.read, 0);
+        test('walk was not called', function () {
+            assert.strictEqual(log.counts.walk, 0);
         });
 
         test('EventEmitter.on was not called', function () {
@@ -93,28 +93,28 @@ suite('parse:', function () {
                 assert.isUndefined(result);
             });
 
-            test('read was called once', function () {
-                assert.strictEqual(log.counts.read, 1);
+            test('walk was called once', function () {
+                assert.strictEqual(log.counts.walk, 1);
             });
 
-            test('read was called correctly', function () {
-                assert.isUndefined(log.these.read[0]);
-                assert.lengthOf(log.args.read[0], 1);
-                assert.strictEqual(log.args.read[0][0], 'foo');
+            test('walk was called correctly', function () {
+                assert.isUndefined(log.these.walk[0]);
+                assert.lengthOf(log.args.walk[0], 1);
+                assert.strictEqual(log.args.walk[0][0], 'foo');
             });
 
             test('EventEmitter.on was called ten times', function () {
                 assert.strictEqual(log.counts.on, 10);
-                assert.strictEqual(log.these.on[0], results.read[0]);
-                assert.strictEqual(log.these.on[1], results.read[0]);
-                assert.strictEqual(log.these.on[2], results.read[0]);
-                assert.strictEqual(log.these.on[3], results.read[0]);
-                assert.strictEqual(log.these.on[4], results.read[0]);
-                assert.strictEqual(log.these.on[5], results.read[0]);
-                assert.strictEqual(log.these.on[6], results.read[0]);
-                assert.strictEqual(log.these.on[7], results.read[0]);
-                assert.strictEqual(log.these.on[8], results.read[0]);
-                assert.strictEqual(log.these.on[9], results.read[0]);
+                assert.strictEqual(log.these.on[0], results.walk[0]);
+                assert.strictEqual(log.these.on[1], results.walk[0]);
+                assert.strictEqual(log.these.on[2], results.walk[0]);
+                assert.strictEqual(log.these.on[3], results.walk[0]);
+                assert.strictEqual(log.these.on[4], results.walk[0]);
+                assert.strictEqual(log.these.on[5], results.walk[0]);
+                assert.strictEqual(log.these.on[6], results.walk[0]);
+                assert.strictEqual(log.these.on[7], results.walk[0]);
+                assert.strictEqual(log.these.on[8], results.walk[0]);
+                assert.strictEqual(log.these.on[9], results.walk[0]);
             });
 
             test('EventEmitter.on was called correctly', function () {
