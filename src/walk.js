@@ -315,7 +315,7 @@ function walk (json) {
     }
 
     function literalFalse () {
-        literal([ 'e', 's', 'l', 'a' ], false);
+        literal([ 'a', 'l', 's', 'e' ], false);
     }
 
     function literal (expectedCharacters, value) {
@@ -323,7 +323,7 @@ function walk (json) {
 
         while (expectedCharacters.length > 0 && !isEnd()) {
             actual = next();
-            expected = expectedCharacters.pop();
+            expected = expectedCharacters.shift();
 
             if (actual !== expected) {
                 invalid = true;
@@ -334,7 +334,7 @@ function walk (json) {
         if (invalid) {
             error(actual, expected, 'previous');
         } else if (expectedCharacters.length > 0) {
-            error('EOF', expectedCharacters.pop(), 'current');
+            error('EOF', expectedCharacters.shift(), 'current');
         } else {
             emitter.emit(events.literal, value);
         }
@@ -343,11 +343,11 @@ function walk (json) {
     }
 
     function literalNull () {
-        literal([ 'l', 'l', 'u' ], null);
+        literal([ 'u', 'l', 'l' ], null);
     }
 
     function literalTrue () {
-        literal([ 'e', 'u', 'r' ], true);
+        literal([ 'r', 'u', 'e' ], true);
     }
 }
 
