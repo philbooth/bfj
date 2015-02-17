@@ -2,11 +2,18 @@
 
 'use strict';
 
-var check, EventEmitter, errors, events,
-    terminators, escapes;
+var util, Writable, EventEmitter, check, errors, events, terminators, escapes;
 
-check = require('check-types');
+// TODO: Make `isEnd` async (consider promises, don't forget usage)
+// TODO: Update calls to `isEnd` to await result
+// TODO: Consider when to test `walking` and `finished` (currently in `end`)
+// TODO: Consider how `end` should behave in the unfinished case (currently throws)
+// NOTE: Exceptions swallowed by `defer`
+
+util = require('util');
+Writable = require('stream').Writable;
 EventEmitter = require('events').EventEmitter;
+check = require('check-types');
 errors = require('./errors');
 events = require('./events');
 
@@ -26,14 +33,17 @@ escapes = {
     't': '\t'
 };
 
-module.exports = walk;
+module.exports = begin;
 
-function walk (json) {
-    var emitter, position, column, scopes, handlers, insideString;
+function begin () {
+    var json, emitter, stream,
+        position, scopes, handlers,
+        walking, insideString, finished;
 
-    check.assert.string(json, 'JSON must be a string.');
-
+    json = '';
     emitter = new EventEmitter();
+    stream = new JsonStream(proceed);
+
     position = {
         index: 0,
         current: {
@@ -48,9 +58,25 @@ function walk (json) {
         obj: property
     };
 
-    defer(value);
+    stream.on('finish', finish);
 
-    return emitter;
+    return {
+        emitter: emitter,
+        stream: stream
+    };
+
+    function proceed (chunk) {
+        json += chunk;
+
+        if (!walking) {
+            walking = true;
+            defer(value);
+        }
+    }
+
+    function finish () {
+        finished = true;
+    }
 
     function value () {
         var character;
@@ -120,11 +146,20 @@ function walk (json) {
         return result;
     }
 
-    function isEnd () {
-        return position.index === json.length;
+    function isEnd (callback) {
+        if (walking) {
+            return position.index === json.length;
+        }
+
+        defer(isEnd.bind(null, callback));
     }
 
     function end () {
+        if (!finished) {
+            walking = false;
+            return;
+        }
+
         if (insideString) {
             error('EOF', '"', 'current');
         }
@@ -350,6 +385,20 @@ function walk (json) {
         literal([ 'r', 'u', 'e' ], true);
     }
 }
+
+function JsonStream (write, options) {
+    if (!(this instanceof JsonStream)) {
+        return new JsonStream();
+    }
+
+    this._write = function (chunk, encoding, callback) {
+        write(chunk.toString());
+    };
+
+    return Writable.call(this);
+}
+
+util.inherits(JsonStream, Writable);
 
 function defer (fn) {
     setImmediate(function () {
