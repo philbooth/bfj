@@ -123,35 +123,55 @@ function begin () {
         }
     }
 
+    // TODO: promisify usage
     function next () {
-        var result;
+        var resolve;
 
-        if (isEnd()) {
-            end();
-        }
+        isEnd().then(function (atEnd) {
+            var result;
 
-        result = character();
+            if (atEnd) {
+                end();
+            }
 
-        position.index += 1;
-        position.previous.line = position.current.line;
-        position.previous.column = position.current.column;
+            result = character();
 
-        if (result === '\n') {
-            position.current.line += 1;
-            position.current.column = 1;
-        } else {
-            position.current.column += 1;
-        }
+            position.index += 1;
+            position.previous.line = position.current.line;
+            position.previous.column = position.current.column;
 
-        return result;
+            if (result === '\n') {
+                position.current.line += 1;
+                position.current.column = 1;
+            } else {
+                position.current.column += 1;
+            }
+
+            resolve(result);
+        });
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
     }
 
-    function isEnd (callback) {
-        if (walking) {
-            return position.index === json.length;
-        }
+    function isEnd () {
+        var resolve;
 
-        defer(isEnd.bind(null, callback));
+        defer(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function step () {
+            if (walking) {
+                return resolve(position.index === json.length);
+            }
+
+            // TODO: implement delay (parameterise delay length?)
+            delay(step);
+        }
     }
 
     function end () {
@@ -295,20 +315,31 @@ function begin () {
     }
 
     function endValue () {
-        var scope;
-
+        // this will need to be promisified
         ignoreWhitespace();
 
-        if (scopes.length === 0 && !isEnd()) {
-            error(character(), 'EOF', 'current');
-            return defer(value);
+        if (scopes.length === 0) {
+            isEnd().then(function (atEnd) {
+                if (!atEnd) {
+                    error(character(), 'EOF', 'current');
+                    return defer(value);
+                }
+
+                step();
+            });
+
+            return;
         }
 
-        scope = scopes[scopes.length - 1];
+        step();
 
-        if (!endScope(scope)) {
-            checkCharacter(next(), ',');
-            defer(handlers[scope]);
+        function step () {
+            var scope = scopes[scopes.length - 1];
+
+            if (!endScope(scope)) {
+                checkCharacter(next(), ',');
+                defer(handlers[scope]);
+            }
         }
     }
 
@@ -339,14 +370,26 @@ function begin () {
         defer(endValue);
     }
 
+    // TODO: promisify usage
     function walkDigits () {
-        var digits = '';
+        var digits, resolve;
 
-        while (!isEnd() && isDigit(character())) {
+        digits = ''
+
+        isEnd().then(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function step (atEnd) {
+            if (atEnd || !isDigit(character())) {
+                return resolve(digits);
+            }
+
             digits += next();
+            isEnd().then(step);
         }
-
-        return digits;
     }
 
     function literalFalse () {
@@ -356,25 +399,29 @@ function begin () {
     function literal (expectedCharacters, value) {
         var actual, expected, invalid;
 
-        while (expectedCharacters.length > 0 && !isEnd()) {
+        isEnd().then(step);
+
+        function step (atEnd) {
+            if (expectedCharacters.length === 0 || atEnd) {
+                if (invalid) {
+                    error(actual, expected, 'previous');
+                } else if (expectedCharacters.length > 0) {
+                    error('EOF', expectedCharacters.shift(), 'current');
+                } else {
+                    emitter.emit(events.literal, value);
+                }
+
+                return defer(endValue);
+            }
+
             actual = next();
             expected = expectedCharacters.shift();
 
             if (actual !== expected) {
                 invalid = true;
-                break;
+                isEnd().then(step);
             }
         }
-
-        if (invalid) {
-            error(actual, expected, 'previous');
-        } else if (expectedCharacters.length > 0) {
-            error('EOF', expectedCharacters.shift(), 'current');
-        } else {
-            emitter.emit(events.literal, value);
-        }
-
-        defer(endValue);
     }
 
     function literalNull () {
