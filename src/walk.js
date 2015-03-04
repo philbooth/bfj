@@ -4,10 +4,12 @@
 
 var util, Writable, EventEmitter, check, errors, events, terminators, escapes;
 
-// TODO: Make `isEnd` async (consider promises, don't forget usage)
-// TODO: Update calls to `isEnd` to await result
+// TODO: Continue promisifying (see other TODOs)
 // TODO: Consider when to test `walking` and `finished` (currently in `end`)
 // TODO: Consider how `end` should behave in the unfinished case (currently throws)
+// TODO: Ensure that we recur from tail positions
+// TODO: Make new promisified code work with tests
+// TODO: When testing consider gradually adding to available text
 // NOTE: Exceptions swallowed by `defer`
 
 util = require('util');
@@ -79,12 +81,12 @@ function begin () {
     }
 
     function value () {
-        var character;
+        ignoreWhitespace.then(function () {
+            next.then(handleValue);
+        });
+    }
 
-        ignoreWhitespace();
-
-        character = next();
-
+    function handleValue (character) {
         switch (character) {
             case '[':
                 return array();
@@ -118,12 +120,23 @@ function begin () {
     }
 
     function ignoreWhitespace () {
-        while (isWhitespace(character())) {
-            next();
+        var resolve;
+
+        next.then(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function step (character) {
+            if (isWhitespace(character)) {
+                return next.then(step);
+            }
+
+            resolve();
         }
     }
 
-    // TODO: promisify usage
     function next () {
         var resolve;
 
@@ -216,9 +229,11 @@ function begin () {
     function scope (event, contentHandler) {
         emitter.emit(event);
         scopes.push(event);
-        if (!endScope(event)) {
-            defer(contentHandler);
-        }
+        endScope.then(function (atScopeEnd) {
+            if (!atScopeEnd) {
+                defer(contentHandler);
+            }
+        });
     }
 
     function object () {
@@ -226,14 +241,22 @@ function begin () {
     }
 
     function property () {
-        ignoreWhitespace();
-        checkCharacter(next(), '"');
+        ignoreWhitespace.then(function () {
+            next.then(propertyName);
+        });
+    }
 
-        walkString(events.property);
+    function propertyName (character) {
+        checkCharacter(character, '"');
+        walkString(events.property).then(function () {
+            ignoreWhitespace.then(function () {
+                next.then(propertyValue);
+            });
+        };
+    }
 
-        ignoreWhitespace();
-        checkCharacter(next(), ':');
-
+    function propertyValue (character) {
+        checkCharacter(character, ':');
         defer(value);
     }
 
@@ -244,23 +267,36 @@ function begin () {
         quoting = false;
         string = '';
 
-        while (quoting || character() !== '"') {
+        next.then(step);
+
+        function step (character) {
             if (quoting) {
                 quoting = false;
-                string += escape(next());
-            } else if (character() === '\\') {
-                quoting = true;
-                next();
-            } else {
-                string += next();
+
+                return next.then(function (character) {
+                    string += escape(character);
+                    next.then(step);
+                });
             }
+
+            if (character === '\\') {
+                quoting = true;
+                return next.then(step);
+            }
+
+            if (character !== '"') {
+                return next.then(function (character) {
+                    string += character;
+                    next.then(step);
+                });
+            }
+
+            insideString = false;
+            emitter.emit(event, string);
         }
-
-        insideString = false;
-
-        emitter.emit(event, string);
     }
 
+    // TODO: promisify usage
     function escape (character) {
         if (escapes[character]) {
             return escapes[character];
@@ -275,25 +311,35 @@ function begin () {
         return '\\' + character;
     }
 
+    // TODO: promisify usage
     function escapeHex () {
-        var hexits, i, character;
+        var hexits, resolve;
 
         hexits = '';
 
-        for (i = 0; i < 4; i += 1) {
-            character = next();
+        next.then(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function step (index, character) {
+            if (index === 4) {
+                if (hexits.length === 4) {
+                    return resolve(String.fromCharCode(parseInt(hexits, 16)));
+                }
+
+                error(character, 'hex digit', 'previous');
+
+                return resolve('\\u' + hexits + character);
+            }
+
             if (isHexit(character)) {
                 hexits += character;
             }
+
+            next.then(step.bind(null, index + 1));
         }
-
-        if (hexits.length === 4) {
-            return String.fromCharCode(parseInt(hexits, 16));
-        }
-
-        error(character, 'hex digit', 'previous');
-
-        return '\\u' + hexits + character;
     }
 
     function checkCharacter (character, expected) {
@@ -303,71 +349,102 @@ function begin () {
     }
 
     function endScope (scope) {
-        if (character() === terminators[scope]) {
+        return new Promise(function (resolve) {
+            if (character() !== terminators[scope]) {
+                return resolve(false);
+            }
+
             emitter.emit(events.endPrefix + scope);
             scopes.pop();
-            next();
-            defer(endValue);
-            return true;
-        }
 
-        return false;
+            next.then(function () {
+                defer(endValue);
+                resolve(true);
+            });
+        });
     }
 
     function endValue () {
-        // this will need to be promisified
-        ignoreWhitespace();
+        ignoreWhitespace.then(function () {
+            if (scopes.length === 0) {
+                return isEnd().then(checkEnd);
+            }
 
-        if (scopes.length === 0) {
-            isEnd().then(function (atEnd) {
-                if (!atEnd) {
-                    error(character(), 'EOF', 'current');
-                    return defer(value);
-                }
+            checkScope();
+        });
 
-                step();
-            });
+        function checkEnd (atEnd) {
+            if (!atEnd) {
+                error(character(), 'EOF', 'current');
+                return defer(value);
+            }
 
-            return;
+            checkScope();
         }
 
-        step();
-
-        function step () {
+        function checkScope () {
             var scope = scopes[scopes.length - 1];
 
-            if (!endScope(scope)) {
-                checkCharacter(next(), ',');
-                defer(handlers[scope]);
-            }
+            endScope.then(function (atScopeEnd) {
+                if (!atScopeEnd) {
+                    next.then(function (character) {
+                        checkCharacter(character, ',');
+                        defer(handlers[scope]);
+                    });
+                }
+            });
         }
     }
 
     function string () {
-        walkString(events.string);
-        next();
-        defer(endValue);
+        walkString(events.string).then(function () {
+            next.then(defer.bind(null, endValue));
+        });
     }
 
-    function number (firstCharacter) {
-        var digits = firstCharacter + walkDigits();
+    function number (character) {
+        var digits = character;
 
-        if (character() === '.') {
-            digits += next() + walkDigits();
+        walkDigits.then(addDigits.bind(null, checkDecimalPlace));
+
+        function addDigits (step, remainingDigits) {
+            digits += remainingDigits;
+            next.then(step);
         }
 
-        if (character() === 'e' || character() === 'E') {
-            digits += next();
-
-            if (character() === '+' || character() === '-') {
-                digits += next();
+        function checkDecimalPlace (character) {
+            if (character === '.') {
+                digits += character;
+                walkDigits.then(addDigits.bind(null, checkExponent));
             }
 
-            digits += walkDigits();
+            next.then(checkExponent);
         }
 
-        emitter.emit(events.number, parseFloat(digits));
-        defer(endValue);
+        function checkExponent (character) {
+            if (character === 'e' || character === 'E') {
+                digits += character;
+                return next.then(checkSign);
+            }
+
+            endNumber();
+        }
+
+        function checkSign (character) {
+            if (character === '+' || character === '-') {
+                digits += character;
+            }
+
+            walkDigits.then(function (remainingDigits) {
+                digits += remainingDigits;
+                endNumber();
+            });
+        }
+
+        function endNumber () {
+            emitter.emit(events.number, parseFloat(digits));
+            defer(endValue);
+        }
     }
 
     // TODO: promisify usage
@@ -387,8 +464,10 @@ function begin () {
                 return resolve(digits);
             }
 
-            digits += next();
-            isEnd().then(step);
+            next.then(function (character) {
+                digits += character;
+                isEnd().then(step);
+            });
         }
     }
 
@@ -414,13 +493,15 @@ function begin () {
                 return defer(endValue);
             }
 
-            actual = next();
-            expected = expectedCharacters.shift();
+            next.then(function (character) {
+                actual = character;
+                expected = expectedCharacters.shift();
 
-            if (actual !== expected) {
-                invalid = true;
-                isEnd().then(step);
-            }
+                if (actual !== expected) {
+                    invalid = true;
+                    isEnd().then(step);
+                }
+            });
         }
     }
 
