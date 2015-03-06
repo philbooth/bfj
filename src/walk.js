@@ -138,6 +138,8 @@ function begin (delay) {
     function next () {
         var resolve;
 
+        // TODO: discard old characters to save memory
+
         isEnd().then(function (atEnd) {
             var result;
 
@@ -526,6 +528,7 @@ function JsonStream (write, options) {
         write(chunk.toString(), 'utf8', callback);
     };
 
+    // TODO: Probably we don't want to pass options so that we enforce the defaults
     return Writable.call(this, options);
 }
 
