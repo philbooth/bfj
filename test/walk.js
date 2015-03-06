@@ -62,7 +62,7 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                var result = walk()
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -140,11 +140,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk badly-closed array:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -236,11 +236,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk empty object:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -318,11 +318,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk badly-closed object:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -423,11 +423,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk string:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -502,11 +502,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk string containing bad escape sequence:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -590,11 +590,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk string containing bad unicode escape sequence:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -678,11 +678,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk unterminated string:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -761,11 +761,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk number:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -840,11 +840,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk bad number:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -937,11 +937,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk literal false:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -1016,11 +1016,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk literal null:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -1095,11 +1095,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk literal true:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -1174,11 +1174,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk bad literal false:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -1257,11 +1257,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk bad literal null:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
@@ -1340,11 +1340,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk()
+        suite('walk bad literal true:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk()
+                emitter = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
