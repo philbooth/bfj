@@ -1,16 +1,14 @@
-/*globals require, module, setImmediate */
+/*globals require, module, setImmediate, setTimeout */
 
 'use strict';
 
 var util, Writable, EventEmitter, check, errors, events, terminators, escapes;
 
-// TODO: Continue promisifying (see other TODOs)
 // TODO: Consider when to test `walking` and `finished` (currently in `end`)
-// TODO: Consider how `end` should behave in the unfinished case (currently throws)
 // TODO: Ensure that we recur from tail positions
 // TODO: Make new promisified code work with tests
 // TODO: When testing consider gradually adding to available text
-// NOTE: Exceptions swallowed by `defer`
+// TODO: Test delay argument
 
 util = require('util');
 Writable = require('stream').Writable;
@@ -37,7 +35,7 @@ escapes = {
 
 module.exports = begin;
 
-function begin () {
+function begin (delay) {
     var json, emitter, stream,
         position, scopes, handlers,
         walking, insideString, finished;
@@ -144,7 +142,7 @@ function begin () {
             var result;
 
             if (atEnd) {
-                end();
+                return end();
             }
 
             result = character();
@@ -182,9 +180,12 @@ function begin () {
                 return resolve(position.index === json.length);
             }
 
-            // TODO: implement delay (parameterise delay length?)
-            delay(step);
+            wait(step);
         }
+    }
+
+    function wait (after) {
+        setTimeout(after, delay || 1000);
     }
 
     function end () {
@@ -202,8 +203,6 @@ function begin () {
         }
 
         emitter.emit(events.end);
-
-        throw events.end;
     }
 
     function error (actual, expected, positionKey) {
@@ -252,7 +251,7 @@ function begin () {
             ignoreWhitespace.then(function () {
                 next.then(propertyValue);
             });
-        };
+        });
     }
 
     function propertyValue (character) {
@@ -274,8 +273,10 @@ function begin () {
                 quoting = false;
 
                 return next.then(function (character) {
-                    string += escape(character);
-                    next.then(step);
+                    escape(character).then(function (escaped) {
+                        string += escaped;
+                        next.then(step);
+                    });
                 });
             }
 
@@ -296,7 +297,6 @@ function begin () {
         }
     }
 
-    // TODO: promisify usage
     function escape (character) {
         if (escapes[character]) {
             return escapes[character];
@@ -311,7 +311,6 @@ function begin () {
         return '\\' + character;
     }
 
-    // TODO: promisify usage
     function escapeHex () {
         var hexits, resolve;
 
@@ -405,7 +404,7 @@ function begin () {
     function number (character) {
         var digits = character;
 
-        walkDigits.then(addDigits.bind(null, checkDecimalPlace));
+        walkDigits().then(addDigits.bind(null, checkDecimalPlace));
 
         function addDigits (step, remainingDigits) {
             digits += remainingDigits;
@@ -415,7 +414,7 @@ function begin () {
         function checkDecimalPlace (character) {
             if (character === '.') {
                 digits += character;
-                walkDigits.then(addDigits.bind(null, checkExponent));
+                return walkDigits().then(addDigits.bind(null, checkExponent));
             }
 
             next.then(checkExponent);
@@ -435,7 +434,7 @@ function begin () {
                 digits += character;
             }
 
-            walkDigits.then(function (remainingDigits) {
+            walkDigits().then(function (remainingDigits) {
                 digits += remainingDigits;
                 endNumber();
             });
@@ -447,11 +446,10 @@ function begin () {
         }
     }
 
-    // TODO: promisify usage
     function walkDigits () {
         var digits, resolve;
 
-        digits = ''
+        digits = '';
 
         isEnd().then(step);
 
@@ -520,10 +518,15 @@ function JsonStream (write, options) {
     }
 
     this._write = function (chunk, encoding, callback) {
-        write(chunk.toString());
+        if (check.function(encoding)) {
+            callback = encoding;
+        }
+
+        // TODO: Check that Buffer.toString() always encodes to UTF-8
+        write(chunk.toString(), 'utf8', callback);
     };
 
-    return Writable.call(this);
+    return Writable.call(this, options);
 }
 
 util.inherits(JsonStream, Writable);
