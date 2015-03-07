@@ -51,23 +51,21 @@ suite('walk:', function () {
         });
 
         test('walk returns stream', function () {
-            assert.isInstance(walk().stream, Writable);
+            assert.instanceOf(walk().stream, require('stream').Writable);
         });
 
         test('walk returns emitter', function () {
-            assert.isInstance(walk().emitter, EventEmitter);
+            assert.instanceOf(walk().emitter, require('events').EventEmitter);
         });
 
         suite('walk empty array:', function () {
-            var stream, emitter;
+            var emitter, stream;
 
             setup(function (done) {
                 var result = walk();
 
-                stream = result.stream;
                 emitter = result.emitter;
-
-                stream.write('[]');
+                stream = result.stream;
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -77,6 +75,10 @@ suite('walk:', function () {
                 });
 
                 emitter.on(events.end, function () { done(); });
+
+                stream.write('[]');
+                stream.end();
+                console.log(log);
             });
 
             teardown(function () {

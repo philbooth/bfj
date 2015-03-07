@@ -614,12 +614,7 @@ function JsonStream (write) {
     this._write = function (chunk, encoding, callback) {
         console.log('JsonStream::_write: ' + chunk + ', ' + encoding + ', ' + typeof callback);
 
-        if (check.function(encoding)) {
-            callback = encoding;
-        }
-
-        // TODO: Check that Buffer.toString() always encodes to UTF-8
-        write(chunk.toString(), 'utf8', callback);
+        write(chunk.toString('utf8'), 'utf8', callback);
     };
 
     return Writable.call(this);
