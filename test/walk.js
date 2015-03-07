@@ -78,7 +78,6 @@ suite('walk:', function () {
 
                 stream.write('[]');
                 stream.end();
-                console.log(log);
             });
 
             teardown(function () {
