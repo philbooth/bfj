@@ -66,6 +66,8 @@ function begin (delay) {
     };
 
     function proceed (chunk) {
+        console.log('proceed: ' + chunk);
+
         json += chunk;
 
         if (!walking) {
@@ -75,16 +77,22 @@ function begin (delay) {
     }
 
     function finish () {
+        console.log('finish');
+
         finished = true;
     }
 
     function value () {
+        console.log('value');
+
         ignoreWhitespace.then(function () {
             next.then(handleValue);
         });
     }
 
     function handleValue (character) {
+        console.log('handleValue: ' + character);
+
         switch (character) {
             case '[':
                 return array();
@@ -118,6 +126,8 @@ function begin (delay) {
     }
 
     function ignoreWhitespace () {
+        console.log('ignoreWhitespace');
+
         var resolve;
 
         next.then(step);
@@ -127,6 +137,8 @@ function begin (delay) {
         });
 
         function step (character) {
+            console.log('ignoreWhitespace::step: ' + character);
+
             if (isWhitespace(character)) {
                 return next.then(step);
             }
@@ -136,11 +148,15 @@ function begin (delay) {
     }
 
     function next () {
+        console.log('next');
+
         var resolve;
 
         // TODO: discard old characters to save memory
 
         isEnd().then(function (atEnd) {
+            console.log('next::atEnd: ' + atEnd);
+
             var result;
 
             if (atEnd) {
@@ -169,6 +185,8 @@ function begin (delay) {
     }
 
     function isEnd () {
+        console.log('isEnd');
+
         var resolve;
 
         defer(step);
@@ -178,6 +196,8 @@ function begin (delay) {
         });
 
         function step () {
+            console.log('isEnd::step');
+
             if (walking) {
                 return resolve(position.index === json.length);
             }
@@ -187,10 +207,14 @@ function begin (delay) {
     }
 
     function wait (after) {
+        console.log('wait: ' + after);
+
         setTimeout(after, delay || 1000);
     }
 
     function end () {
+        console.log('end');
+
         if (!finished) {
             walking = false;
             return;
@@ -208,6 +232,8 @@ function begin (delay) {
     }
 
     function error (actual, expected, positionKey) {
+        console.log('error: ' + actual + ', ' + expected + ', ' + positionKey);
+
         emitter.emit(
             events.error,
             errors.create(
@@ -220,14 +246,20 @@ function begin (delay) {
     }
 
     function character () {
+        console.log('character');
+
         return json[position.index];
     }
 
     function array () {
+        console.log('array');
+
         scope(events.array, value);
     }
 
     function scope (event, contentHandler) {
+        console.log('scope: ' + event + ', ' + typeof contentHandler);
+
         emitter.emit(event);
         scopes.push(event);
         endScope.then(function (atScopeEnd) {
@@ -238,16 +270,22 @@ function begin (delay) {
     }
 
     function object () {
+        console.log('object');
+
         scope(events.object, property);
     }
 
     function property () {
+        console.log('property');
+
         ignoreWhitespace.then(function () {
             next.then(propertyName);
         });
     }
 
     function propertyName (character) {
+        console.log('propertyName: ' + character);
+
         checkCharacter(character, '"');
         walkString(events.property).then(function () {
             ignoreWhitespace.then(function () {
@@ -257,11 +295,15 @@ function begin (delay) {
     }
 
     function propertyValue (character) {
+        console.log('propertyValue: ' + character);
+
         checkCharacter(character, ':');
         defer(value);
     }
 
     function walkString (event) {
+        console.log('walkString: ' + event);
+
         var quoting, string;
 
         insideString = true;
@@ -271,6 +313,8 @@ function begin (delay) {
         next.then(step);
 
         function step (character) {
+            console.log('walkString::step: ' + character);
+
             if (quoting) {
                 quoting = false;
 
@@ -300,6 +344,8 @@ function begin (delay) {
     }
 
     function escape (character) {
+        console.log('escape: ' + character);
+
         if (escapes[character]) {
             return escapes[character];
         }
@@ -314,6 +360,8 @@ function begin (delay) {
     }
 
     function escapeHex () {
+        console.log('escapeHex');
+
         var hexits, resolve;
 
         hexits = '';
@@ -325,6 +373,8 @@ function begin (delay) {
         });
 
         function step (index, character) {
+            console.log('escapeHex::step: ' + index + ', ' + character);
+
             if (index === 4) {
                 if (hexits.length === 4) {
                     return resolve(String.fromCharCode(parseInt(hexits, 16)));
@@ -344,12 +394,16 @@ function begin (delay) {
     }
 
     function checkCharacter (character, expected) {
+        console.log('checkCharacter: ' + character + ', ' + expected);
+
         if (character !== expected) {
             return error(character, expected, 'previous');
         }
     }
 
     function endScope (scope) {
+        console.log('endScope: ' + scope);
+
         return new Promise(function (resolve) {
             if (character() !== terminators[scope]) {
                 return resolve(false);
@@ -366,6 +420,8 @@ function begin (delay) {
     }
 
     function endValue () {
+        console.log('endValue');
+
         ignoreWhitespace.then(function () {
             if (scopes.length === 0) {
                 return isEnd().then(checkEnd);
@@ -375,6 +431,8 @@ function begin (delay) {
         });
 
         function checkEnd (atEnd) {
+            console.log('checkEnd: ' + atEnd);
+
             if (!atEnd) {
                 error(character(), 'EOF', 'current');
                 return defer(value);
@@ -384,6 +442,8 @@ function begin (delay) {
         }
 
         function checkScope () {
+            console.log('checkScope');
+
             var scope = scopes[scopes.length - 1];
 
             endScope.then(function (atScopeEnd) {
@@ -398,22 +458,30 @@ function begin (delay) {
     }
 
     function string () {
+        console.log('string');
+
         walkString(events.string).then(function () {
             next.then(defer.bind(null, endValue));
         });
     }
 
     function number (character) {
+        console.log('number: ' + character);
+
         var digits = character;
 
         walkDigits().then(addDigits.bind(null, checkDecimalPlace));
 
         function addDigits (step, remainingDigits) {
+            console.log('number::addDigits: ' + typeof step + ', ' + remainingDigits);
+
             digits += remainingDigits;
             next.then(step);
         }
 
         function checkDecimalPlace (character) {
+            console.log('number::checkDecimalPlace: ' + character);
+
             if (character === '.') {
                 digits += character;
                 return walkDigits().then(addDigits.bind(null, checkExponent));
@@ -423,6 +491,8 @@ function begin (delay) {
         }
 
         function checkExponent (character) {
+            console.log('number::checkExponent: ' + character);
+
             if (character === 'e' || character === 'E') {
                 digits += character;
                 return next.then(checkSign);
@@ -432,6 +502,8 @@ function begin (delay) {
         }
 
         function checkSign (character) {
+            console.log('checkSign: ' + character);
+
             if (character === '+' || character === '-') {
                 digits += character;
             }
@@ -443,12 +515,16 @@ function begin (delay) {
         }
 
         function endNumber () {
+            console.log('endNumber');
+
             emitter.emit(events.number, parseFloat(digits));
             defer(endValue);
         }
     }
 
     function walkDigits () {
+        console.log('walkDigits');
+
         var digits, resolve;
 
         digits = '';
@@ -460,6 +536,8 @@ function begin (delay) {
         });
 
         function step (atEnd) {
+            console.log('walkDigits::step: ' + atEnd);
+
             if (atEnd || !isDigit(character())) {
                 return resolve(digits);
             }
@@ -472,15 +550,21 @@ function begin (delay) {
     }
 
     function literalFalse () {
+        console.log('literalFalse');
+
         literal([ 'a', 'l', 's', 'e' ], false);
     }
 
     function literal (expectedCharacters, value) {
+        console.log('literal: ' + expectedCharacters.join('') + ', ' + value);
+
         var actual, expected, invalid;
 
         isEnd().then(step);
 
         function step (atEnd) {
+            console.log('literal::step: ' + atEnd);
+
             if (expectedCharacters.length === 0 || atEnd) {
                 if (invalid) {
                     error(actual, expected, 'previous');
@@ -494,6 +578,8 @@ function begin (delay) {
             }
 
             next.then(function (character) {
+                console.log('literal::character: ' + character);
+
                 actual = character;
                 expected = expectedCharacters.shift();
 
@@ -506,20 +592,28 @@ function begin (delay) {
     }
 
     function literalNull () {
+        console.log('literalNull');
+
         literal([ 'u', 'l', 'l' ], null);
     }
 
     function literalTrue () {
+        console.log('literalTrue');
+
         literal([ 'r', 'u', 'e' ], true);
     }
 }
 
-function JsonStream (write, options) {
+function JsonStream (write) {
+    console.log('JsonStream: ' + typeof write);
+
     if (!(this instanceof JsonStream)) {
         return new JsonStream();
     }
 
     this._write = function (chunk, encoding, callback) {
+        console.log('JsonStream::_write: ' + chunk + ', ' + encoding + ', ' + typeof callback);
+
         if (check.function(encoding)) {
             callback = encoding;
         }
@@ -528,13 +622,14 @@ function JsonStream (write, options) {
         write(chunk.toString(), 'utf8', callback);
     };
 
-    // TODO: Probably we don't want to pass options so that we enforce the defaults
-    return Writable.call(this, options);
+    return Writable.call(this);
 }
 
 util.inherits(JsonStream, Writable);
 
 function defer (fn) {
+    console.log('defer: ' + typeof fn);
+
     setImmediate(function () {
         try {
             fn();
@@ -545,6 +640,8 @@ function defer (fn) {
 }
 
 function isWhitespace (character) {
+    console.log('isWhitespace: ' + character);
+
     switch (character) {
         case ' ':
         case '\t':
@@ -557,14 +654,22 @@ function isWhitespace (character) {
 }
 
 function isHexit (character) {
-    return isDigit(character) || isInRange(character, 'a', 'f');
+    console.log('isHexit: ' + character);
+
+    return isDigit(character) ||
+           isInRange(character, 'A', 'F') ||
+           isInRange(character, 'a', 'f');
 }
 
 function isDigit (character) {
+    console.log('isDigit: ' + character);
+
     return isInRange(character, '0', '9');
 }
 
 function isInRange (character, lower, upper) {
+    console.log('isInRange: ' + character + ', ' + lower + ', ' + upper);
+
     var code = character.charCodeAt(0);
 
     return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0);
