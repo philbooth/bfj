@@ -80,6 +80,10 @@ function begin (delay) {
         console.log('finish');
 
         finished = true;
+
+        if (!walking) {
+            end();
+        }
     }
 
     function value () {
@@ -216,18 +220,22 @@ function begin (delay) {
         console.log('end');
 
         if (!finished) {
+            console.log('end: not finished');
             walking = false;
             return;
         }
 
         if (insideString) {
+            console.log('end: inside string');
             error('EOF', '"', 'current');
         }
 
         while (scopes.length > 0) {
+            console.log('end: ' + scopes.length + ' unterminated scopes');
             error('EOF', terminators[scopes.pop()], 'current');
         }
 
+        console.log('end: emitting event');
         emitter.emit(events.end);
     }
 
@@ -614,7 +622,8 @@ function JsonStream (write) {
     this._write = function (chunk, encoding, callback) {
         console.log('JsonStream::_write: ' + chunk + ', ' + encoding + ', ' + typeof callback);
 
-        write(chunk.toString('utf8'), 'utf8', callback);
+        write(chunk.toString());
+        callback();
     };
 
     return Writable.call(this);
