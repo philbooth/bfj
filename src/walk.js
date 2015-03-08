@@ -85,8 +85,8 @@ function begin (delay) {
     function value () {
         console.log('value');
 
-        ignoreWhitespace.then(function () {
-            next.then(handleValue);
+        ignoreWhitespace().then(function () {
+            next().then(handleValue);
         });
     }
 
@@ -130,7 +130,7 @@ function begin (delay) {
 
         var resolve;
 
-        next.then(step);
+        next().then(step);
 
         return new Promise(function (r) {
             resolve = r;
@@ -140,7 +140,7 @@ function begin (delay) {
             console.log('ignoreWhitespace::step: ' + character);
 
             if (isWhitespace(character)) {
-                return next.then(step);
+                return next().then(step);
             }
 
             resolve();
@@ -262,7 +262,7 @@ function begin (delay) {
 
         emitter.emit(event);
         scopes.push(event);
-        endScope.then(function (atScopeEnd) {
+        endScope().then(function (atScopeEnd) {
             if (!atScopeEnd) {
                 defer(contentHandler);
             }
@@ -278,8 +278,8 @@ function begin (delay) {
     function property () {
         console.log('property');
 
-        ignoreWhitespace.then(function () {
-            next.then(propertyName);
+        ignoreWhitespace().then(function () {
+            next().then(propertyName);
         });
     }
 
@@ -288,8 +288,8 @@ function begin (delay) {
 
         checkCharacter(character, '"');
         walkString(events.property).then(function () {
-            ignoreWhitespace.then(function () {
-                next.then(propertyValue);
+            ignoreWhitespace().then(function () {
+                next().then(propertyValue);
             });
         });
     }
@@ -310,7 +310,7 @@ function begin (delay) {
         quoting = false;
         string = '';
 
-        next.then(step);
+        next().then(step);
 
         function step (character) {
             console.log('walkString::step: ' + character);
@@ -318,23 +318,23 @@ function begin (delay) {
             if (quoting) {
                 quoting = false;
 
-                return next.then(function (character) {
+                return next().then(function (character) {
                     escape(character).then(function (escaped) {
                         string += escaped;
-                        next.then(step);
+                        next().then(step);
                     });
                 });
             }
 
             if (character === '\\') {
                 quoting = true;
-                return next.then(step);
+                return next().then(step);
             }
 
             if (character !== '"') {
-                return next.then(function (character) {
+                return next().then(function (character) {
                     string += character;
-                    next.then(step);
+                    next().then(step);
                 });
             }
 
@@ -366,7 +366,7 @@ function begin (delay) {
 
         hexits = '';
 
-        next.then(step);
+        next().then(step);
 
         return new Promise(function (r) {
             resolve = r;
@@ -389,7 +389,7 @@ function begin (delay) {
                 hexits += character;
             }
 
-            next.then(step.bind(null, index + 1));
+            next().then(step.bind(null, index + 1));
         }
     }
 
@@ -412,7 +412,7 @@ function begin (delay) {
             emitter.emit(events.endPrefix + scope);
             scopes.pop();
 
-            next.then(function () {
+            next().then(function () {
                 defer(endValue);
                 resolve(true);
             });
@@ -422,7 +422,7 @@ function begin (delay) {
     function endValue () {
         console.log('endValue');
 
-        ignoreWhitespace.then(function () {
+        ignoreWhitespace().then(function () {
             if (scopes.length === 0) {
                 return isEnd().then(checkEnd);
             }
@@ -446,9 +446,9 @@ function begin (delay) {
 
             var scope = scopes[scopes.length - 1];
 
-            endScope.then(function (atScopeEnd) {
+            endScope().then(function (atScopeEnd) {
                 if (!atScopeEnd) {
-                    next.then(function (character) {
+                    next().then(function (character) {
                         checkCharacter(character, ',');
                         defer(handlers[scope]);
                     });
@@ -461,7 +461,7 @@ function begin (delay) {
         console.log('string');
 
         walkString(events.string).then(function () {
-            next.then(defer.bind(null, endValue));
+            next().then(defer.bind(null, endValue));
         });
     }
 
@@ -476,7 +476,7 @@ function begin (delay) {
             console.log('number::addDigits: ' + typeof step + ', ' + remainingDigits);
 
             digits += remainingDigits;
-            next.then(step);
+            next().then(step);
         }
 
         function checkDecimalPlace (character) {
@@ -487,7 +487,7 @@ function begin (delay) {
                 return walkDigits().then(addDigits.bind(null, checkExponent));
             }
 
-            next.then(checkExponent);
+            next().then(checkExponent);
         }
 
         function checkExponent (character) {
@@ -495,7 +495,7 @@ function begin (delay) {
 
             if (character === 'e' || character === 'E') {
                 digits += character;
-                return next.then(checkSign);
+                return next().then(checkSign);
             }
 
             endNumber();
@@ -542,7 +542,7 @@ function begin (delay) {
                 return resolve(digits);
             }
 
-            next.then(function (character) {
+            next().then(function (character) {
                 digits += character;
                 isEnd().then(step);
             });
@@ -577,7 +577,7 @@ function begin (delay) {
                 return defer(endValue);
             }
 
-            next.then(function (character) {
+            next().then(function (character) {
                 console.log('literal::character: ' + character);
 
                 actual = character;
