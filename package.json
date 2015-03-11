@@ -1,7 +1,7 @@
 {
     "name": "bfj",
     "version": "0.0.1",
-    "description": "Big Friendly JSON",
+    "description": "Big-friendly JSON",
     "homepage": "https://github.com/philbooth/node-bfj",
     "bugs": "https://github.com/philbooth/node-bfj/issues",
     "license": "MIT",
