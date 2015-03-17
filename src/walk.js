@@ -291,8 +291,6 @@ function begin (delay) {
     }
 
     function walkString (event) {
-        console.log('walkString: ' + event);
-
         var quoting, string, resolve;
 
         // TODO: This is wrong, see empty objects / `end: inside string` log
@@ -307,13 +305,10 @@ function begin (delay) {
         });
 
         function step (character) {
-            console.log('walkString::step: ' + character);
-
             if (quoting) {
                 quoting = false;
 
                 return escape(character).then(function (escaped) {
-                    console.log('walkString::escaped: ' + escaped);
                     string += escaped;
                     next().then(step);
                 });
@@ -337,8 +332,6 @@ function begin (delay) {
 
     function escape (character) {
         return new Promise(function (resolve) {
-            console.log('escape: ' + character);
-
             if (escapes[character]) {
                 return resolve(escapes[character]);
             }
@@ -354,8 +347,6 @@ function begin (delay) {
     }
 
     function escapeHex () {
-        console.log('escapeHex');
-
         var hexits, resolve;
 
         hexits = '';
@@ -367,8 +358,6 @@ function begin (delay) {
         });
 
         function step (index, character) {
-            console.log('escapeHex::step: ' + index + ', ' + character);
-
             if (isHexit(character)) {
                 hexits += character;
             }
