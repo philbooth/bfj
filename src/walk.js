@@ -270,10 +270,28 @@ function begin (delay) {
 
         emitter.emit(event);
         scopes.push(event);
-        endScope().then(function (atScopeEnd) {
+        endScope(event).then(function (atScopeEnd) {
             if (!atScopeEnd) {
                 defer(contentHandler);
             }
+        });
+    }
+
+    function endScope (scope) {
+        console.log('endScope: ' + scope);
+
+        return new Promise(function (resolve) {
+            if (character() !== terminators[scope]) {
+                return resolve(false);
+            }
+
+            emitter.emit(events.endPrefix + scope);
+            scopes.pop();
+
+            next().then(function () {
+                defer(endValue);
+                resolve(true);
+            });
         });
     }
 
@@ -407,24 +425,6 @@ function begin (delay) {
         if (character !== expected) {
             return error(character, expected, 'previous');
         }
-    }
-
-    function endScope (scope) {
-        console.log('endScope: ' + scope);
-
-        return new Promise(function (resolve) {
-            if (character() !== terminators[scope]) {
-                return resolve(false);
-            }
-
-            emitter.emit(events.endPrefix + scope);
-            scopes.pop();
-
-            next().then(function () {
-                defer(endValue);
-                resolve(true);
-            });
-        });
     }
 
     function endValue () {
