@@ -4,11 +4,7 @@
 
 var util, Writable, EventEmitter, check, errors, events, terminators, escapes;
 
-// TODO: Consider when to test `walking` and `finished` (currently in `end`)
-// TODO: Ensure that we recur from tail positions
-// TODO: Make new promisified code work with tests
 // TODO: When testing consider gradually adding to available text
-// TODO: Test delay argument
 
 util = require('util');
 Writable = require('stream').Writable;
