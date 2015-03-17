@@ -312,11 +312,10 @@ function begin (delay) {
             if (quoting) {
                 quoting = false;
 
-                return next().then(function (character) {
-                    escape(character).then(function (escaped) {
-                        string += escaped;
-                        next().then(step);
-                    });
+                return escape(character).then(function (escaped) {
+                    console.log('walkString::escaped: ' + escaped);
+                    string += escaped;
+                    next().then(step);
                 });
             }
 
@@ -326,10 +325,8 @@ function begin (delay) {
             }
 
             if (character !== '"') {
-                return next().then(function (character) {
-                    string += character;
-                    next().then(step);
-                });
+                string += character;
+                return next().then(step);
             }
 
             insideString = false;
