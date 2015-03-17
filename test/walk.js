@@ -67,6 +67,9 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
+                stream.write('[]');
+                stream.end();
+
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
                         name: key,
@@ -75,9 +78,6 @@ suite('walk:', function () {
                 });
 
                 emitter.on(events.end, function () { done(); });
-
-                stream.write('[]');
-                stream.end();
             });
 
             teardown(function () {
@@ -145,12 +145,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('[}');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -241,12 +242,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('{}');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -323,12 +325,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('{]');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -428,12 +431,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('"\\"the quick brown fox\r\n\\tjumps\\u00a0over the lazy\\u1680dog\\""');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -507,12 +511,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('"\\"the quick brown fox\r\n\\tjumps over the lazy\\xdog\\""');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -595,12 +600,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('"\\u012g"');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -683,12 +689,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('"foo');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -766,12 +773,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('-3.14159265359e+42');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -845,12 +853,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('42f');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -942,12 +951,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('false');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1021,12 +1031,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('null');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1100,12 +1111,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('true');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1179,12 +1191,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('falsd');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1262,12 +1275,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('nul');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -1345,12 +1359,13 @@ suite('walk:', function () {
             var stream, emitter;
 
             setup(function (done) {
-                emitter = walk();
+                var result = walk();
 
                 stream = result.stream;
                 emitter = result.emitter;
 
                 stream.write('tRue');
+                stream.end();
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
