@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, setTimeout */
+/*globals require, module, setImmediate, setTimeout, console */
 
 'use strict';
 
@@ -200,7 +200,7 @@ function begin (delay) {
         });
 
         function step () {
-            console.log('isEnd::step');
+            console.log('isEnd::step: ' + walking);
 
             if (walking) {
                 return resolve(position.index === json.length);
