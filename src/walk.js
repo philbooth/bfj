@@ -338,19 +338,21 @@ function begin (delay) {
     }
 
     function escape (character) {
-        console.log('escape: ' + character);
+        return new Promise(function (resolve) {
+            console.log('escape: ' + character);
 
-        if (escapes[character]) {
-            return escapes[character];
-        }
+            if (escapes[character]) {
+                return resolve(escapes[character]);
+            }
 
-        if (character === 'u') {
-            return escapeHex();
-        }
+            if (character === 'u') {
+                return escapeHex().then(resolve);
+            }
 
-        error(character, 'escape character', 'previous');
+            error(character, 'escape character', 'previous');
 
-        return '\\' + character;
+            resolve('\\' + character);
+        });
     }
 
     function escapeHex () {
