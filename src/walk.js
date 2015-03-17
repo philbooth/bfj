@@ -393,7 +393,7 @@ function begin (delay) {
         console.log('checkCharacter: ' + character + ', ' + expected);
 
         if (character !== expected) {
-            return error(character, expected, 'previous');
+            error(character, expected, 'previous');
         }
     }
 
