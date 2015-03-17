@@ -134,7 +134,7 @@ function begin (delay) {
 
         var resolve;
 
-        next().then(step);
+        defer(step.bind(null, character()));
 
         return new Promise(function (r) {
             resolve = r;
