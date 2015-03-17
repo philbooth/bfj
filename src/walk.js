@@ -297,7 +297,7 @@ function begin (delay) {
     function walkString (event) {
         console.log('walkString: ' + event);
 
-        var quoting, string;
+        var quoting, string, resolve;
 
         // TODO: This is wrong, see empty objects / `end: inside string` log
         insideString = true;
@@ -305,6 +305,10 @@ function begin (delay) {
         string = '';
 
         next().then(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
 
         function step (character) {
             console.log('walkString::step: ' + character);
@@ -331,6 +335,7 @@ function begin (delay) {
 
             insideString = false;
             emitter.emit(event, string);
+            resolve();
         }
     }
 
