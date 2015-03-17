@@ -373,21 +373,21 @@ function begin (delay) {
         function step (index, character) {
             console.log('escapeHex::step: ' + index + ', ' + character);
 
-            if (index === 4) {
-                if (hexits.length === 4) {
-                    return resolve(String.fromCharCode(parseInt(hexits, 16)));
-                }
-
-                error(character, 'hex digit', 'previous');
-
-                return resolve('\\u' + hexits + character);
-            }
-
             if (isHexit(character)) {
                 hexits += character;
             }
 
-            next().then(step.bind(null, index + 1));
+            if (index < 3) {
+                return next().then(step.bind(null, index + 1));
+            }
+
+            if (hexits.length === 4) {
+                return resolve(String.fromCharCode(parseInt(hexits, 16)));
+            }
+
+            error(character, 'hex digit', 'previous');
+
+            resolve('\\u' + hexits + character);
         }
     }
 
