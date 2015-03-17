@@ -362,7 +362,7 @@ function begin (delay) {
 
         hexits = '';
 
-        next().then(step);
+        next().then(step.bind(null, 0));
 
         return new Promise(function (r) {
             resolve = r;
