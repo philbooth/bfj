@@ -175,8 +175,6 @@ function begin (delay) {
     }
 
     function isEnd () {
-        console.log('isEnd');
-
         var resolve;
 
         defer(step);
@@ -186,8 +184,6 @@ function begin (delay) {
         });
 
         function step () {
-            console.log('isEnd::step: ' + walking);
-
             if (walking) {
                 return resolve(position.index === json.length);
             }
@@ -197,16 +193,13 @@ function begin (delay) {
     }
 
     function wait (after) {
-        console.log('wait: ' + after);
+        console.log('wait: ' + typeof after);
 
         setTimeout(after, delay || 1000);
     }
 
     function end () {
-        console.log('end');
-
         if (!finished) {
-            console.log('end: not finished');
             walking = false;
             return;
         }
@@ -226,8 +219,6 @@ function begin (delay) {
     }
 
     function error (actual, expected, positionKey) {
-        console.log('error: ' + actual + ', ' + expected + ', ' + positionKey);
-
         emitter.emit(
             events.error,
             errors.create(
@@ -415,7 +406,7 @@ function begin (delay) {
         });
 
         function checkEnd (atEnd) {
-            console.log('checkEnd: ' + atEnd);
+            console.log('endValue::checkEnd: ' + atEnd);
 
             if (!atEnd) {
                 error(character(), 'EOF', 'current');
@@ -426,7 +417,7 @@ function begin (delay) {
         }
 
         function checkScope () {
-            console.log('checkScope');
+            console.log('endValue::checkScope');
 
             var scope = scopes[scopes.length - 1];
 
@@ -442,8 +433,6 @@ function begin (delay) {
     }
 
     function string () {
-        console.log('string');
-
         walkString(events.string).then(function () {
             next().then(defer.bind(null, endValue));
         });
@@ -589,15 +578,11 @@ function begin (delay) {
 }
 
 function JsonStream (write) {
-    console.log('JsonStream: ' + typeof write);
-
     if (!(this instanceof JsonStream)) {
         return new JsonStream();
     }
 
     this._write = function (chunk, encoding, callback) {
-        console.log('JsonStream::_write: ' + chunk + ', ' + encoding + ', ' + typeof callback);
-
         write(chunk.toString());
         callback();
     };
@@ -608,8 +593,6 @@ function JsonStream (write) {
 util.inherits(JsonStream, Writable);
 
 function defer (fn) {
-    console.log('defer: ' + typeof fn);
-
     setImmediate(function () {
         try {
             fn();
@@ -620,8 +603,6 @@ function defer (fn) {
 }
 
 function isWhitespace (character) {
-    console.log('isWhitespace: ' + character);
-
     switch (character) {
         case ' ':
         case '\t':
@@ -634,22 +615,16 @@ function isWhitespace (character) {
 }
 
 function isHexit (character) {
-    console.log('isHexit: ' + character);
-
     return isDigit(character) ||
            isInRange(character, 'A', 'F') ||
            isInRange(character, 'a', 'f');
 }
 
 function isDigit (character) {
-    console.log('isDigit: ' + character);
-
     return isInRange(character, '0', '9');
 }
 
 function isInRange (character, lower, upper) {
-    console.log('isInRange: ' + character + ', ' + lower + ', ' + upper);
-
     var code = character.charCodeAt(0);
 
     return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0);
