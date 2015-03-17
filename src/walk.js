@@ -450,7 +450,7 @@ function begin (delay) {
                 return walkDigits().then(addDigits.bind(null, checkExponent));
             }
 
-            next().then(checkExponent);
+            checkExponent(character);
         }
 
         function checkExponent (character) {
