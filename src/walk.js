@@ -299,6 +299,7 @@ function begin (delay) {
 
         var quoting, string;
 
+        // TODO: This is wrong, see empty objects / `end: inside string` log
         insideString = true;
         quoting = false;
         string = '';
