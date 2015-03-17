@@ -66,8 +66,6 @@ function begin (delay) {
     };
 
     function proceed (chunk) {
-        console.log('proceed: ' + chunk);
-
         json += chunk;
 
         if (!walking) {
@@ -77,8 +75,6 @@ function begin (delay) {
     }
 
     function finish () {
-        console.log('finish');
-
         finished = true;
 
         if (!walking) {
@@ -87,8 +83,6 @@ function begin (delay) {
     }
 
     function value () {
-        console.log('value');
-
         ignoreWhitespace().then(function () {
             next().then(handleValue);
         });
@@ -130,8 +124,6 @@ function begin (delay) {
     }
 
     function ignoreWhitespace () {
-        console.log('ignoreWhitespace');
-
         var resolve;
 
         defer(step.bind(null, character()));
@@ -141,8 +133,6 @@ function begin (delay) {
         });
 
         function step (character) {
-            console.log('ignoreWhitespace::step: ' + character);
-
             if (isWhitespace(character)) {
                 return next().then(step);
             }
@@ -152,15 +142,11 @@ function begin (delay) {
     }
 
     function next () {
-        console.log('next');
-
         var resolve;
 
         // TODO: discard old characters to save memory
 
         isEnd().then(function (atEnd) {
-            console.log('next::atEnd: ' + atEnd);
-
             var result;
 
             if (atEnd) {
@@ -254,20 +240,14 @@ function begin (delay) {
     }
 
     function character () {
-        console.log('character');
-
         return json[position.index];
     }
 
     function array () {
-        console.log('array');
-
         scope(events.array, value);
     }
 
     function scope (event, contentHandler) {
-        console.log('scope: ' + event + ', ' + typeof contentHandler);
-
         emitter.emit(event);
         scopes.push(event);
         endScope(event).then(function (atScopeEnd) {
@@ -278,8 +258,6 @@ function begin (delay) {
     }
 
     function endScope (scope) {
-        console.log('endScope: ' + scope);
-
         return new Promise(function (resolve) {
             if (character() !== terminators[scope]) {
                 return resolve(false);
@@ -296,8 +274,6 @@ function begin (delay) {
     }
 
     function object () {
-        console.log('object');
-
         scope(events.object, property);
     }
 
