@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, setTimeout, console */
+/*globals require, module, setImmediate, setTimeout */
 
 'use strict';
 
@@ -85,8 +85,6 @@ function begin (delay) {
     }
 
     function handleValue (character) {
-        console.log('handleValue: ' + character);
-
         switch (character) {
             case '[':
                 return array();
@@ -189,8 +187,6 @@ function begin (delay) {
     }
 
     function wait (after) {
-        console.log('wait: ' + typeof after);
-
         setTimeout(after, delay || 1000);
     }
 
@@ -201,16 +197,13 @@ function begin (delay) {
         }
 
         if (insideString) {
-            console.log('end: inside string');
             error('EOF', '"', 'current');
         }
 
         while (scopes.length > 0) {
-            console.log('end: ' + scopes.length + ' unterminated scopes');
             error('EOF', terminators[scopes.pop()], 'current');
         }
 
-        console.log('end: emitting event');
         emitter.emit(events.end);
     }
 
@@ -265,16 +258,12 @@ function begin (delay) {
     }
 
     function property () {
-        console.log('property');
-
         ignoreWhitespace().then(function () {
             next().then(propertyName);
         });
     }
 
     function propertyName (character) {
-        console.log('propertyName: ' + character);
-
         checkCharacter(character, '"');
         walkString(events.property).then(function () {
             ignoreWhitespace().then(function () {
@@ -284,8 +273,6 @@ function begin (delay) {
     }
 
     function propertyValue (character) {
-        console.log('propertyValue: ' + character);
-
         checkCharacter(character, ':');
         defer(value);
     }
@@ -377,16 +364,12 @@ function begin (delay) {
     }
 
     function checkCharacter (character, expected) {
-        console.log('checkCharacter: ' + character + ', ' + expected);
-
         if (character !== expected) {
             error(character, expected, 'previous');
         }
     }
 
     function endValue () {
-        console.log('endValue');
-
         ignoreWhitespace().then(function () {
             if (scopes.length === 0) {
                 return isEnd().then(checkEnd);
@@ -396,8 +379,6 @@ function begin (delay) {
         });
 
         function checkEnd (atEnd) {
-            console.log('endValue::checkEnd: ' + atEnd);
-
             if (!atEnd) {
                 error(character(), 'EOF', 'current');
                 return defer(value);
@@ -407,8 +388,6 @@ function begin (delay) {
         }
 
         function checkScope () {
-            console.log('endValue::checkScope');
-
             var scope = scopes[scopes.length - 1];
 
             endScope().then(function (atScopeEnd) {
@@ -513,22 +492,16 @@ function begin (delay) {
     }
 
     function literalFalse () {
-        console.log('literalFalse');
-
         literal([ 'a', 'l', 's', 'e' ], false);
     }
 
     function literal (expectedCharacters, value) {
-        console.log('literal: ' + expectedCharacters.join('') + ', ' + value);
-
         var actual, expected, invalid;
 
         isEnd().then(step);
 
         function step (atEnd) {
-            console.log('literal::step: ' + atEnd);
-
-            if (expectedCharacters.length === 0 || atEnd) {
+            if (invalid || atEnd || expectedCharacters.length === 0) {
                 if (invalid) {
                     error(actual, expected, 'previous');
                 } else if (expectedCharacters.length > 0) {
@@ -541,8 +514,6 @@ function begin (delay) {
             }
 
             next().then(function (character) {
-                console.log('literal::character: ' + character);
-
                 actual = character;
                 expected = expectedCharacters.shift();
 
@@ -556,14 +527,10 @@ function begin (delay) {
     }
 
     function literalNull () {
-        console.log('literalNull');
-
         literal([ 'u', 'l', 'l' ], null);
     }
 
     function literalTrue () {
-        console.log('literalTrue');
-
         literal([ 'r', 'u', 'e' ], true);
     }
 }
