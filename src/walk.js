@@ -548,8 +548,9 @@ function begin (delay) {
 
                 if (actual !== expected) {
                     invalid = true;
-                    isEnd().then(step);
                 }
+
+                isEnd().then(step);
             });
         }
     }
