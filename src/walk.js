@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, setTimeout, Promise */
+/*globals require, module, Promise */
 
 'use strict';
 
@@ -34,7 +34,7 @@ module.exports = begin;
 function begin (options) {
     var json, position, scopes, handlers,
         emitter, stream, async,
-        walking, insideString, finished;
+        isWalking, isFinished, isString;
 
     json = '';
     position = {
@@ -65,16 +65,16 @@ function begin (options) {
     function proceed (chunk) {
         json += chunk;
 
-        if (!walking) {
-            walking = true;
+        if (!isWalking) {
+            isWalking = true;
             async.defer(value);
         }
     }
 
     function finish () {
-        finished = true;
+        isFinished = true;
 
-        if (!walking) {
+        if (!isWalking) {
             end();
         }
     }
@@ -141,7 +141,13 @@ function begin (options) {
 
         // TODO: discard old characters to save memory
 
-        isEnd().then(function (atEnd) {
+        isEnd().then(after);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function after (atEnd) {
             var result;
 
             if (atEnd) {
@@ -162,11 +168,7 @@ function begin (options) {
             }
 
             resolve(result);
-        });
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
+        }
     }
 
     function isEnd () {
@@ -179,7 +181,7 @@ function begin (options) {
         });
 
         function step () {
-            if (walking) {
+            if (isWalking) {
                 return resolve(position.index === json.length);
             }
 
@@ -188,12 +190,12 @@ function begin (options) {
     }
 
     function end () {
-        if (!finished) {
-            walking = false;
+        if (!isFinished) {
+            isWalking = false;
             return;
         }
 
-        if (insideString) {
+        if (isString) {
             error('EOF', '"', 'current');
         }
 
@@ -275,11 +277,10 @@ function begin (options) {
     }
 
     function walkString (event) {
-        var quoting, string, resolve;
+        var isQuoting, string, resolve;
 
-        // TODO: This is wrong, see empty objects / `end: inside string` log
-        insideString = true;
-        quoting = false;
+        isString = true;
+        isQuoting = false;
         string = '';
 
         next().then(step);
@@ -289,8 +290,8 @@ function begin (options) {
         });
 
         function step (character) {
-            if (quoting) {
-                quoting = false;
+            if (isQuoting) {
+                isQuoting = false;
 
                 return escape(character).then(function (escaped) {
                     string += escaped;
@@ -299,7 +300,7 @@ function begin (options) {
             }
 
             if (character === '\\') {
-                quoting = true;
+                isQuoting = true;
                 return next().then(step);
             }
 
@@ -308,26 +309,29 @@ function begin (options) {
                 return next().then(step);
             }
 
-            insideString = false;
+            isString = false;
             emitter.emit(event, string);
             resolve();
         }
     }
 
     function escape (character) {
-        return new Promise(function (resolve) {
-            if (escapes[character]) {
-                return resolve(escapes[character]);
-            }
+        var promise, resolve;
 
-            if (character === 'u') {
-                return escapeHex().then(resolve);
-            }
-
-            error(character, 'escape character', 'previous');
-
-            resolve('\\' + character);
+        promise = new Promise(function (r) {
+            resolve = r;
         });
+
+        if (escapes[character]) {
+            resolve(escapes[character]);
+        } else if (character === 'u') {
+            escapeHex().then(resolve);
+        } else {
+            error(character, 'escape character', 'previous');
+            resolve('\\' + character);
+        }
+
+        return promise;
     }
 
     function escapeHex () {
