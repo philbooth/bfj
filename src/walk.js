@@ -2,14 +2,14 @@
 
 'use strict';
 
-var util, Writable, EventEmitter, check, errors, events, terminators, escapes;
+var EventEmitter, check, JsonStream, asyncModule, errors, events, terminators, escapes;
 
 // TODO: When testing consider gradually adding to available text
 
-util = require('util');
-Writable = require('stream').Writable;
 EventEmitter = require('events').EventEmitter;
 check = require('check-types');
+JsonStream = require('./stream');
+asyncModule = require('./async');
 errors = require('./errors');
 events = require('./events');
 
@@ -31,15 +31,12 @@ escapes = {
 
 module.exports = begin;
 
-function begin (delay) {
-    var json, emitter, stream,
-        position, scopes, handlers,
+function begin (options) {
+    var json, position, scopes, handlers,
+        emitter, stream, async,
         walking, insideString, finished;
 
     json = '';
-    emitter = new EventEmitter();
-    stream = new JsonStream(proceed);
-
     position = {
         index: 0,
         current: {
@@ -54,6 +51,10 @@ function begin (delay) {
         obj: property
     };
 
+    emitter = new EventEmitter();
+    stream = new JsonStream(proceed);
+    async = asyncModule.initialise(options || {});
+
     stream.on('finish', finish);
 
     return {
@@ -66,7 +67,7 @@ function begin (delay) {
 
         if (!walking) {
             walking = true;
-            defer(value);
+            async.defer(value);
         }
     }
 
@@ -120,7 +121,7 @@ function begin (delay) {
     function ignoreWhitespace () {
         var resolve;
 
-        defer(step.bind(null, character()));
+        async.defer(step.bind(null, character()));
 
         return new Promise(function (r) {
             resolve = r;
@@ -171,7 +172,7 @@ function begin (delay) {
     function isEnd () {
         var resolve;
 
-        defer(step);
+        async.defer(step);
 
         return new Promise(function (r) {
             resolve = r;
@@ -182,12 +183,8 @@ function begin (delay) {
                 return resolve(position.index === json.length);
             }
 
-            wait(step);
+            async.delay(step);
         }
-    }
-
-    function wait (after) {
-        setTimeout(after, delay || 1000);
     }
 
     function end () {
@@ -232,7 +229,7 @@ function begin (delay) {
         scopes.push(event);
         endScope(event).then(function (atScopeEnd) {
             if (!atScopeEnd) {
-                defer(contentHandler);
+                async.defer(contentHandler);
             }
         });
     }
@@ -247,7 +244,7 @@ function begin (delay) {
             scopes.pop();
 
             next().then(function () {
-                defer(endValue);
+                async.defer(endValue);
                 resolve(true);
             });
         });
@@ -274,7 +271,7 @@ function begin (delay) {
 
     function propertyValue (character) {
         checkCharacter(character, ':');
-        defer(value);
+        async.defer(value);
     }
 
     function walkString (event) {
@@ -381,7 +378,7 @@ function begin (delay) {
         function checkEnd (atEnd) {
             if (!atEnd) {
                 error(character(), 'EOF', 'current');
-                return defer(value);
+                return async.defer(value);
             }
 
             checkScope();
@@ -394,7 +391,7 @@ function begin (delay) {
                 if (!atScopeEnd) {
                     next().then(function (character) {
                         checkCharacter(character, ',');
-                        defer(handlers[scope]);
+                        async.defer(handlers[scope]);
                     });
                 }
             });
@@ -403,7 +400,7 @@ function begin (delay) {
 
     function string () {
         walkString(events.string).then(function () {
-            next().then(defer.bind(null, endValue));
+            next().then(async.defer.bind(null, endValue));
         });
     }
 
@@ -461,7 +458,7 @@ function begin (delay) {
 
         function endNumber () {
             emitter.emit(events.number, parseFloat(digits));
-            defer(endValue);
+            async.defer(endValue);
         }
     }
 
@@ -510,7 +507,7 @@ function begin (delay) {
                     emitter.emit(events.literal, value);
                 }
 
-                return defer(endValue);
+                return async.defer(endValue);
             }
 
             next().then(function (character) {
@@ -533,31 +530,6 @@ function begin (delay) {
     function literalTrue () {
         literal([ 'r', 'u', 'e' ], true);
     }
-}
-
-function JsonStream (write) {
-    if (!(this instanceof JsonStream)) {
-        return new JsonStream();
-    }
-
-    this._write = function (chunk, encoding, callback) {
-        write(chunk.toString());
-        callback();
-    };
-
-    return Writable.call(this);
-}
-
-util.inherits(JsonStream, Writable);
-
-function defer (fn) {
-    setImmediate(function () {
-        try {
-            fn();
-        } catch (error) {
-            /*jshint noempty:false */
-        }
-    });
 }
 
 function isWhitespace (character) {
