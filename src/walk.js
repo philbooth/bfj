@@ -428,66 +428,65 @@ function begin (delay) {
         });
     }
 
-    function number (character) {
-        console.log('number: ' + character);
-
-        var digits = character;
+    function number (firstCharacter) {
+        var digits = firstCharacter;
 
         walkDigits().then(addDigits.bind(null, checkDecimalPlace));
 
-        function addDigits (step, remainingDigits) {
-            console.log('number::addDigits: ' + typeof step + ', ' + remainingDigits);
+        function addDigits (step, result) {
+            digits += result.digits;
 
-            digits += remainingDigits;
-            next().then(step);
-        }
-
-        function checkDecimalPlace (character) {
-            console.log('number::checkDecimalPlace: ' + character);
-
-            if (character === '.') {
-                digits += character;
-                return walkDigits().then(addDigits.bind(null, checkExponent));
+            if (result.atEnd) {
+                return endNumber();
             }
 
-            checkExponent(character);
+            step();
         }
 
-        function checkExponent (character) {
-            console.log('number::checkExponent: ' + character);
+        function checkDecimalPlace () {
+            if (character() === '.') {
+                return next().then(function (character) {
+                    digits += character;
+                    walkDigits().then(addDigits.bind(null, checkExponent));
+                });
+            }
 
-            if (character === 'e' || character === 'E') {
-                digits += character;
-                return next().then(checkSign);
+            checkExponent();
+        }
+
+        function checkExponent () {
+            if (character() === 'e' || character() === 'E') {
+                return next().then(function (character) {
+                    digits += character;
+                    checkSign();
+                });
             }
 
             endNumber();
         }
 
-        function checkSign (character) {
-            console.log('checkSign: ' + character);
-
-            if (character === '+' || character === '-') {
-                digits += character;
+        function checkSign () {
+            if (character() === '+' || character() === '-') {
+                return next().then(function (character) {
+                    digits += character;
+                    readExponent();
+                });
             }
 
-            walkDigits().then(function (remainingDigits) {
-                digits += remainingDigits;
-                endNumber();
-            });
+            readExponent();
+        }
+
+        function readExponent () {
+            walkDigits().then(addDigits.bind(null, endNumber));
         }
 
         function endNumber () {
-            console.log('endNumber');
-
             emitter.emit(events.number, parseFloat(digits));
             defer(endValue);
         }
     }
 
     function walkDigits () {
-        console.log('walkDigits');
-
         var digits, resolve;
 
         digits = '';
@@ -499,10 +498,11 @@ function begin (delay) {
         });
 
         function step (atEnd) {
-            console.log('walkDigits::step: ' + atEnd);
-
             if (atEnd || !isDigit(character())) {
-                return resolve(digits);
+                return resolve({
+                    digits: digits,
+                    atEnd: atEnd
+                });
             }
 
             next().then(function (character) {
