@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, setTimeout */
+/*globals require, module, setImmediate, setTimeout, Promise */
 
 'use strict';
 

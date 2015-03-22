@@ -1,9 +1,9 @@
 {
     "name": "bfj",
     "version": "0.0.1",
-    "description": "Big-friendly JSON",
-    "homepage": "https://github.com/philbooth/node-bfj",
-    "bugs": "https://github.com/philbooth/node-bfj/issues",
+    "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
+    "homepage": "https://github.com/philbooth/bfj",
+    "bugs": "https://github.com/philbooth/bfj/issues",
     "license": "MIT",
     "author": "Phil Booth (https://github.com/philbooth)",
     "main": "./src",
@@ -21,20 +21,20 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/philbooth/node-bfj.git"
+        "url": "https://github.com/philbooth/bfj.git"
     },
     "dependencies": {
-        "check-types": "2.2.x"
+        "check-types": "3.1.x"
     },
     "devDependencies": {
-        "jshint": "2.5.x",
-        "mocha": "2.1.x",
-        "chai": "1.10.x",
+        "jshint": "2.6.x",
+        "mocha": "2.2.x",
+        "chai": "2.1.x",
         "mockery": "1.4.x",
         "spooks": "2.0.x"
     },
     "scripts": {
-        "test": "mocha --ui tdd --reporter spec --recursive --colors test",
+        "test": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test",
         "lint": "jshint src"
     }
 }
