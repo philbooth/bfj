@@ -2,7 +2,7 @@
 
 'use strict';
 
-var EventEmitter, check, JsonStream, asyncModule, errors, events, terminators, escapes;
+var EventEmitter, check, JsonStream, asyncModule, error, events, terminators, escapes;
 
 // TODO: When testing consider gradually adding to available text
 
@@ -10,7 +10,7 @@ EventEmitter = require('events').EventEmitter;
 check = require('check-types');
 JsonStream = require('./stream');
 asyncModule = require('./async');
-errors = require('./errors');
+error = require('./error');
 events = require('./events');
 
 terminators = {
@@ -113,7 +113,7 @@ function begin (options) {
             case 't':
                 return literalTrue();
             default:
-                error(character, 'value', 'previous');
+                fail(character, 'value', 'previous');
                 value();
         }
     }
@@ -196,20 +196,20 @@ function begin (options) {
         }
 
         if (isString) {
-            error('EOF', '"', 'current');
+            fail('EOF', '"', 'current');
         }
 
         while (scopes.length > 0) {
-            error('EOF', terminators[scopes.pop()], 'current');
+            fail('EOF', terminators[scopes.pop()], 'current');
         }
 
         emitter.emit(events.end);
     }
 
-    function error (actual, expected, positionKey) {
+    function fail (actual, expected, positionKey) {
         emitter.emit(
             events.error,
-            errors.create(
+            error.create(
                 actual,
                 expected,
                 position[positionKey].line,
@@ -327,7 +327,7 @@ function begin (options) {
         } else if (character === 'u') {
             escapeHex().then(resolve);
         } else {
-            error(character, 'escape character', 'previous');
+            fail(character, 'escape character', 'previous');
             resolve('\\' + character);
         }
 
@@ -358,7 +358,7 @@ function begin (options) {
                 return resolve(String.fromCharCode(parseInt(hexits, 16)));
             }
 
-            error(character, 'hex digit', 'previous');
+            fail(character, 'hex digit', 'previous');
 
             resolve('\\u' + hexits + character);
         }
@@ -366,7 +366,7 @@ function begin (options) {
 
     function checkCharacter (character, expected) {
         if (character !== expected) {
-            error(character, expected, 'previous');
+            fail(character, expected, 'previous');
         }
     }
 
@@ -381,7 +381,7 @@ function begin (options) {
 
         function checkEnd (atEnd) {
             if (!atEnd) {
-                error(character(), 'EOF', 'current');
+                fail(character(), 'EOF', 'current');
                 return async.defer(value);
             }
 
@@ -504,9 +504,9 @@ function begin (options) {
         function step (atEnd) {
             if (invalid || atEnd || expectedCharacters.length === 0) {
                 if (invalid) {
-                    error(actual, expected, 'previous');
+                    fail(actual, expected, 'previous');
                 } else if (expectedCharacters.length > 0) {
-                    error('EOF', expectedCharacters.shift(), 'current');
+                    fail('EOF', expectedCharacters.shift(), 'current');
                 } else {
                     emitter.emit(events.literal, value);
                 }

@@ -39,6 +39,10 @@ suite('stream:', function () {
             Stream = undefined;
         });
 
+        test('Stream expects one argument', function () {
+            assert.lengthOf(Stream, 1);
+        });
+
         test('calling Stream with function argument doesNotThrow', function () {
             assert.doesNotThrow(function () {
                 Stream(function () {});

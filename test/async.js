@@ -45,6 +45,10 @@ suite('async:', function () {
             assert.lengthOf(Object.keys(async), 1);
         });
 
+        test('initialise expects one argument', function () {
+            assert.lengthOf(async.initialise, 1);
+        });
+
         test('initialise throws without options', function () {
             assert.throws(function () {
                 async.initialise();
