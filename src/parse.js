@@ -1,4 +1,4 @@
-/*globals require, module */
+/*globals require, module, Promise */
 
 'use strict';
 
@@ -10,40 +10,30 @@ events = require('./events');
 
 module.exports = parse;
 
-function parse (json, callback) {
-    var emitter, scopes, errors, done, key;
+function parse (stream, options) {
+    var walker, scopes, errors, resolve, reject, key;
 
-    check.assert.maybe.function(callback, 'Callback must be a function.');
+    walker = walk(options);
+    stream.pipe(walkable.stream);
 
-    emitter = walk(json);
     scopes = [];
     errors = [];
-    done = false;
 
-    emitter.on(events.array, array);
-    emitter.on(events.object, object);
-    emitter.on(events.property, property);
-    emitter.on(events.string, value);
-    emitter.on(events.number, value);
-    emitter.on(events.literal, value);
-    emitter.on(events.endArray, endScope);
-    emitter.on(events.endObject, endScope);
-    emitter.on(events.end, end);
-    emitter.on(events.error, error);
+    walker.emitter.on(events.array, array);
+    walker.emitter.on(events.object, object);
+    walker.emitter.on(events.property, property);
+    walker.emitter.on(events.string, value);
+    walker.emitter.on(events.number, value);
+    walker.emitter.on(events.literal, value);
+    walker.emitter.on(events.endArray, endScope);
+    walker.emitter.on(events.endObject, endScope);
+    walker.emitter.on(events.end, end);
+    walker.emitter.on(events.error, error);
 
-    if (callback) {
-        return;
-    }
-
-    while (!done) {
-        /*jshint noempty:false */
-    }
-
-    if (errors.length > 0) {
-        return errors[0];
-    }
-
-    return scopes[0];
+    return new Promise(function (res, rej) {
+        resolve = res;
+        reject = rej;
+    });
 
     function array () {
         beginScope([]);
@@ -81,15 +71,15 @@ function parse (json, callback) {
     }
 
     function end () {
-        if (callback) {
-            return callback(errors[0], scopes[0]);
+        if (errors.length > 0) {
+            return reject(errors[0]);
         }
 
-        done = true;
+        resolve(scopes[0]);
     }
 
-    function error (error) {
-        errors.push(error);
+    function error (e) {
+        errors.push(e);
     }
 }
 
