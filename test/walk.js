@@ -1466,7 +1466,95 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk populated array:', function () {
+        suite('string inside array:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('[ "foo" ]');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('array event occurred once', function () {
+                assert.strictEqual(log.counts.array, 1);
+            });
+
+            test('array event was dispatched correctly', function () {
+                assert.lengthOf(log.args.array[0], 0);
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.lengthOf(log.args.string[0], 1);
+                assert.strictEqual(log.args.string[0][0], 'foo');
+            });
+
+            test('endArray event occurred once', function () {
+                assert.strictEqual(log.counts.endArray, 1);
+            });
+
+            test('endArray event was dispatched correctly', function () {
+                assert.lengthOf(log.args.endArray[0], 0);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('end event was dispatched correctly', function () {
+                assert.lengthOf(log.args.end[0], 0);
+            });
+
+            test('object event did not occur', function () {
+                assert.strictEqual(log.counts.object, 0);
+            });
+
+            test('property event did not occur', function () {
+                assert.strictEqual(log.counts.property, 0);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('endObject event did not occur', function () {
+                assert.strictEqual(log.counts.endObject, 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+
+            test('endPrefix event did not occur', function () {
+                assert.strictEqual(log.counts.endPrefix, 0);
+            });
+        });
+
+/*        suite('walk populated array:', function () {
             var emitter, stream;
 
             setup(function (done) {
@@ -1626,7 +1714,7 @@ suite('walk:', function () {
             test('endPrefix event did not occur', function () {
                 assert.strictEqual(log.counts.endPrefix, 0);
             });
-        });
+        });*/
     });
 
     function nop () {};

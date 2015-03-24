@@ -86,6 +86,8 @@ function begin (options) {
     }
 
     function handleValue (character) {
+        console.log('handleValue: ' + character);
+
         switch (character) {
             case '[':
                 return array();
@@ -121,14 +123,16 @@ function begin (options) {
     function ignoreWhitespace () {
         var resolve;
 
-        async.defer(step.bind(null, character()));
+        async.defer(step);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function step (character) {
-            if (isWhitespace(character)) {
+        function step () {
+            console.log('ignoreWhitespace: ' + character());
+
+            if (isWhitespace(character())) {
                 return next().then(step);
             }
 
@@ -309,6 +313,8 @@ function begin (options) {
                 return next().then(step);
             }
 
+            console.log('walkString: ' + string);
+
             isString = false;
             emitter.emit(event, string);
             resolve();
@@ -403,7 +409,10 @@ function begin (options) {
     }
 
     function string () {
+        console.log('string');
+
         walkString(events.string).then(function () {
+            // TODO: Surely this defer is redundant???
             next().then(async.defer.bind(null, endValue));
         });
     }
