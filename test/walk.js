@@ -1465,6 +1465,168 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.endPrefix, 0);
             });
         });
+
+        suite('walk populated array:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('[ "foo", 42, true, false, null, { "bar": null, "baz": { "qux": null } }, [ null ] ]');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('array event occurred twice', function () {
+                assert.strictEqual(log.counts.array, 2);
+            });
+
+            test('array event was dispatched correctly first time', function () {
+                assert.lengthOf(log.args.array[0], 0);
+            });
+
+            test('array event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.array[1], 0);
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.lengthOf(log.args.string[0], 1);
+                assert.strictEqual(log.args.string[0][0], 'foo');
+            });
+
+            test('number event occurred once', function () {
+                assert.strictEqual(log.counts.number, 1);
+            });
+
+            test('number event was dispatched correctly', function () {
+                assert.lengthOf(log.args.number[0], 1);
+                assert.strictEqual(log.args.number[0][0], 42);
+            });
+
+            test('literal event occurred six times', function () {
+                assert.strictEqual(log.counts.literal, 6);
+            });
+
+            test('literal event was dispatched correctly first time', function () {
+                assert.lengthOf(log.args.literal[0], 1);
+                assert.strictEqual(log.args.number[0][0], true);
+            });
+
+            test('literal event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.literal[1], 1);
+                assert.strictEqual(log.args.number[1][0], false);
+            });
+
+            test('literal event was dispatched correctly third time', function () {
+                assert.lengthOf(log.args.literal[2], 1);
+                assert.strictEqual(log.args.number[2][0], null);
+            });
+
+            test('literal event was dispatched correctly fourth time', function () {
+                assert.lengthOf(log.args.literal[3], 1);
+                assert.strictEqual(log.args.number[3][0], null);
+            });
+
+            test('literal event was dispatched correctly fifth time', function () {
+                assert.lengthOf(log.args.literal[4], 1);
+                assert.strictEqual(log.args.number[4][0], null);
+            });
+
+            test('literal event was dispatched correctly sixth time', function () {
+                assert.lengthOf(log.args.literal[5], 1);
+                assert.strictEqual(log.args.number[5][0], null);
+            });
+
+            test('endArray event occurred twice', function () {
+                assert.strictEqual(log.counts.endArray, 2);
+            });
+
+            test('endArray event was dispatched correctly first time', function () {
+                assert.lengthOf(log.args.endArray[0], 0);
+            });
+
+            test('endArray event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.endArray[1], 0);
+            });
+
+            test('object event occurred twice', function () {
+                assert.strictEqual(log.counts.object, 0);
+            });
+
+            test('object event was dispatched correctly first time', function () {
+                assert.lengthOf(log.args.object[0], 0);
+            });
+
+            test('object event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.object[1], 0);
+            });
+
+            test('endObject event occurred twice', function () {
+                assert.strictEqual(log.counts.endObject, 2);
+            });
+
+            test('endObject event was dispatched correctly first time', function () {
+                assert.lengthOf(log.args.endObject[0], 0);
+            });
+
+            test('endObject event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.endObject[1], 0);
+            });
+
+            test('property event occurred three times', function () {
+                assert.strictEqual(log.counts.property, 3);
+            });
+
+            test('property event was dispatched correctly first time', function () {
+                assert.lengthOf(log.args.property[0], 1);
+                assert.strictEqual(log.args.property[0][0], 'bar');
+            });
+
+            test('property event was dispatched correctly second time', function () {
+                assert.lengthOf(log.args.property[1], 1);
+                assert.strictEqual(log.args.property[0][0], 'baz');
+            });
+
+            test('property event was dispatched correctly third time', function () {
+                assert.lengthOf(log.args.property[2], 1);
+                assert.strictEqual(log.args.property[0][0], 'qux');
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('end event was dispatched correctly', function () {
+                assert.lengthOf(log.args.end[0], 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+
+            test('endPrefix event did not occur', function () {
+                assert.strictEqual(log.counts.endPrefix, 0);
+            });
+        });
     });
 
     function nop () {};
