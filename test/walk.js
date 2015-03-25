@@ -2951,6 +2951,94 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.endObject, 0);
             });
         });
+
+        suite('duplicate property:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                // NOTE: RFC 7159 is wishy washy on the subject of duplicates:
+                //
+                //     "The names within an object SHOULD be unique
+                //
+                //     ...
+                //
+                //     An object whose names are all unique is interoperable
+                //     in the sense that all software implementations receiving
+                //     that object will agree on the name/value mappings. When
+                //     the names within an object are not unique, the behavior
+                //     of software that receives such an object is unpredictable.
+                //     Many implementations report the last name/value pair only.
+                //     Other implementations report an error or fail to parse the
+                //     object, and some implementations report all of the name/value
+                //     pairs, including duplicates."
+                //
+                //     https://tools.ietf.org/html/rfc7159#section-4
+                stream.write('{"foo":{},"foo":{}}');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('object event occurred three times', function () {
+                assert.strictEqual(log.counts.object, 3);
+            });
+
+            test('property event occurred twice', function () {
+                assert.strictEqual(log.counts.property, 2);
+            });
+
+            test('property event was dispatched correctly first time', function () {
+                assert.strictEqual(log.args.property[0][0], 'foo');
+            });
+
+            test('property event was dispatched correctly second time', function () {
+                assert.strictEqual(log.args.property[1][0], 'foo');
+            });
+
+            test('endObject event occurred three times', function () {
+                assert.strictEqual(log.counts.endObject, 3);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
+            test('string event did not occur', function () {
+                assert.strictEqual(log.counts.string, 0);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
     });
 
     function nop () {};
