@@ -86,8 +86,6 @@ function begin (options) {
     }
 
     function handleValue (character) {
-        console.log('handleValue: ' + character);
-
         switch (character) {
             case '[':
                 return array();
@@ -130,8 +128,6 @@ function begin (options) {
         });
 
         function step () {
-            console.log('ignoreWhitespace: ' + character());
-
             if (isWhitespace(character())) {
                 return next().then(step);
             }
@@ -313,8 +309,6 @@ function begin (options) {
                 return next().then(step);
             }
 
-            console.log('walkString: ' + string);
-
             isString = false;
             emitter.emit(event, string);
             resolve();
@@ -397,24 +391,17 @@ function begin (options) {
         function checkScope () {
             var scope = scopes[scopes.length - 1];
 
-            endScope().then(function (atScopeEnd) {
+            endScope(scope).then(function (atScopeEnd) {
                 if (!atScopeEnd) {
-                    next().then(function (character) {
-                        checkCharacter(character, ',');
+                        checkCharacter(character(), ',');
                         async.defer(handlers[scope]);
-                    });
                 }
             });
         }
     }
 
     function string () {
-        console.log('string');
-
-        walkString(events.string).then(function () {
-            // TODO: Surely this defer is redundant???
-            next().then(async.defer.bind(null, endValue));
-        });
+        walkString(events.string).then(endValue);
     }
 
     function number (firstCharacter) {
