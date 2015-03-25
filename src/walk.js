@@ -86,8 +86,6 @@ function begin (options) {
     }
 
     function handleValue (character) {
-        console.log('handleValue: ' + character);
-
         switch (character) {
             case '[':
                 return array();
@@ -130,15 +128,9 @@ function begin (options) {
         });
 
         function step () {
-            console.log('ignoreWhitespace: ' + character());
-
             if (isWhitespace(character())) {
-                console.log('ignoreWhitespace: recurring');
-
                 return next().then(step);
             }
-
-            console.log('ignoreWhitespace: resolving');
 
             resolve();
         }
@@ -163,8 +155,6 @@ function begin (options) {
             }
 
             result = character();
-
-            console.log('next: ' + result);
 
             position.index += 1;
             position.previous.line = position.current.line;
@@ -273,7 +263,7 @@ function begin (options) {
     }
 
     function propertyName (character) {
-        checkCharacter(character, '"');
+        checkCharacter(character, '"', 'previous');
         walkString(events.property).then(function () {
             ignoreWhitespace().then(function () {
                 next().then(propertyValue);
@@ -282,7 +272,7 @@ function begin (options) {
     }
 
     function propertyValue (character) {
-        checkCharacter(character, ':');
+        checkCharacter(character, ':', 'previous');
         async.defer(value);
     }
 
@@ -318,8 +308,6 @@ function begin (options) {
                 string += character;
                 return next().then(step);
             }
-
-            console.log('walkString: ' + string);
 
             isString = false;
             emitter.emit(event, string);
@@ -376,14 +364,16 @@ function begin (options) {
         }
     }
 
-    function checkCharacter (character, expected) {
+    function checkCharacter (character, expected, positionKey) {
         if (character !== expected) {
-            fail(character, expected, 'previous');
+            fail(character, expected, positionKey);
+            return false;
         }
+
+        return true;
     }
 
     function endValue () {
-        console.log('endValue');
         ignoreWhitespace().then(function () {
             if (scopes.length === 0) {
                 return isEnd().then(checkEnd);
@@ -405,17 +395,22 @@ function begin (options) {
             var scope = scopes[scopes.length - 1];
 
             endScope(scope).then(function (atScopeEnd) {
+                var handler;
+
                 if (!atScopeEnd) {
-                    checkCharacter(character(), ',');
-                    async.defer(handlers[scope]);
+                    handler = handlers[scope];
+
+                    if (checkCharacter(character(), ',', 'current')) {
+                        next().then(handler);
+                    } else {
+                        async.defer(handler);
+                    }
                 }
             });
         }
     }
 
     function string () {
-        console.log('string');
-
         walkString(events.string).then(endValue);
     }
 
