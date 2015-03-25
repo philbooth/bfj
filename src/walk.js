@@ -86,6 +86,8 @@ function begin (options) {
     }
 
     function handleValue (character) {
+        console.log('handleValue: ' + character);
+
         switch (character) {
             case '[':
                 return array();
@@ -128,9 +130,15 @@ function begin (options) {
         });
 
         function step () {
+            console.log('ignoreWhitespace: ' + character());
+
             if (isWhitespace(character())) {
+                console.log('ignoreWhitespace: recurring');
+
                 return next().then(step);
             }
+
+            console.log('ignoreWhitespace: resolving');
 
             resolve();
         }
@@ -155,6 +163,8 @@ function begin (options) {
             }
 
             result = character();
+
+            console.log('next: ' + result);
 
             position.index += 1;
             position.previous.line = position.current.line;
@@ -309,6 +319,8 @@ function begin (options) {
                 return next().then(step);
             }
 
+            console.log('walkString: ' + string);
+
             isString = false;
             emitter.emit(event, string);
             resolve();
@@ -371,6 +383,7 @@ function begin (options) {
     }
 
     function endValue () {
+        console.log('endValue');
         ignoreWhitespace().then(function () {
             if (scopes.length === 0) {
                 return isEnd().then(checkEnd);
@@ -393,14 +406,16 @@ function begin (options) {
 
             endScope(scope).then(function (atScopeEnd) {
                 if (!atScopeEnd) {
-                        checkCharacter(character(), ',');
-                        async.defer(handlers[scope]);
+                    checkCharacter(character(), ',');
+                    async.defer(handlers[scope]);
                 }
             });
         }
     }
 
     function string () {
+        console.log('string');
+
         walkString(events.string).then(endValue);
     }
 
