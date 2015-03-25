@@ -58,7 +58,7 @@ suite('walk:', function () {
             assert.instanceOf(walk().emitter, require('events').EventEmitter);
         });
 
-        suite('walk empty array:', function () {
+        suite('empty array:', function () {
             var emitter, stream;
 
             setup(function (done) {
@@ -141,7 +141,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk empty object:', function () {
+        suite('empty object:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -220,7 +220,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk string:', function () {
+        suite('string:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -296,7 +296,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk number:', function () {
+        suite('number:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -372,7 +372,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk literal false:', function () {
+        suite('literal false:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -448,7 +448,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk literal null:', function () {
+        suite('literal null:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -523,7 +523,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk literal true:', function () {
+        suite('literal true:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -598,7 +598,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk badly-closed array:', function () {
+        suite('badly-closed array:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -681,7 +681,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk badly-closed object:', function () {
+        suite('badly-closed object:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -769,7 +769,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk string containing bad escape sequence:', function () {
+        suite('string containing bad escape sequence:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -847,7 +847,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk string containing bad unicode escape sequence:', function () {
+        suite('string containing bad unicode escape sequence:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -925,7 +925,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk unterminated string:', function () {
+        suite('unterminated string:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -999,7 +999,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk bad number:', function () {
+        suite('bad number:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -1084,7 +1084,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk bad literal false:', function () {
+        suite('bad literal false:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -1158,7 +1158,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk bad literal null:', function () {
+        suite('bad literal null:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -1232,7 +1232,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('walk bad literal true:', function () {
+        suite('bad literal true:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -3033,6 +3033,73 @@ suite('walk:', function () {
 
             test('number event did not occur', function () {
                 assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
+        suite('empty string:', function () {
+            var stream, emitter;
+
+            setup(function (done) {
+                var result = walk();
+
+                stream = result.stream;
+                emitter = result.emitter;
+
+                stream.write('');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
+            test('object event did not occur', function () {
+                assert.strictEqual(log.counts.object, 0);
+            });
+
+            test('property event did not occur', function () {
+                assert.strictEqual(log.counts.property, 0);
+            });
+
+            test('string event did not occur', function () {
+                assert.strictEqual(log.counts.string, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
+            test('endArray event did not occur', function () {
+                assert.strictEqual(log.counts.endArray, 0);
+            });
+
+            test('endObject event did not occur', function () {
+                assert.strictEqual(log.counts.endObject, 0);
             });
 
             test('error event did not occur', function () {
