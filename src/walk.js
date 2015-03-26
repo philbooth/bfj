@@ -288,24 +288,18 @@ function begin (options) {
             resolve = r;
         });
 
-/*        function after () {
-            console.log('endScope::after: character=' + character() + ', terminators[scope]=' + terminators[scope]);
-            if (character() !== terminators[scope]) {
-                return resolve(false);
-            }
-
-            emitter.emit(events.endPrefix + scope);
-            scopes.pop();
-
-            next().then(function (character) {
-                async.defer(endValue);
-                resolve(true);
-            });
-        }*/
-
         function afterWhitespace () {
             console.log('endScope::afterWhitespace');
-            next().then(afterNext);
+            isEnd().then(afterEnd);
+        }
+
+        function afterEnd (atEnd) {
+            console.log('endScope::afterEnd: atEnd=' + atEnd);
+            if (atEnd) {
+                return next().then(afterNext);
+            }
+
+            afterNext(character());
         }
 
         function afterNext (character) {
@@ -316,8 +310,11 @@ function begin (options) {
 
             emitter.emit(events.endPrefix + scope);
             scopes.pop();
-            async.defer(endValue);
-            resolve(true);
+
+            next().then(function (character) {
+                async.defer(endValue);
+                resolve(true);
+            });
         }
     }
 
