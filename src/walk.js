@@ -33,7 +33,7 @@ module.exports = begin;
 
 function begin (options) {
     var json, position, scopes, handlers,
-        emitter, stream, async,
+        emitter, stream, async, resume,
         isWalking, isFinished, isString;
 
     json = '';
@@ -63,11 +63,23 @@ function begin (options) {
     };
 
     function proceed (chunk) {
+        console.log('proceed: chunk=' + chunk + ', json=' + json + ', isWalking=' + isWalking + ', resume=' + (resume ? resume.name : 'undefined'));
+
+        if (!chunk || chunk.length === 0) {
+            return;
+        }
+
         json += chunk;
 
         if (!isWalking) {
             isWalking = true;
-            async.defer(value);
+
+            if (resume) {
+                async.defer(resume);
+                resume = undefined;
+            } else {
+                async.defer(value);
+            }
         }
     }
 
@@ -80,12 +92,16 @@ function begin (options) {
     }
 
     function value () {
+        console.log('value');
         ignoreWhitespace().then(function () {
+            console.log('value::ignoreWhitespace');
             next().then(handleValue);
         });
     }
 
     function handleValue (character) {
+        console.log('handleValue: character=' + character);
+
         switch (character) {
             case '[':
                 return array();
@@ -121,6 +137,8 @@ function begin (options) {
     function ignoreWhitespace () {
         var resolve;
 
+        console.log('ignoreWhitespace');
+
         async.defer(step);
 
         return new Promise(function (r) {
@@ -128,6 +146,7 @@ function begin (options) {
         });
 
         function step () {
+            console.log('ignoreWhitespace::step: isWhitespace=' + isWhitespace(character()));
             if (isWhitespace(character())) {
                 return next().then(step);
             }
@@ -139,6 +158,8 @@ function begin (options) {
     function next () {
         var resolve;
 
+        console.log('next');
+
         // TODO: discard old characters to save memory
 
         isEnd().then(after);
@@ -148,13 +169,20 @@ function begin (options) {
         });
 
         function after (atEnd) {
-            var result;
+            console.log('next::after: atEnd=' + atEnd);
 
             if (atEnd) {
+                resume = afterResume;
                 return end();
             }
 
-            result = character();
+            afterResume();
+        }
+
+        function afterResume () {
+            var result = character();
+
+            console.log('next::afterResume: result=' + result);
 
             position.index += 1;
             position.previous.line = position.current.line;
@@ -174,6 +202,8 @@ function begin (options) {
     function isEnd () {
         var resolve;
 
+        console.log('isEnd');
+
         async.defer(step);
 
         return new Promise(function (r) {
@@ -181,6 +211,8 @@ function begin (options) {
         });
 
         function step () {
+            console.log('isEnd::step: isWalking=' + isWalking);
+
             if (isWalking) {
                 return resolve(position.index === json.length);
             }
@@ -190,6 +222,8 @@ function begin (options) {
     }
 
     function end () {
+        console.log('end: isFinished=' + isFinished + ', isWalking=' + isWalking + ', isString=' + isString + ', scopes.length=' + scopes.length);
+
         if (!isFinished) {
             isWalking = false;
             return;
@@ -207,6 +241,8 @@ function begin (options) {
     }
 
     function fail (actual, expected, positionKey) {
+        console.log('fail: actual=' + actual + ', expected=' + expected + ', positionKey=' + positionKey);
+
         emitter.emit(
             events.error,
             error.create(
@@ -223,13 +259,18 @@ function begin (options) {
     }
 
     function array () {
+        console.log('array');
+
         scope(events.array, value);
     }
 
     function scope (event, contentHandler) {
+        console.log('scope: event=' + event + ', ' + contentHandler.name);
+
         emitter.emit(event);
         scopes.push(event);
         endScope(event).then(function (atScopeEnd) {
+            console.log('scope::endScope: atScopeEnd=' + atScopeEnd + ', event=' + event);
             if (!atScopeEnd) {
                 async.defer(contentHandler);
             }
@@ -237,15 +278,18 @@ function begin (options) {
     }
 
     function endScope (scope) {
+        console.log('endScope: scope=' + scope);
+
         var resolve;
 
-        ignoreWhitespace().then(after);
+        ignoreWhitespace().then(afterWhitespace);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function after () {
+/*        function after () {
+            console.log('endScope::after: character=' + character() + ', terminators[scope]=' + terminators[scope]);
             if (character() !== terminators[scope]) {
                 return resolve(false);
             }
@@ -253,11 +297,28 @@ function begin (options) {
             emitter.emit(events.endPrefix + scope);
             scopes.pop();
 
-            next().then(function () {
+            next().then(function (character) {
                 async.defer(endValue);
                 resolve(true);
             });
-        });
+        }*/
+
+        function afterWhitespace () {
+            console.log('endScope::afterWhitespace');
+            next().then(afterNext);
+        }
+
+        function afterNext (character) {
+            console.log('endScope::afterNext: character=' + character + ', terminators[scope]=' + terminators[scope]);
+            if (character !== terminators[scope]) {
+                return resolve(false);
+            }
+
+            emitter.emit(events.endPrefix + scope);
+            scopes.pop();
+            async.defer(endValue);
+            resolve(true);
+        }
     }
 
     function object () {
