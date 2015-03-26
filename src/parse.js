@@ -14,7 +14,7 @@ function parse (stream, options) {
     var walker, scopes, errors, resolve, reject, key;
 
     walker = walk(options);
-    stream.pipe(walkable.stream);
+    stream.pipe(walker.stream);
 
     scopes = [];
     errors = [];

@@ -18,7 +18,12 @@ suite('parse:', function () {
     setup(function () {
         log = {};
         results = {
-            walk: [ spooks.obj({ archetype: { on: nop }, log: log }) ]
+            walk: [
+                {
+                    emitter: { on: spooks.fn({ name: 'on', log: log }) },
+                    stream: {}
+                }
+            ]
         };
 
         mockery.enable({ useCleanCache: true });
@@ -57,17 +62,23 @@ suite('parse:', function () {
             parse = undefined;
         });
 
-        test('parse does not throw', function () {
+        test('parse expects two arguments', function () {
+            assert.lengthOf(parse, 2);
+        });
+
+        test('parse does not throw when pipe method is defined on stream', function () {
             assert.doesNotThrow(function () {
-                parse(null, nop);
+                parse({ pipe: function () {} }, null);
             });
         });
 
-        test('parse throws with non-function callback', function () {
+        test('parse throws when no pipe method is defined on stream', function () {
             assert.throws(function () {
-                parse(null, {});
+                parse({}, null);
             });
         });
+
+        // TODO: PHIL, YOU ARE HERE
 
         test('walk was not called', function () {
             assert.strictEqual(log.counts.walk, 0);
@@ -77,12 +88,12 @@ suite('parse:', function () {
             assert.strictEqual(log.counts.on, 0);
         });
 
-        suite('parse async:', function () {
+/*        suite('parse async:', function () {
             var callback, result;
 
             setup(function () {
                 callback = spooks.fn({ name: 'callback', log: log });
-                result = parse('foo', callback);
+                result = parse({ pipe: spooks.fn({ name: 'pipe', log: log }) }, callback);
             });
 
             teardown(function () {
@@ -593,7 +604,7 @@ suite('parse:', function () {
                     });
                 });
             });
-        });
+        });*/
     });
 
     function nop () {};
