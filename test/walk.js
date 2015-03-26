@@ -795,6 +795,10 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
             test('endArray event did not occur', function () {
                 assert.strictEqual(log.counts.endArray, 0);
             });
