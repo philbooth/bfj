@@ -58,6 +58,81 @@ suite('walk:', function () {
             assert.instanceOf(walk().emitter, require('events').EventEmitter);
         });
 
+        suite('empty json:', function () {
+            var stream, emitter;
+
+            setup(function (done) {
+                var result = walk();
+
+                stream = result.stream;
+                emitter = result.emitter;
+
+                stream.write('');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('end event was dispatched correctly', function () {
+                assert.lengthOf(log.args.end[0], 0);
+            });
+
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
+            test('object event did not occur', function () {
+                assert.strictEqual(log.counts.object, 0);
+            });
+
+            test('property event did not occur', function () {
+                assert.strictEqual(log.counts.property, 0);
+            });
+
+            test('string event did not occur', function () {
+                assert.strictEqual(log.counts.string, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
+            test('endArray event did not occur', function () {
+                assert.strictEqual(log.counts.endArray, 0);
+            });
+
+            test('endObject event did not occur', function () {
+                assert.strictEqual(log.counts.endObject, 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+
+            test('endPrefix event did not occur', function () {
+                assert.strictEqual(log.counts.endPrefix, 0);
+            });
+        });
+
         suite('empty array:', function () {
             var emitter, stream;
 
@@ -102,10 +177,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('end event was dispatched correctly', function () {
-                assert.lengthOf(log.args.end[0], 0);
             });
 
             test('object event did not occur', function () {
@@ -656,22 +727,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.object, 0);
             });
 
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
             test('endArray event did not occur', function () {
                 assert.strictEqual(log.counts.endArray, 0);
             });
@@ -740,26 +795,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
             test('endArray event did not occur', function () {
                 assert.strictEqual(log.counts.endArray, 0);
             });
@@ -817,34 +852,6 @@ suite('walk:', function () {
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
-
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
         });
 
         suite('string containing bad unicode escape sequence:', function () {
@@ -895,34 +902,6 @@ suite('walk:', function () {
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
-
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
         });
 
         suite('unterminated string:', function () {
@@ -966,36 +945,8 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
             test('string event did not occur', function () {
                 assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
         });
 
@@ -1055,32 +1006,8 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
             test('literal event did not occur', function () {
                 assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
         });
 
@@ -1125,36 +1052,8 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
             test('literal event did not occur', function () {
                 assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
         });
 
@@ -1199,36 +1098,8 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
             test('literal event did not occur', function () {
                 assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
         });
 
@@ -1294,36 +1165,8 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
             test('literal event did not occur', function () {
                 assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
         });
 
@@ -1363,30 +1206,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
 
             test('error event did not occur', function () {
@@ -1432,30 +1251,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
@@ -1497,30 +1292,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
 
             test('error event did not occur', function () {
@@ -1577,26 +1348,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
             test('endObject event did not occur', function () {
                 assert.strictEqual(log.counts.endObject, 0);
             });
@@ -1646,22 +1397,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
             });
 
             test('error event did not occur', function () {
@@ -1715,22 +1450,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
             test('error event did not occur', function () {
                 console.log(log.args.error);
                 assert.strictEqual(log.counts.error, 0);
@@ -1781,22 +1500,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
             });
 
             test('error event did not occur', function () {
@@ -1860,22 +1563,6 @@ suite('walk:', function () {
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
         });
 
         suite('string inside array:', function () {
@@ -1926,22 +1613,6 @@ suite('walk:', function () {
 
             test('object event did not occur', function () {
                 assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
 
             test('error event did not occur', function () {
@@ -1999,28 +1670,7 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
-                console.log(log.args.error);
                 assert.strictEqual(log.counts.error, 0);
             });
         });
@@ -2075,26 +1725,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
@@ -2144,26 +1774,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
 
             test('error event did not occur', function () {
@@ -2221,28 +1831,7 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
-                console.log(log.args.error);
                 assert.strictEqual(log.counts.error, 0);
             });
         });
@@ -2297,26 +1886,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
@@ -2366,26 +1935,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
 
             test('error event did not occur', function () {
@@ -2443,28 +1992,7 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
-                console.log(log.args.error);
                 assert.strictEqual(log.counts.error, 0);
             });
         });
@@ -2519,26 +2047,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
@@ -2589,26 +2097,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
             });
 
             test('error event did not occur', function () {
@@ -2672,18 +2160,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
             });
 
             test('error event did not occur', function () {
@@ -2769,14 +2245,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
@@ -2842,26 +2310,6 @@ suite('walk:', function () {
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
-
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
         });
 
         suite('unquoted property:', function () {
@@ -2921,34 +2369,6 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
             });
         });
 
@@ -3019,89 +2439,6 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
 
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('error event did not occur', function () {
-                assert.strictEqual(log.counts.error, 0);
-            });
-        });
-
-        suite('empty json:', function () {
-            var stream, emitter;
-
-            setup(function (done) {
-                var result = walk();
-
-                stream = result.stream;
-                emitter = result.emitter;
-
-                stream.write('');
-                stream.end();
-
-                Object.keys(events).forEach(function (key) {
-                    emitter.on(events[key], spooks.fn({
-                        name: key,
-                        log: log
-                    }));
-                });
-
-                emitter.on(events.end, function () { done(); });
-            });
-
-            teardown(function () {
-                emitter = undefined;
-            });
-
-            test('end event occurred once', function () {
-                assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('array event did not occur', function () {
-                assert.strictEqual(log.counts.array, 0);
-            });
-
-            test('object event did not occur', function () {
-                assert.strictEqual(log.counts.object, 0);
-            });
-
-            test('property event did not occur', function () {
-                assert.strictEqual(log.counts.property, 0);
-            });
-
-            test('string event did not occur', function () {
-                assert.strictEqual(log.counts.string, 0);
-            });
-
-            test('number event did not occur', function () {
-                assert.strictEqual(log.counts.number, 0);
-            });
-
-            test('literal event did not occur', function () {
-                assert.strictEqual(log.counts.literal, 0);
-            });
-
-            test('endArray event did not occur', function () {
-                assert.strictEqual(log.counts.endArray, 0);
-            });
-
-            test('endObject event did not occur', function () {
-                assert.strictEqual(log.counts.endObject, 0);
-            });
-
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
@@ -3143,6 +2480,10 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
             });
         });
 
@@ -3189,6 +2530,10 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
             });
         });
 
@@ -3238,9 +2583,11 @@ suite('walk:', function () {
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
             });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
         });
     });
-
-    function nop () {};
 });
 
