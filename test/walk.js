@@ -3040,7 +3040,7 @@ suite('walk:', function () {
             });
         });
 
-        suite('empty string:', function () {
+        suite('empty json:', function () {
             var stream, emitter;
 
             setup(function (done) {
@@ -3104,6 +3104,45 @@ suite('walk:', function () {
 
             test('error event did not occur', function () {
                 assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
+        suite('empty array containing whitespace:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('[ ]');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('array event occurred once', function () {
+                assert.strictEqual(log.counts.array, 1);
+            });
+
+            test('endArray event occurred once', function () {
+                assert.strictEqual(log.counts.endArray, 1);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
             });
         });
     });

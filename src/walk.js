@@ -237,7 +237,15 @@ function begin (options) {
     }
 
     function endScope (scope) {
-        return new Promise(function (resolve) {
+        var resolve;
+
+        ignoreWhitespace().then(after);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function after () {
             if (character() !== terminators[scope]) {
                 return resolve(false);
             }
