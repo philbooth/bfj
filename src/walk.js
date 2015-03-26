@@ -139,20 +139,34 @@ function begin (options) {
 
         console.log('ignoreWhitespace');
 
-        async.defer(step);
+        async.defer(check);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
+        function check () {
+            console.log('ignoreWhitespace::check');
+            isEnd().then(checkEnd.bind(null, step));
+        }
+
         function step () {
             console.log('ignoreWhitespace::step: isWhitespace=' + isWhitespace(character()));
             if (isWhitespace(character())) {
-                return next().then(step);
+                return next().then(check);
             }
 
             resolve();
         }
+    }
+
+    function checkEnd (after, atEnd) {
+        if (atEnd) {
+            resume = after;
+            return end();
+        }
+
+        after();
     }
 
     function next () {
@@ -162,27 +176,16 @@ function begin (options) {
 
         // TODO: discard old characters to save memory
 
-        isEnd().then(after);
+        isEnd().then(checkEnd.bind(null, after));
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function after (atEnd) {
-            console.log('next::after: atEnd=' + atEnd);
-
-            if (atEnd) {
-                resume = afterResume;
-                return end();
-            }
-
-            afterResume();
-        }
-
-        function afterResume () {
+        function after () {
             var result = character();
 
-            console.log('next::afterResume: result=' + result);
+            console.log('next::after: result=' + result);
 
             position.index += 1;
             position.previous.line = position.current.line;
