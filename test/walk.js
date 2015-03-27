@@ -2590,6 +2590,57 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
         });
+
+        suite('chunked string:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('"\\');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+
+                setTimeout(stream.write.bind(stream, 't\\u'), 20);
+                setTimeout(stream.write.bind(stream, '00'), 40);
+                setTimeout(stream.write.bind(stream, 'a0'), 60);
+                setTimeout(stream.write.bind(stream, '"'), 80);
+
+                emitter.on(events.string, function () {
+                    setTimeout(stream.end.bind(stream), 10);
+                });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.strictEqual(log.args.string[0][0], '\t\u00a0');
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
     });
 });
 
