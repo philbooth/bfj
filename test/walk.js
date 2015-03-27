@@ -2641,6 +2641,57 @@ suite('walk:', function () {
                 assert.strictEqual(log.counts.error, 0);
             });
         });
+
+        suite('chunked number:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('-');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+
+                setTimeout(stream.write.bind(stream, '3'), 10);
+                setTimeout(stream.write.bind(stream, '.'), 20);
+                setTimeout(stream.write.bind(stream, '14159'), 30);
+                setTimeout(stream.write.bind(stream, '265359'), 30);
+                setTimeout(stream.write.bind(stream, 'e'), 40);
+                setTimeout(stream.write.bind(stream, '-'), 50);
+                setTimeout(stream.write.bind(stream, '7'), 60);
+                setTimeout(stream.end.bind(stream), 70);
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('number event occurred once', function () {
+                assert.strictEqual(log.counts.number, 1);
+            });
+
+            test('number event was dispatched correctly', function () {
+                assert.strictEqual(log.args.number[0][0], '-3.14159265359e-7');
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
     });
 });
 
