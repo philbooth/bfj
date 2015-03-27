@@ -2550,7 +2550,7 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
-                stream.write(' ');
+                stream.write(' {');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -2561,13 +2561,11 @@ suite('walk:', function () {
 
                 emitter.on(events.end, function () { done(); });
 
-                setTimeout(stream.write.bind(stream, ' { '), 10);
-
-                emitter.on(events.array, function () {
-                    setTimeout(stream.write.bind(stream, ' } '), 10);
+                emitter.on(events.object, function () {
+                    setTimeout(stream.write.bind(stream, ' }'), 10);
                 });
 
-                emitter.on(events.endArray, function () {
+                emitter.on(events.endObject, function () {
                     setTimeout(stream.end.bind(stream), 10);
                 });
             });
@@ -2576,12 +2574,12 @@ suite('walk:', function () {
                 emitter = undefined;
             });
 
-            test('array event occurred once', function () {
-                assert.strictEqual(log.counts.array, 1);
+            test('object event occurred once', function () {
+                assert.strictEqual(log.counts.object, 1);
             });
 
-            test('endArray event occurred once', function () {
-                assert.strictEqual(log.counts.endArray, 1);
+            test('endObject event occurred once', function () {
+                assert.strictEqual(log.counts.endObject, 1);
             });
 
             test('end event occurred once', function () {
