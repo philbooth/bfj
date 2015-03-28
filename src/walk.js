@@ -92,9 +92,7 @@ function begin (options) {
     }
 
     function value () {
-        console.log('value');
         ignoreWhitespace().then(function () {
-            console.log('value::ignoreWhitespace');
             next().then(handleValue);
         });
     }
@@ -137,8 +135,6 @@ function begin (options) {
     function ignoreWhitespace () {
         var resolve;
 
-        console.log('ignoreWhitespace');
-
         async.defer(check);
 
         return new Promise(function (r) {
@@ -146,12 +142,10 @@ function begin (options) {
         });
 
         function check () {
-            console.log('ignoreWhitespace::check');
             isEnd().then(checkEnd.bind(null, step));
         }
 
         function step () {
-            console.log('ignoreWhitespace::step: isWhitespace=' + isWhitespace(character()));
             if (isWhitespace(character())) {
                 return next().then(check);
             }
@@ -172,8 +166,6 @@ function begin (options) {
     function next () {
         var resolve;
 
-        console.log('next');
-
         // TODO: discard old characters to save memory
 
         isEnd().then(checkEnd.bind(null, after));
@@ -184,8 +176,6 @@ function begin (options) {
 
         function after () {
             var result = character();
-
-            console.log('next::after: result=' + result);
 
             position.index += 1;
             position.previous.line = position.current.line;
@@ -205,8 +195,6 @@ function begin (options) {
     function isEnd () {
         var resolve;
 
-        console.log('isEnd');
-
         async.defer(step);
 
         return new Promise(function (r) {
@@ -214,8 +202,6 @@ function begin (options) {
         });
 
         function step () {
-            console.log('isEnd::step: isWalking=' + isWalking);
-
             if (isWalking) {
                 return resolve(position.index === json.length);
             }
@@ -225,8 +211,6 @@ function begin (options) {
     }
 
     function end () {
-        console.log('end: isFinished=' + isFinished + ', isWalking=' + isWalking + ', isString=' + isString + ', scopes.length=' + scopes.length);
-
         if (!isFinished) {
             isWalking = false;
             return;
@@ -244,8 +228,6 @@ function begin (options) {
     }
 
     function fail (actual, expected, positionKey) {
-        console.log('fail: actual=' + actual + ', expected=' + expected + ', positionKey=' + positionKey);
-
         emitter.emit(
             events.error,
             error.create(
@@ -262,18 +244,13 @@ function begin (options) {
     }
 
     function array () {
-        console.log('array');
-
         scope(events.array, value);
     }
 
     function scope (event, contentHandler) {
-        console.log('scope: event=' + event + ', ' + contentHandler.name);
-
         emitter.emit(event);
         scopes.push(event);
         endScope(event).then(function (atScopeEnd) {
-            console.log('scope::endScope: atScopeEnd=' + atScopeEnd + ', event=' + event);
             if (!atScopeEnd) {
                 async.defer(contentHandler);
             }
@@ -281,8 +258,6 @@ function begin (options) {
     }
 
     function endScope (scope) {
-        console.log('endScope: scope=' + scope);
-
         var resolve;
 
         ignoreWhitespace().then(afterWhitespace);
@@ -292,12 +267,10 @@ function begin (options) {
         });
 
         function afterWhitespace () {
-            console.log('endScope::afterWhitespace');
             isEnd().then(afterEnd);
         }
 
         function afterEnd (atEnd) {
-            console.log('endScope::afterEnd: atEnd=' + atEnd);
             if (atEnd) {
                 return next().then(afterNext);
             }
@@ -306,7 +279,6 @@ function begin (options) {
         }
 
         function afterNext (character) {
-            console.log('endScope::afterNext: character=' + character + ', terminators[scope]=' + terminators[scope]);
             if (character !== terminators[scope]) {
                 return resolve(false);
             }
