@@ -1,4 +1,4 @@
-/*globals require, module, Promise */
+/*globals require, module, Promise, console */
 
 'use strict';
 
@@ -32,7 +32,7 @@ module.exports = begin;
 
 function begin (options) {
     var json, position, flags, scopes, handlers,
-        emitter, stream, async, resume;
+        emitter, stream, async;
 
     json = '';
     position = {
@@ -72,7 +72,7 @@ function begin (options) {
     };
 
     function proceed (chunk) {
-        console.log('proceed: chunk=' + chunk + ', json=' + json + ', waiting=' + flags.walk.waiting + ', resume=' + (resume ? resume.name : 'undefined'));
+        debug('proceed');
 
         if (!chunk || chunk.length === 0) {
             return;
@@ -87,49 +87,155 @@ function begin (options) {
 
         if (flags.walk.waiting) {
             flags.walk.waiting = false;
+        }
+    }
 
-            if (resume) {
-                async.defer(resume);
-                resume = undefined;
+    function debug (caller) {
+        console.log(caller + ': ' + debugPosition() + debugFlags());
+    }
+
+    function debugPosition () {
+        var result;
+
+        if (position.index === json.length) {
+            result = 'EOF';
+        } else {
+            result = character();
+        }
+
+        return result + '[' + position.index + ']';
+    }
+
+    function character () {
+        return json[position.index];
+    }
+
+    function debugFlags () {
+        var result = '';
+
+        debugFlag('stream', 'ended', 'sx');
+        debugFlag('walk', 'begun', 'wb');
+        debugFlag('walk', 'ended', 'wx');
+        debugFlag('walk', 'waiting', 'ww');
+        debugFlag('walk', 'string', 'ws');
+
+        return result;
+
+        function debugFlag (type, name, abbreviation) {
+            if (flags[type][name]) {
+                result += ' ' + abbreviation;
             }
         }
     }
 
-    function endStream () {
-        flags.stream.ended = true;
-
-        if (flags.walk.waiting || !flags.walk.begun) {
-            endWalk();
-        }
-    }
-
-    function endWalk () {
-        console.log('endWalk: flags.stream.ended=' + flags.stream.ended + ', flags.walk.waiting=' + flags.walk.waiting);
-
-        if (!flags.stream.ended) {
-            flags.walk.waiting = true;
-            return;
-        }
-
-        if (flags.walk.string) {
-            fail('EOF', '"', 'current');
-        }
-
-        while (scopes.length > 0) {
-            fail('EOF', terminators[scopes.pop()], 'current');
-        }
-
-        emitter.emit(events.end);
-    }
-
     function value () {
+        debug('value');
+
         ignoreWhitespace()
             .then(next)
             .then(handleValue);
     }
 
+    function ignoreWhitespace () {
+        var resolve;
+
+        debug('ignoreWhitespace');
+
+        async.defer(after);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function after () {
+            debug('ignoreWhitespace::after');
+
+            awaitCharacter().then(step);
+        }
+
+        function step (hasCharacter) {
+            debug('ignoreWhitespace::step');
+
+            if (!hasCharacter) {
+                return;
+            }
+
+            if (isWhitespace(character())) {
+                return next().then(after);
+            }
+
+            resolve();
+        }
+    }
+
+    function awaitCharacter () {
+        var resolve;
+
+        debug('awaitCharacter');
+
+        async.defer(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function step () {
+            debug('awaitCharacter::step');
+
+            if (position.index === json.length && !flags.stream.ended) {
+                endWalk();
+                return async.delay(step);
+            }
+
+            resolve(position.index < json.length);
+
+            if (position.index === json.length) {
+                async.defer(endWalk);
+            }
+        }
+    }
+
+    function next () {
+        var resolve;
+
+        debug('next');
+
+        // TODO: discard old characters to save memory
+
+        awaitCharacter().then(after);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function after (hasCharacter) {
+            var result;
+
+            debug('next::after');
+
+            if (!hasCharacter) {
+                return;
+            }
+
+            result = character();
+
+            position.index += 1;
+            position.previous.line = position.current.line;
+            position.previous.column = position.current.column;
+
+            if (result === '\n') {
+                position.current.line += 1;
+                position.current.column = 1;
+            } else {
+                position.current.column += 1;
+            }
+
+            resolve(result);
+        }
+    }
+
     function handleValue (character) {
-        console.log('handleValue: character=' + character);
+        debug('handleValue');
 
         switch (character) {
             case '[':
@@ -163,109 +269,15 @@ function begin (options) {
         }
     }
 
-    function ignoreWhitespace () {
-        var resolve;
-
-        async.defer(check);
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function check () {
-            isEnd().then(checkEnd.bind(null, step));
-        }
-
-        function step () {
-            if (isWhitespace(character())) {
-                return next().then(check);
-            }
-
-            resolve();
-        }
-    }
-
-    function checkEnd (after, atEnd) {
-        if (atEnd) {
-            resume = after;
-            return endWalk();
-        }
-
-        after();
-    }
-
-    function next () {
-        var resolve;
-
-        // TODO: discard old characters to save memory
-
-        isEnd().then(checkEnd.bind(null, after));
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function after () {
-            var result = character();
-
-            position.index += 1;
-            position.previous.line = position.current.line;
-            position.previous.column = position.current.column;
-
-            if (result === '\n') {
-                position.current.line += 1;
-                position.current.column = 1;
-            } else {
-                position.current.column += 1;
-            }
-
-            resolve(result);
-        }
-    }
-
-    function isEnd () {
-        var resolve;
-
-        async.defer(step);
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function step () {
-            console.log('isEnd::step: flags.walk.waiting=' + flags.walk.waiting);
-
-            if (!flags.walk.waiting) {
-                return resolve(position.index === json.length);
-            }
-
-            async.delay(step);
-        }
-    }
-
-    function fail (actual, expected, positionKey) {
-        console.log('fail: actual=' + actual + ', expected=' + expected + ', positionKey=' + positionKey);
-
-        emitter.emit(
-            events.error,
-            error.create(
-                actual,
-                expected,
-                position[positionKey].line,
-                position[positionKey].column
-            )
-        );
-    }
-
-    function character () {
-        return json[position.index];
-    }
-
     function array () {
+        debug('array');
+
         scope(events.array, value);
     }
 
     function scope (event, contentHandler) {
+        debug('scope');
+
         emitter.emit(event);
         scopes.push(event);
         endScope(event).then(function (atScopeEnd) {
@@ -278,25 +290,29 @@ function begin (options) {
     function endScope (scope) {
         var resolve;
 
-        ignoreWhitespace().then(afterWhitespace);
+        debug('endScope');
+
+        ignoreWhitespace()
+            .then(awaitCharacter)
+            .then(afterWait);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function afterWhitespace () {
-            isEnd().then(afterEnd);
-        }
+        function afterWait (hasCharacter) {
+            debug('endScope::afterWait');
 
-        function afterEnd (atEnd) {
-            if (atEnd) {
-                return next().then(afterNext);
+            if (hasCharacter) {
+                return afterNext(character());
             }
 
-            afterNext(character());
+            next().then(afterNext);
         }
 
         function afterNext (character) {
+            debug('endScope::afterNext');
+
             if (character !== terminators[scope]) {
                 return resolve(false);
             }
@@ -311,17 +327,95 @@ function begin (options) {
         }
     }
 
+    function endValue () {
+        debug('endValue');
+
+        ignoreWhitespace().then(function () {
+            if (scopes.length === 0) {
+                return awaitCharacter().then(afterWait);
+            }
+
+            checkScope();
+        });
+
+        function afterWait (hasCharacter) {
+            debug('endValue::checkEnd');
+
+            if (hasCharacter) {
+                fail(character(), 'EOF', 'current');
+                return async.defer(value);
+            }
+
+            checkScope();
+        }
+
+        function checkScope () {
+            var scope;
+
+            debug('endValue::checkScope');
+
+            scope = scopes[scopes.length - 1];
+
+            endScope(scope).then(function (atScopeEnd) {
+                var handler;
+
+                debug('endValue::checkScope::endScope');
+
+                if (!atScopeEnd) {
+                    handler = handlers[scope];
+
+                    if (checkCharacter(character(), ',', 'current')) {
+                        next().then(handler);
+                    } else {
+                        async.defer(handler);
+                    }
+                }
+            });
+        }
+    }
+
+    function fail (actual, expected, positionKey) {
+        debug('fail');
+
+        emitter.emit(
+            events.error,
+            error.create(
+                actual,
+                expected,
+                position[positionKey].line,
+                position[positionKey].column
+            )
+        );
+    }
+
+    function checkCharacter (character, expected, positionKey) {
+        debug('checkCharacter');
+
+        if (character !== expected) {
+            fail(character, expected, positionKey);
+            return false;
+        }
+
+        return true;
+    }
+
     function object () {
+        debug('object');
+
         scope(events.object, property);
     }
 
     function property () {
+        debug('property');
+
         ignoreWhitespace()
             .then(next)
             .then(propertyName);
     }
 
     function propertyName (character) {
+        debug('propertyName');
+
         checkCharacter(character, '"', 'previous');
 
         walkString(events.property)
@@ -331,15 +425,19 @@ function begin (options) {
     }
 
     function propertyValue (character) {
+        debug('propertyValue');
+
         checkCharacter(character, ':', 'previous');
         async.defer(value);
     }
 
     function walkString (event) {
-        var isQuoting, string, resolve;
+        var isEscaping, string, resolve;
+
+        debug('walkString');
 
         flags.walk.string = true;
-        isQuoting = false;
+        isEscaping = false;
         string = '';
 
         next().then(step);
@@ -349,8 +447,10 @@ function begin (options) {
         });
 
         function step (character) {
-            if (isQuoting) {
-                isQuoting = false;
+            debug('walkString::step');
+
+            if (isEscaping) {
+                isEscaping = false;
 
                 return escape(character).then(function (escaped) {
                     string += escaped;
@@ -359,7 +459,7 @@ function begin (options) {
             }
 
             if (character === '\\') {
-                isQuoting = true;
+                isEscaping = true;
                 return next().then(step);
             }
 
@@ -376,6 +476,8 @@ function begin (options) {
 
     function escape (character) {
         var promise, resolve;
+
+        debug('escape');
 
         promise = new Promise(function (r) {
             resolve = r;
@@ -396,6 +498,8 @@ function begin (options) {
     function escapeHex () {
         var hexits, resolve;
 
+        debug('escapeHex');
+
         hexits = '';
 
         next().then(step.bind(null, 0));
@@ -405,6 +509,8 @@ function begin (options) {
         });
 
         function step (index, character) {
+            debug('escapeHex::step');
+
             if (isHexit(character)) {
                 hexits += character;
             }
@@ -423,63 +529,58 @@ function begin (options) {
         }
     }
 
-    function checkCharacter (character, expected, positionKey) {
-        if (character !== expected) {
-            fail(character, expected, positionKey);
-            return false;
-        }
+    function endStream () {
+        debug('endStream');
 
-        return true;
+        flags.stream.ended = true;
+
+        if (position.index === json.length || !flags.walk.begun) {
+            endWalk();
+        }
     }
 
-    function endValue () {
-        ignoreWhitespace().then(function () {
-            if (scopes.length === 0) {
-                return isEnd().then(checkEnd);
-            }
+    function endWalk () {
+        debug('endWalk');
 
-            checkScope();
-        });
-
-        function checkEnd (atEnd) {
-            if (!atEnd) {
-                fail(character(), 'EOF', 'current');
-                return async.defer(value);
-            }
-
-            checkScope();
+        if (!flags.stream.ended) {
+            flags.walk.waiting = true;
+            return;
         }
 
-        function checkScope () {
-            var scope = scopes[scopes.length - 1];
-
-            endScope(scope).then(function (atScopeEnd) {
-                var handler;
-
-                if (!atScopeEnd) {
-                    handler = handlers[scope];
-
-                    if (checkCharacter(character(), ',', 'current')) {
-                        next().then(handler);
-                    } else {
-                        async.defer(handler);
-                    }
-                }
-            });
+        if (flags.walk.ended) {
+            return;
         }
+
+        flags.walk.ended = true;
+
+        if (flags.walk.string) {
+            fail('EOF', '"', 'current');
+        }
+
+        while (scopes.length > 0) {
+            fail('EOF', terminators[scopes.pop()], 'current');
+        }
+
+        emitter.emit(events.end);
     }
 
     function string () {
+        debug('string');
+
         walkString(events.string).then(endValue);
     }
 
     function number (firstCharacter) {
-        var digits = firstCharacter;
+        var digits;
+
+        debug('number');
+
+        digits = firstCharacter;
 
         walkDigits().then(addDigits.bind(null, checkDecimalPlace));
 
         function addDigits (step, result) {
-            console.log('number::addDigits: step=' + step.name + ', result.digits=' + result.digits + ', result.atEnd=' + result.atEnd);
+            debug('number::addDigits');
 
             digits += result.digits;
 
@@ -491,7 +592,7 @@ function begin (options) {
         }
 
         function checkDecimalPlace () {
-            console.log('number::checkDecimalPlace: character=' + character());
+            debug('number::checkDecimalPlace');
 
             if (character() === '.') {
                 return next().then(function (character) {
@@ -504,7 +605,7 @@ function begin (options) {
         }
 
         function checkExponent () {
-            console.log('number::checkExponent: character=' + character());
+            debug('number::checkExponent');
 
             if (character() === 'e' || character() === 'E') {
                 return next().then(function (character) {
@@ -517,7 +618,7 @@ function begin (options) {
         }
 
         function checkSign (hasCharacter) {
-            console.log('number::checkExponent: hasCharacter=' + hasCharacter + ', character=' + character());
+            debug('number::checkExponent');
 
             if (!hasCharacter) {
                 return fail('EOF', 'exponent', 'current');
@@ -534,13 +635,13 @@ function begin (options) {
         }
 
         function readExponent () {
-            console.log('number::readExponent');
+            debug('number::readExponent');
 
             walkDigits().then(addDigits.bind(null, endNumber));
         }
 
         function endNumber () {
-            console.log('number::endNumber');
+            debug('number::endNumber');
 
             emitter.emit(events.number, parseFloat(digits));
             async.defer(endValue);
@@ -549,6 +650,8 @@ function begin (options) {
 
     function walkDigits () {
         var digits, resolve;
+
+        debug('walkDigits');
 
         digits = '';
 
@@ -559,10 +662,12 @@ function begin (options) {
         });
 
         function step (hasCharacter) {
-            console.log('walkDigits::step: hasCharacter=' + hasCharacter + ', character=' + character());
+            debug('walkDigits::step');
 
             if (hasCharacter && isDigit(character())) {
                 return next().then(function (character) {
+                    debug('walkDigits::step::next');
+
                     digits += character;
                     awaitCharacter().then(step);
                 });
@@ -575,41 +680,22 @@ function begin (options) {
         }
     }
 
-    function awaitCharacter () {
-        var resolve;
-
-        async.defer(step);
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function step () {
-            console.log('awaitCharacter::step: flags.walk.waiting=' + flags.walk.waiting);
-
-            if (position.index === json.length && !flags.stream.ended) {
-                endWalk();
-                return async.delay(step);
-            }
-
-            resolve(position.index < json.length);
-
-            if (position.index === json.length) {
-                async.defer(endWalk);
-            }
-        }
-    }
-
     function literalFalse () {
+        debug('literalFalse');
+
         literal([ 'a', 'l', 's', 'e' ], false);
     }
 
     function literal (expectedCharacters, value) {
         var actual, expected, invalid;
 
+        debug('literal');
+
         awaitCharacter().then(step);
 
         function step (hasCharacter) {
+            debug('literal::step');
+
             if (invalid || expectedCharacters.length === 0 || !hasCharacter) {
                 if (invalid) {
                     fail(actual, expected, 'previous');
@@ -623,6 +709,8 @@ function begin (options) {
             }
 
             next().then(function (character) {
+                debug('literal::step::next');
+
                 actual = character;
                 expected = expectedCharacters.shift();
 
@@ -636,10 +724,14 @@ function begin (options) {
     }
 
     function literalNull () {
+        debug('literalNull');
+
         literal([ 'u', 'l', 'l' ], null);
     }
 
     function literalTrue () {
+        debug('literalTrue');
+
         literal([ 'r', 'u', 'e' ], true);
     }
 }
