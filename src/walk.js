@@ -34,6 +34,7 @@ function begin (options) {
     var json, position, flags, scopes, handlers,
         emitter, stream, async;
 
+    options = options || {};
     json = '';
     position = {
         index: 0,
@@ -60,7 +61,6 @@ function begin (options) {
         obj: property
     };
 
-    options = options || {};
     emitter = new EventEmitter();
     stream = new JsonStream(proceed);
     async = asyncModule.initialise(options);
