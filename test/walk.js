@@ -963,6 +963,56 @@ suite('walk:', function () {
                 stream = result.stream;
                 emitter = result.emitter;
 
+                stream.write('1e');
+                stream.end();
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('error event occurred once', function () {
+                assert.strictEqual(log.counts.error, 1);
+            });
+
+            test('error event was dispatched correctly first time', function () {
+                assert.strictEqual(log.args.error[0][0].actual, 'EOF');
+                assert.strictEqual(log.args.error[0][0].expected, 'exponent');
+                assert.strictEqual(log.args.error[0][0].lineNumber, 1);
+                assert.strictEqual(log.args.error[0][0].columnNumber, 3);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+        });
+
+        suite('alternative bad number:', function () {
+            var stream, emitter;
+
+            setup(function (done) {
+                var result = walk();
+
+                stream = result.stream;
+                emitter = result.emitter;
+
                 stream.write('42f');
                 stream.end();
 
@@ -1904,7 +1954,7 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
-                stream.write('[42]');
+                stream.write('[0]');
                 stream.end();
 
                 Object.keys(events).forEach(function (key) {
@@ -1930,7 +1980,7 @@ suite('walk:', function () {
             });
 
             test('number event was dispatched correctly', function () {
-                assert.strictEqual(log.args.number[0][0], 42);
+                assert.strictEqual(log.args.number[0][0], 0);
             });
 
             test('endArray event occurred once', function () {
@@ -1955,7 +2005,7 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
-                stream.write('[0,1]');
+                stream.write('[1,2]');
                 stream.end();
 
                 Object.keys(events).forEach(function (key) {
@@ -1981,11 +2031,11 @@ suite('walk:', function () {
             });
 
             test('number event was dispatched correctly first time', function () {
-                assert.strictEqual(log.args.number[0][0], 0);
+                assert.strictEqual(log.args.number[0][0], 1);
             });
 
             test('number event was dispatched correctly second time', function () {
-                assert.strictEqual(log.args.number[1][0], 1);
+                assert.strictEqual(log.args.number[1][0], 2);
             });
 
             test('endArray event occurred once', function () {
@@ -2180,7 +2230,7 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
-                stream.write('   { "foo" : "bar" ,\t"baz"\t:\tnull\t,\r\n"qux"\r\n:\r\n7\r\n} ');
+                stream.write('   { "foo" : "bar" ,\t"baz"\t:\tnull\t,\r\n"qux"\r\n:\r\n3.14159265359\r\n} ');
                 stream.end();
 
                 Object.keys(events).forEach(function (key) {
@@ -2238,7 +2288,7 @@ suite('walk:', function () {
             });
 
             test('number event was dispatched correctly', function () {
-                assert.strictEqual(log.args.number[0][0], 7);
+                assert.strictEqual(log.args.number[0][0], 3.14159265359);
             });
 
             test('endObject event occurred once', function () {
