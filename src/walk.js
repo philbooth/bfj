@@ -536,41 +536,6 @@ function initialise (options) {
         }
     }
 
-    function endStream () {
-        debug('endStream');
-
-        flags.stream.ended = true;
-
-        if (position.index === json.length || !flags.walk.begun) {
-            endWalk();
-        }
-    }
-
-    function endWalk () {
-        debug('endWalk');
-
-        if (!flags.stream.ended) {
-            flags.walk.waiting = true;
-            return;
-        }
-
-        if (flags.walk.ended) {
-            return;
-        }
-
-        flags.walk.ended = true;
-
-        if (flags.walk.string) {
-            fail('EOF', '"', 'current');
-        }
-
-        while (scopes.length > 0) {
-            fail('EOF', terminators[scopes.pop()], 'current');
-        }
-
-        emitter.emit(events.end);
-    }
-
     function string () {
         debug('string');
 
@@ -740,6 +705,41 @@ function initialise (options) {
         debug('literalTrue');
 
         literal([ 'r', 'u', 'e' ], true);
+    }
+
+    function endStream () {
+        debug('endStream');
+
+        flags.stream.ended = true;
+
+        if (position.index === json.length || !flags.walk.begun) {
+            endWalk();
+        }
+    }
+
+    function endWalk () {
+        debug('endWalk');
+
+        if (!flags.stream.ended) {
+            flags.walk.waiting = true;
+            return;
+        }
+
+        if (flags.walk.ended) {
+            return;
+        }
+
+        flags.walk.ended = true;
+
+        if (flags.walk.string) {
+            fail('EOF', '"', 'current');
+        }
+
+        while (scopes.length > 0) {
+            fail('EOF', terminators[scopes.pop()], 'current');
+        }
+
+        emitter.emit(events.end);
     }
 }
 
