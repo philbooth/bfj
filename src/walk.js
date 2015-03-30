@@ -28,9 +28,9 @@ escapes = {
     't': '\t'
 };
 
-module.exports = begin;
+module.exports = initialise;
 
-function begin (options) {
+function initialise (options) {
     var json, position, flags, scopes, handlers,
         emitter, stream, async;
 
