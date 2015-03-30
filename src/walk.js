@@ -60,9 +60,14 @@ function begin (options) {
         obj: property
     };
 
+    options = options || {};
     emitter = new EventEmitter();
     stream = new JsonStream(proceed);
-    async = asyncModule.initialise(options || {});
+    async = asyncModule.initialise(options);
+
+    if (!options.verbose) {
+        debug = function () {};
+    }
 
     stream.on('finish', endStream);
 
@@ -281,6 +286,8 @@ function begin (options) {
         emitter.emit(event);
         scopes.push(event);
         endScope(event).then(function (atScopeEnd) {
+            debug('scope::endScope:');
+
             if (!atScopeEnd) {
                 async.defer(contentHandler);
             }
