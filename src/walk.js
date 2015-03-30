@@ -578,8 +578,6 @@ function begin (options) {
     function awaitCharacter () {
         var resolve;
 
-        console.log('isEnd');
-
         async.defer(step);
 
         return new Promise(function (r) {
@@ -589,7 +587,7 @@ function begin (options) {
         function step () {
             console.log('awaitCharacter::step: flags.walk.waiting=' + flags.walk.waiting);
 
-            if (!flags.stream.ended && position.index === json.length) {
+            if (position.index === json.length && !flags.stream.ended) {
                 endWalk();
                 return async.delay(step);
             }
@@ -609,10 +607,10 @@ function begin (options) {
     function literal (expectedCharacters, value) {
         var actual, expected, invalid;
 
-        isEnd().then(step);
+        awaitCharacter().then(step);
 
-        function step (atEnd) {
-            if (invalid || atEnd || expectedCharacters.length === 0) {
+        function step (hasCharacter) {
+            if (invalid || expectedCharacters.length === 0 || !hasCharacter) {
                 if (invalid) {
                     fail(actual, expected, 'previous');
                 } else if (expectedCharacters.length > 0) {
@@ -632,7 +630,7 @@ function begin (options) {
                     invalid = true;
                 }
 
-                isEnd().then(step);
+                awaitCharacter().then(step);
             });
         }
     }

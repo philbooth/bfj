@@ -2180,7 +2180,7 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
-                stream.write('   { "foo" : "bar" ,\t"baz"\t:\tnull\t,\r\n"qux"\r\n:\r\n3.14159265359\r\n} ');
+                stream.write('   { "foo" : "bar" ,\t"baz"\t:\tnull\t,\r\n"qux"\r\n:\r\n7\r\n} ');
                 stream.end();
 
                 Object.keys(events).forEach(function (key) {
@@ -2238,7 +2238,7 @@ suite('walk:', function () {
             });
 
             test('number event was dispatched correctly', function () {
-                assert.strictEqual(log.args.number[0][0], 3.14159265359);
+                assert.strictEqual(log.args.number[0][0], 7);
             });
 
             test('endObject event occurred once', function () {
@@ -2682,6 +2682,53 @@ suite('walk:', function () {
 
             test('number event was dispatched correctly', function () {
                 assert.strictEqual(log.args.number[0][0], -3.14159265359e-7);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
+        suite('chunked literal:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk();
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('n');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, function () { done(); });
+
+                setTimeout(stream.write.bind(stream, 'u'), 10);
+                setTimeout(stream.write.bind(stream, 'l'), 20);
+                setTimeout(stream.write.bind(stream, 'l'), 30);
+                setTimeout(stream.end.bind(stream), 40);
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('literal event occurred once', function () {
+                assert.strictEqual(log.counts.literal, 1);
+            });
+
+            test('literal event was dispatched correctly', function () {
+                assert.strictEqual(log.args.literal[0][0], null);
             });
 
             test('end event occurred once', function () {
