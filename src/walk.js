@@ -2,12 +2,11 @@
 
 'use strict';
 
-var EventEmitter, check, JsonStream, asyncModule, error, events, terminators, escapes;
+var EventEmitter, JsonStream, asyncModule, error, events, terminators, escapes;
 
 // TODO: When testing consider gradually adding to available text
 
 EventEmitter = require('events').EventEmitter;
-check = require('check-types');
 JsonStream = require('./stream');
 asyncModule = require('./async');
 error = require('./error');
@@ -32,9 +31,8 @@ escapes = {
 module.exports = begin;
 
 function begin (options) {
-    var json, position, scopes, handlers,
-        emitter, stream, async, resume,
-        isWalking, isFinished, isString;
+    var json, position, flags, scopes, handlers,
+        emitter, stream, async, resume;
 
     json = '';
     position = {
@@ -44,6 +42,17 @@ function begin (options) {
             column: 1
         },
         previous: {}
+    };
+    flags = {
+        stream: {
+            ended: false
+        },
+        walk: {
+            begun: false,
+            ended: false,
+            waiting: false,
+            string: false
+        }
     };
     scopes = [];
     handlers = {
@@ -55,7 +64,7 @@ function begin (options) {
     stream = new JsonStream(proceed);
     async = asyncModule.initialise(options || {});
 
-    stream.on('finish', finish);
+    stream.on('finish', endStream);
 
     return {
         emitter: emitter,
@@ -63,7 +72,7 @@ function begin (options) {
     };
 
     function proceed (chunk) {
-        console.log('proceed: chunk=' + chunk + ', json=' + json + ', isWalking=' + isWalking + ', resume=' + (resume ? resume.name : 'undefined'));
+        console.log('proceed: chunk=' + chunk + ', json=' + json + ', waiting=' + flags.walk.waiting + ', resume=' + (resume ? resume.name : 'undefined'));
 
         if (!chunk || chunk.length === 0) {
             return;
@@ -71,32 +80,52 @@ function begin (options) {
 
         json += chunk;
 
-        if (!isWalking) {
-            isWalking = true;
+        if (!flags.walk.begun) {
+            flags.walk.begun = true;
+            return async.defer(value);
+        }
+
+        if (flags.walk.waiting) {
+            flags.walk.waiting = false;
 
             if (resume) {
                 async.defer(resume);
                 resume = undefined;
-            } else {
-                async.defer(value);
             }
         }
     }
 
-    function finish () {
-        isFinished = true;
+    function endStream () {
+        flags.stream.ended = true;
 
-        if (!isWalking) {
-            end();
+        if (flags.walk.waiting || !flags.walk.begun) {
+            endWalk();
         }
     }
 
+    function endWalk () {
+        console.log('endWalk: flags.stream.ended=' + flags.stream.ended + ', flags.walk.waiting=' + flags.walk.waiting);
+
+        if (!flags.stream.ended) {
+            flags.walk.waiting = true;
+            return;
+        }
+
+        if (flags.walk.string) {
+            fail('EOF', '"', 'current');
+        }
+
+        while (scopes.length > 0) {
+            fail('EOF', terminators[scopes.pop()], 'current');
+        }
+
+        emitter.emit(events.end);
+    }
+
     function value () {
-        console.log('value');
-        ignoreWhitespace().then(function () {
-            console.log('value::ignoreWhitespace');
-            next().then(handleValue);
-        });
+        ignoreWhitespace()
+            .then(next)
+            .then(handleValue);
     }
 
     function handleValue (character) {
@@ -163,7 +192,7 @@ function begin (options) {
     function checkEnd (after, atEnd) {
         if (atEnd) {
             resume = after;
-            return end();
+            return endWalk();
         }
 
         after();
@@ -214,33 +243,14 @@ function begin (options) {
         });
 
         function step () {
-            console.log('isEnd::step: isWalking=' + isWalking);
+            console.log('isEnd::step: flags.walk.waiting=' + flags.walk.waiting);
 
-            if (isWalking) {
+            if (!flags.walk.waiting) {
                 return resolve(position.index === json.length);
             }
 
             async.delay(step);
         }
-    }
-
-    function end () {
-        console.log('end: isFinished=' + isFinished + ', isWalking=' + isWalking + ', isString=' + isString + ', scopes.length=' + scopes.length);
-
-        if (!isFinished) {
-            isWalking = false;
-            return;
-        }
-
-        if (isString) {
-            fail('EOF', '"', 'current');
-        }
-
-        while (scopes.length > 0) {
-            fail('EOF', terminators[scopes.pop()], 'current');
-        }
-
-        emitter.emit(events.end);
     }
 
     function fail (actual, expected, positionKey) {
@@ -314,7 +324,7 @@ function begin (options) {
             emitter.emit(events.endPrefix + scope);
             scopes.pop();
 
-            next().then(function (character) {
+            next().then(function () {
                 async.defer(endValue);
                 resolve(true);
             });
@@ -326,18 +336,18 @@ function begin (options) {
     }
 
     function property () {
-        ignoreWhitespace().then(function () {
-            next().then(propertyName);
-        });
+        ignoreWhitespace()
+            .then(next)
+            .then(propertyName);
     }
 
     function propertyName (character) {
         checkCharacter(character, '"', 'previous');
-        walkString(events.property).then(function () {
-            ignoreWhitespace().then(function () {
-                next().then(propertyValue);
-            });
-        });
+
+        walkString(events.property)
+            .then(ignoreWhitespace)
+            .then(next)
+            .then(propertyValue);
     }
 
     function propertyValue (character) {
@@ -348,7 +358,7 @@ function begin (options) {
     function walkString (event) {
         var isQuoting, string, resolve;
 
-        isString = true;
+        flags.walk.string = true;
         isQuoting = false;
         string = '';
 
@@ -378,7 +388,7 @@ function begin (options) {
                 return next().then(step);
             }
 
-            isString = false;
+            flags.walk.string = false;
             emitter.emit(event, string);
             resolve();
         }
@@ -489,6 +499,8 @@ function begin (options) {
         walkDigits().then(addDigits.bind(null, checkDecimalPlace));
 
         function addDigits (step, result) {
+            console.log('number::addDigits: step=' + step.name + ', result.digits=' + result.digits + ', result.atEnd=' + result.atEnd);
+
             digits += result.digits;
 
             if (result.atEnd) {
@@ -499,6 +511,8 @@ function begin (options) {
         }
 
         function checkDecimalPlace () {
+            console.log('number::checkDecimalPlace: character=' + character());
+
             if (character() === '.') {
                 return next().then(function (character) {
                     digits += character;
@@ -510,17 +524,25 @@ function begin (options) {
         }
 
         function checkExponent () {
+            console.log('number::checkExponent: character=' + character());
+
             if (character() === 'e' || character() === 'E') {
                 return next().then(function (character) {
                     digits += character;
-                    checkSign();
+                    awaitCharacter().then(checkSign);
                 });
             }
 
             endNumber();
         }
 
-        function checkSign () {
+        function checkSign (hasCharacter) {
+            console.log('number::checkExponent: hasCharacter=' + hasCharacter + ', character=' + character());
+
+            if (!hasCharacter) {
+                return fail('EOF', 'exponent', 'current');
+            }
+
             if (character() === '+' || character() === '-') {
                 return next().then(function (character) {
                     digits += character;
@@ -532,10 +554,14 @@ function begin (options) {
         }
 
         function readExponent () {
+            console.log('number::readExponent');
+
             walkDigits().then(addDigits.bind(null, endNumber));
         }
 
         function endNumber () {
+            console.log('number::endNumber');
+
             emitter.emit(events.number, parseFloat(digits));
             async.defer(endValue);
         }
@@ -546,24 +572,53 @@ function begin (options) {
 
         digits = '';
 
-        isEnd().then(step);
+        awaitCharacter().then(step);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function step (atEnd) {
-            if (atEnd || !isDigit(character())) {
-                return resolve({
-                    digits: digits,
-                    atEnd: atEnd
+        function step (hasCharacter) {
+            console.log('walkDigits::step: hasCharacter=' + hasCharacter + ', character=' + character());
+
+            if (hasCharacter && isDigit(character())) {
+                return next().then(function (character) {
+                    digits += character;
+                    awaitCharacter().then(step);
                 });
             }
 
-            next().then(function (character) {
-                digits += character;
-                isEnd().then(step);
+            resolve({
+                digits: digits,
+                atEnd: !hasCharacter
             });
+        }
+    }
+
+    function awaitCharacter () {
+        var resolve;
+
+        console.log('isEnd');
+
+        async.defer(step);
+
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function step () {
+            console.log('awaitCharacter::step: flags.walk.waiting=' + flags.walk.waiting);
+
+            if (!flags.stream.ended && position.index === json.length) {
+                endWalk();
+                return async.delay(step);
+            }
+
+            resolve(position.index < json.length);
+
+            if (position.index === json.length) {
+                async.defer(endWalk);
+            }
         }
     }
 

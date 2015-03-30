@@ -2681,7 +2681,7 @@ suite('walk:', function () {
             });
 
             test('number event was dispatched correctly', function () {
-                assert.strictEqual(log.args.number[0][0], '-3.14159265359e-7');
+                assert.strictEqual(log.args.number[0][0], -3.14159265359e-7);
             });
 
             test('end event occurred once', function () {
