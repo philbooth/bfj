@@ -77,7 +77,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -152,7 +152,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -231,7 +231,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -310,7 +310,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -386,7 +386,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -462,7 +462,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -538,7 +538,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -613,7 +613,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -688,7 +688,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -755,7 +755,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -827,7 +827,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -877,7 +877,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -927,7 +927,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -973,7 +973,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1023,7 +1023,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1084,7 +1084,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1130,7 +1130,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1176,7 +1176,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1243,7 +1243,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1286,7 +1286,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1329,7 +1329,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1372,7 +1372,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1426,7 +1426,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1477,7 +1477,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1529,7 +1529,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1580,7 +1580,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1638,7 +1638,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1693,7 +1693,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1748,7 +1748,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1803,7 +1803,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1854,7 +1854,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1909,7 +1909,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -1964,7 +1964,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2015,7 +2015,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2070,7 +2070,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2125,7 +2125,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2177,7 +2177,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2240,7 +2240,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2323,7 +2323,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2385,7 +2385,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2462,7 +2462,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2517,7 +2517,7 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
             });
 
             teardown(function () {
@@ -2559,14 +2559,58 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
+                emitter.on(events.array, stream.write.bind(stream, ']'));
+                emitter.on(events.endArray, stream.end.bind(stream));
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('array event occurred once', function () {
+                assert.strictEqual(log.counts.array, 1);
+            });
+
+            test('endArray event occurred once', function () {
+                assert.strictEqual(log.counts.endArray, 1);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
+        suite('chunked empty array with delay=1:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk({ delay: 1 });
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write('[');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
 
                 emitter.on(events.array, function () {
-                    setTimeout(stream.write.bind(stream, ']'), 10);
+                    setTimeout(stream.write.bind(stream, ']'), 8);
                 });
 
                 emitter.on(events.endArray, function () {
-                    setTimeout(stream.end.bind(stream), 10);
+                    setTimeout(stream.end.bind(stream), 8);
                 });
             });
 
@@ -2595,7 +2639,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk();
+                var result = walk({ delay: 4 });
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2609,14 +2653,14 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
 
                 emitter.on(events.object, function () {
-                    setTimeout(stream.write.bind(stream, ' }'), 10);
+                    setTimeout(stream.write.bind(stream, ' }'), 8);
                 });
 
                 emitter.on(events.endObject, function () {
-                    setTimeout(stream.end.bind(stream), 10);
+                    setTimeout(stream.end.bind(stream), 8);
                 });
             });
 
@@ -2645,7 +2689,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk();
+                var result = walk({ delay: 4 });
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2659,12 +2703,12 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, 't\\u'), 20);
-                setTimeout(stream.write.bind(stream, '00'), 40);
-                setTimeout(stream.write.bind(stream, 'a0'), 60);
-                setTimeout(stream.write.bind(stream, '"'), 80);
+                setTimeout(stream.write.bind(stream, 't\\u'), 8);
+                setTimeout(stream.write.bind(stream, '00'), 16);
+                setTimeout(stream.write.bind(stream, 'a0'), 24);
+                setTimeout(stream.write.bind(stream, '"'), 32);
 
                 emitter.on(events.string, function () {
                     setTimeout(stream.end.bind(stream), 10);
@@ -2696,7 +2740,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk();
+                var result = walk({ delay: 4 });
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2710,16 +2754,16 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, '3'), 10);
-                setTimeout(stream.write.bind(stream, '.'), 20);
-                setTimeout(stream.write.bind(stream, '14159'), 30);
-                setTimeout(stream.write.bind(stream, '265359'), 30);
+                setTimeout(stream.write.bind(stream, '3'), 8);
+                setTimeout(stream.write.bind(stream, '.'), 16);
+                setTimeout(stream.write.bind(stream, '14159'), 24);
+                setTimeout(stream.write.bind(stream, '265359'), 32);
                 setTimeout(stream.write.bind(stream, 'e'), 40);
-                setTimeout(stream.write.bind(stream, '-'), 50);
-                setTimeout(stream.write.bind(stream, '7'), 60);
-                setTimeout(stream.end.bind(stream), 70);
+                setTimeout(stream.write.bind(stream, '-'), 48);
+                setTimeout(stream.write.bind(stream, '7'), 56);
+                setTimeout(stream.end.bind(stream), 64);
             });
 
             teardown(function () {
@@ -2747,7 +2791,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk();
+                var result = walk({ delay: 4 });
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2761,12 +2805,12 @@ suite('walk:', function () {
                     }));
                 });
 
-                emitter.on(events.end, function () { done(); });
+                emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, 'u'), 10);
-                setTimeout(stream.write.bind(stream, 'l'), 20);
-                setTimeout(stream.write.bind(stream, 'l'), 30);
-                setTimeout(stream.end.bind(stream), 40);
+                setTimeout(stream.write.bind(stream, 'u'), 8);
+                setTimeout(stream.write.bind(stream, 'l'), 16);
+                setTimeout(stream.write.bind(stream, 'l'), 24);
+                setTimeout(stream.end.bind(stream), 32);
             });
 
             teardown(function () {
@@ -2783,6 +2827,70 @@ suite('walk:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
+        suite('populated array with discard=1:', function () {
+            var emitter, stream;
+
+            setup(function (done) {
+                var result = walk({ delay: 4, discard: 1 });
+
+                emitter = result.emitter;
+                stream = result.stream;
+
+                stream.write(' ');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+
+                setTimeout(stream.write.bind(stream, '['), 8);
+
+                emitter.on(events.array, function () {
+                    stream.write(' ""');
+                });
+
+                emitter.on(events.string, function () {
+                    stream.write(' ]');
+                });
+
+                emitter.on(events.endArray, function () {
+                    stream.end();
+                });
+            });
+
+            teardown(function () {
+                emitter = undefined;
+            });
+
+            test('array event occurred once', function () {
+                assert.strictEqual(log.counts.array, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.strictEqual(log.args.string[0][0], "");
+            });
+
+            test('endArray event occurred once', function () {
+                assert.strictEqual(log.counts.endArray, 1);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
             });
 
             test('error event did not occur', function () {

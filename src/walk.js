@@ -4,8 +4,6 @@
 
 var EventEmitter, JsonStream, asyncModule, error, events, terminators, escapes;
 
-// TODO: When testing consider gradually adding to available text
-
 EventEmitter = require('events').EventEmitter;
 JsonStream = require('./stream');
 asyncModule = require('./async');
@@ -32,7 +30,7 @@ module.exports = initialise;
 
 function initialise (options) {
     var json, position, flags, scopes, handlers,
-        emitter, stream, async;
+        emitter, stream, async, discardThreshold;
 
     options = options || {};
     json = '';
@@ -65,7 +63,8 @@ function initialise (options) {
     stream = new JsonStream(proceed);
     async = asyncModule.initialise(options);
 
-    if (!options.verbose) {
+    discardThreshold = options.discard || 16384;
+    if (!options.debug) {
         debug = function () {};
     }
 
@@ -87,11 +86,7 @@ function initialise (options) {
 
         if (!flags.walk.begun) {
             flags.walk.begun = true;
-            return async.defer(value);
-        }
-
-        if (flags.walk.waiting) {
-            flags.walk.waiting = false;
+            async.defer(value);
         }
     }
 
@@ -120,9 +115,9 @@ function initialise (options) {
 
         debugFlag('stream', 'ended', 'sx');
         debugFlag('walk', 'begun', 'wb');
-        debugFlag('walk', 'ended', 'wx');
         debugFlag('walk', 'waiting', 'ww');
         debugFlag('walk', 'string', 'ws');
+        debugFlag('walk', 'ended', 'wx');
 
         return result;
 
@@ -188,8 +183,15 @@ function initialise (options) {
             debug('awaitCharacter::step');
 
             if (position.index === json.length && !flags.stream.ended) {
-                endWalk();
+                if (!flags.walk.waiting) {
+                    flags.walk.waiting = true;
+                }
+
                 return async.delay(step);
+            }
+
+            if (flags.walk.waiting) {
+                flags.walk.waiting = false;
             }
 
             resolve(position.index < json.length);
@@ -204,8 +206,6 @@ function initialise (options) {
         var resolve;
 
         debug('next');
-
-        // TODO: discard old characters to save memory
 
         awaitCharacter().then(after);
 
@@ -233,6 +233,11 @@ function initialise (options) {
                 position.current.column = 1;
             } else {
                 position.current.column += 1;
+            }
+
+            if (position.index === discardThreshold) {
+                json = json.substr(position.index);
+                position.index = 0;
             }
 
             resolve(result);
@@ -285,13 +290,7 @@ function initialise (options) {
 
         emitter.emit(event);
         scopes.push(event);
-        endScope(event).then(function (atScopeEnd) {
-            debug('scope::endScope:');
-
-            if (!atScopeEnd) {
-                async.defer(contentHandler);
-            }
-        });
+        endScope(event).then(contentHandler);
     }
 
     function endScope (scope) {
@@ -301,42 +300,34 @@ function initialise (options) {
 
         ignoreWhitespace()
             .then(awaitCharacter)
-            .then(afterWait);
+            .then(after);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function afterWait (hasCharacter) {
-            debug('endScope::afterWait');
+        function after (hasCharacter) {
+            debug('endScope::after');
 
-            if (hasCharacter) {
-                return afterNext(character());
+            if (!hasCharacter) {
+                return async.defer(endWalk);
             }
 
-            next().then(afterNext);
-        }
-
-        function afterNext (character) {
-            debug('endScope::afterNext');
-
-            if (character !== terminators[scope]) {
-                return resolve(false);
+            if (character() !== terminators[scope]) {
+                return resolve();
             }
 
             emitter.emit(events.endPrefix + scope);
             scopes.pop();
 
-            next().then(function () {
-                async.defer(endValue);
-                resolve(true);
-            });
+            next().then(endValue);
         }
     }
 
     function endValue () {
         debug('endValue');
 
+        // TODO: Implement awaitNonWhitespace
         ignoreWhitespace().then(function () {
             if (scopes.length === 0) {
                 return awaitCharacter().then(afterWait);
@@ -346,14 +337,15 @@ function initialise (options) {
         });
 
         function afterWait (hasCharacter) {
-            debug('endValue::checkEnd');
+            debug('endValue::afterWait');
 
+            // TODO: Should ignore whitespace here
             if (hasCharacter) {
                 fail(character(), 'EOF', 'current');
                 return async.defer(value);
             }
 
-            checkScope();
+            endWalk();
         }
 
         function checkScope () {
@@ -363,19 +355,15 @@ function initialise (options) {
 
             scope = scopes[scopes.length - 1];
 
-            endScope(scope).then(function (atScopeEnd) {
-                var handler;
-
+            endScope(scope).then(function () {
                 debug('endValue::checkScope::endScope');
 
-                if (!atScopeEnd) {
-                    handler = handlers[scope];
+                var handler = handlers[scope];
 
-                    if (checkCharacter(character(), ',', 'current')) {
-                        next().then(handler);
-                    } else {
-                        async.defer(handler);
-                    }
+                if (checkCharacter(character(), ',', 'current')) {
+                    next().then(handler);
+                } else {
+                    async.defer(handler);
                 }
             });
         }
@@ -712,18 +700,13 @@ function initialise (options) {
 
         flags.stream.ended = true;
 
-        if (position.index === json.length || !flags.walk.begun) {
+        if (!flags.walk.begun) {
             endWalk();
         }
     }
 
     function endWalk () {
         debug('endWalk');
-
-        if (!flags.stream.ended) {
-            flags.walk.waiting = true;
-            return;
-        }
 
         if (flags.walk.ended) {
             return;
