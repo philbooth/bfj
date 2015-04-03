@@ -1,12 +1,11 @@
-/*globals require, module, Promise, console */
+/*globals require, module, Promise, setImmediate, console */
 
 'use strict';
 
-var EventEmitter, JsonStream, asyncModule, error, events, terminators, escapes;
+var EventEmitter, JsonStream, error, events, terminators, escapes;
 
 EventEmitter = require('events').EventEmitter;
 JsonStream = require('./stream');
-asyncModule = require('./async');
 error = require('./error');
 events = require('./events');
 
@@ -37,10 +36,6 @@ module.exports = initialise;
  * EventEmitter instance that represents the outgoing JSON token
  * events.
  *
- * @option delay:   Time in milliseconds to wait between attempts
- *                  to continue after processing has paused. The
- *                  default value is `1000`.
- *
  * @option discard: The number of characters to process before
  *                  discarding the processed characters to save
  *                  memory. The default value is `16384`.
@@ -49,7 +44,7 @@ module.exports = initialise;
  **/
 function initialise (options) {
     var json, position, flags, scopes, handlers,
-        emitter, stream, async, discardThreshold;
+        resume, emitter, stream, discardThreshold;
 
     options = options || {};
     json = '';
@@ -68,7 +63,6 @@ function initialise (options) {
         walk: {
             begun: false,
             ended: false,
-            waiting: false,
             string: false
         }
     };
@@ -80,7 +74,6 @@ function initialise (options) {
 
     emitter = new EventEmitter();
     stream = new JsonStream(proceed);
-    async = asyncModule.initialise(options);
 
     discardThreshold = options.discard || 16384;
     if (!options.debug) {
@@ -105,7 +98,12 @@ function initialise (options) {
 
         if (!flags.walk.begun) {
             flags.walk.begun = true;
-            async.defer(value);
+            setImmediate(value);
+        }
+
+        if (resume) {
+            setImmediate(resume);
+            resume = undefined;
         }
     }
 
@@ -134,7 +132,6 @@ function initialise (options) {
 
         debugFlag('stream', 'ended', 'sx');
         debugFlag('walk', 'begun', 'wb');
-        debugFlag('walk', 'waiting', 'ww');
         debugFlag('walk', 'string', 'ws');
         debugFlag('walk', 'ended', 'wx');
 
@@ -186,31 +183,28 @@ function initialise (options) {
 
         debug('awaitCharacter');
 
-        async.defer(step);
+        if (position.index < json.length) {
+            return Promise.resolve(true);
+        }
+
+        if (flags.stream.ended) {
+            setImmediate(endWalk);
+            return Promise.resolve(false);
+        }
+
+        resume = after;
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function step () {
-            debug('awaitCharacter::step');
-
-            if (position.index === json.length && !flags.stream.ended) {
-                if (!flags.walk.waiting) {
-                    flags.walk.waiting = true;
-                }
-
-                return async.delay(step);
-            }
-
-            if (flags.walk.waiting) {
-                flags.walk.waiting = false;
-            }
+        function after () {
+            debug('awaitCharacter::after');
 
             resolve(position.index < json.length);
 
-            if (position.index === json.length) {
-                async.defer(endWalk);
+            if (flags.stream.ended) {
+                return setImmediate(endWalk);
             }
         }
     }
@@ -321,7 +315,7 @@ function initialise (options) {
             debug('endScope::after');
 
             if (!hasCharacter) {
-                return async.defer(endWalk);
+                return setImmediate(endWalk);
             }
 
             if (character() !== terminators[scope]) {
@@ -345,7 +339,7 @@ function initialise (options) {
 
             if (scopes.length === 0) {
                 fail(character(), 'EOF', 'current');
-                return async.defer(value);
+                return setImmediate(value);
             }
 
             checkScope();
@@ -366,7 +360,7 @@ function initialise (options) {
                 if (checkCharacter(character(), ',', 'current')) {
                     next().then(handler);
                 } else {
-                    async.defer(handler);
+                    setImmediate(handler);
                 }
             });
         }
@@ -426,7 +420,7 @@ function initialise (options) {
         debug('propertyValue');
 
         checkCharacter(character, ':', 'previous');
-        async.defer(value);
+        setImmediate(value);
     }
 
     function walkString (event) {
@@ -607,7 +601,7 @@ function initialise (options) {
             debug('number::endNumber');
 
             emitter.emit(events.number, parseFloat(digits));
-            async.defer(endValue);
+            setImmediate(endValue);
         }
     }
 
@@ -668,7 +662,7 @@ function initialise (options) {
                     emitter.emit(events.literal, value);
                 }
 
-                return async.defer(endValue);
+                return setImmediate(endValue);
             }
 
             next().then(function (character) {
@@ -705,6 +699,10 @@ function initialise (options) {
 
         if (!flags.walk.begun) {
             endWalk();
+        }
+
+        if (resume) {
+            resume();
         }
     }
 

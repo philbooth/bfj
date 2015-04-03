@@ -93,7 +93,7 @@ suite('parse:', function () {
             var options;
 
             setup(function () {
-                options = { delay: 4 };
+                options = {};
                 parse({ pipe: spooks.fn({ name: 'pipe', log: log }) }, options)
                     .then(spooks.fn({ name: 'resolve', log: log }))
                     .catch(spooks.fn({ name: 'reject', log: log }));
@@ -111,8 +111,7 @@ suite('parse:', function () {
                 assert.isUndefined(log.these.walk[0]);
                 assert.lengthOf(log.args.walk[0], 1);
                 assert.strictEqual(log.args.walk[0][0], options);
-                assert.strictEqual(log.args.walk[0][0].delay, 4);
-                assert.lengthOf(Object.keys(log.args.walk[0][0]), 1);
+                assert.lengthOf(Object.keys(log.args.walk[0][0]), 0);
             });
 
             test('EventEmitter.on was called ten times', function () {

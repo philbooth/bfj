@@ -19,10 +19,6 @@ module.exports = read;
  *
  * @param path:     Path to the JSON file.
  *
- * @option delay:   Time in milliseconds to wait between attempts
- *                  to continue after processing has paused. The
- *                  default value is `1000`.
- *
  * @option discard: The number of characters to process before
  *                  discarding the processed characters to save
  *                  memory. The default value is `16384`.

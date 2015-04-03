@@ -2584,61 +2584,11 @@ suite('walk:', function () {
             });
         });
 
-        suite('chunked empty array with delay=1:', function () {
-            var emitter, stream;
-
-            setup(function (done) {
-                var result = walk({ delay: 1 });
-
-                emitter = result.emitter;
-                stream = result.stream;
-
-                stream.write('[');
-
-                Object.keys(events).forEach(function (key) {
-                    emitter.on(events[key], spooks.fn({
-                        name: key,
-                        log: log
-                    }));
-                });
-
-                emitter.on(events.end, done);
-
-                emitter.on(events.array, function () {
-                    setTimeout(stream.write.bind(stream, ']'), 8);
-                });
-
-                emitter.on(events.endArray, function () {
-                    setTimeout(stream.end.bind(stream), 8);
-                });
-            });
-
-            teardown(function () {
-                emitter = undefined;
-            });
-
-            test('array event occurred once', function () {
-                assert.strictEqual(log.counts.array, 1);
-            });
-
-            test('endArray event occurred once', function () {
-                assert.strictEqual(log.counts.endArray, 1);
-            });
-
-            test('end event occurred once', function () {
-                assert.strictEqual(log.counts.end, 1);
-            });
-
-            test('error event did not occur', function () {
-                assert.strictEqual(log.counts.error, 0);
-            });
-        });
-
         suite('chunked empty object with whitespace:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk({ delay: 4 });
+                var result = walk();
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2655,11 +2605,11 @@ suite('walk:', function () {
                 emitter.on(events.end, done);
 
                 emitter.on(events.object, function () {
-                    setTimeout(stream.write.bind(stream, ' }'), 8);
+                    setTimeout(stream.write.bind(stream, ' }'), 20);
                 });
 
                 emitter.on(events.endObject, function () {
-                    setTimeout(stream.end.bind(stream), 8);
+                    setTimeout(stream.end.bind(stream), 20);
                 });
             });
 
@@ -2688,7 +2638,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk({ delay: 4 });
+                var result = walk();
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2704,15 +2654,15 @@ suite('walk:', function () {
 
                 emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, '\\'), 8);
-                setTimeout(stream.write.bind(stream, 't\\u'), 16);
-                setTimeout(stream.write.bind(stream, '00'), 24);
-                setTimeout(stream.write.bind(stream, 'a0'), 32);
-                setTimeout(stream.write.bind(stream, '"'), 40);
-
                 emitter.on(events.string, function () {
-                    setTimeout(stream.end.bind(stream), 10);
+                    setTimeout(stream.end.bind(stream), 20);
                 });
+
+                setTimeout(stream.write.bind(stream, '\\'), 20);
+                setTimeout(stream.write.bind(stream, 't\\u'), 40);
+                setTimeout(stream.write.bind(stream, '00'), 60);
+                setTimeout(stream.write.bind(stream, 'a0'), 80);
+                setTimeout(stream.write.bind(stream, '"'), 100);
             });
 
             teardown(function () {
@@ -2740,7 +2690,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk({ delay: 4 });
+                var result = walk();
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2756,14 +2706,14 @@ suite('walk:', function () {
 
                 emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, '3'), 8);
-                setTimeout(stream.write.bind(stream, '.'), 16);
-                setTimeout(stream.write.bind(stream, '14159'), 24);
-                setTimeout(stream.write.bind(stream, '265359'), 32);
-                setTimeout(stream.write.bind(stream, 'e'), 40);
-                setTimeout(stream.write.bind(stream, '-'), 48);
-                setTimeout(stream.write.bind(stream, '7'), 56);
-                setTimeout(stream.end.bind(stream), 64);
+                setTimeout(stream.write.bind(stream, '3'), 20);
+                setTimeout(stream.write.bind(stream, '.'), 40);
+                setTimeout(stream.write.bind(stream, '14159'), 60);
+                setTimeout(stream.write.bind(stream, '265359'), 80);
+                setTimeout(stream.write.bind(stream, 'e'), 100);
+                setTimeout(stream.write.bind(stream, '-'), 120);
+                setTimeout(stream.write.bind(stream, '7'), 140);
+                setTimeout(stream.end.bind(stream), 160);
             });
 
             teardown(function () {
@@ -2791,7 +2741,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk({ delay: 4 });
+                var result = walk();
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2807,10 +2757,10 @@ suite('walk:', function () {
 
                 emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, 'u'), 8);
-                setTimeout(stream.write.bind(stream, 'l'), 16);
-                setTimeout(stream.write.bind(stream, 'l'), 24);
-                setTimeout(stream.end.bind(stream), 32);
+                setTimeout(stream.write.bind(stream, 'u'), 20);
+                setTimeout(stream.write.bind(stream, 'l'), 40);
+                setTimeout(stream.write.bind(stream, 'l'), 60);
+                setTimeout(stream.end.bind(stream), 80);
             });
 
             teardown(function () {
@@ -2838,7 +2788,7 @@ suite('walk:', function () {
             var emitter, stream;
 
             setup(function (done) {
-                var result = walk({ delay: 4, discard: 1 });
+                var result = walk({ discard: 1 });
 
                 emitter = result.emitter;
                 stream = result.stream;
@@ -2854,8 +2804,6 @@ suite('walk:', function () {
 
                 emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, '['), 8);
-
                 emitter.on(events.array, function () {
                     stream.write(' ""');
                 });
@@ -2867,6 +2815,8 @@ suite('walk:', function () {
                 emitter.on(events.endArray, function () {
                     stream.end();
                 });
+
+                setImmediate(stream.write.bind(stream, '['));
             });
 
             teardown(function () {
