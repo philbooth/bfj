@@ -182,7 +182,7 @@ in a public property,
 * `bfj.events.literal`:
   Indicates that
   a literal
-  (either `true`, `false` or `null)
+  (either `true`, `false` or `null`)
   has been encountered.
   The listener
   will be passed
