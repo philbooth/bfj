@@ -76,9 +76,15 @@ function parse (stream, options) {
     }
 
     function value (v) {
+        var scope;
+
         debug('value: v=' + v);
 
-        var scope = scopes[scopes.length - 1];
+        if (scopes.length === 0) {
+            return scopes.push(v);
+        }
+
+        scope = scopes[scopes.length - 1];
 
         if (key) {
             scope[key] = v;
@@ -103,7 +109,9 @@ function parse (stream, options) {
     function endScope () {
         debug('endScope');
 
-        scopes.pop();
+        if (scopes.length > 1) {
+            scopes.pop();
+        }
     }
 
     function end () {
