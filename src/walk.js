@@ -131,40 +131,34 @@ function initialise (options) {
     function value () {
         debug('value');
 
-        ignoreWhitespace()
+        awaitNonWhitespace()
             .then(next)
             .then(handleValue);
     }
 
-    function ignoreWhitespace () {
+    function awaitNonWhitespace () {
         var resolve;
 
-        debug('ignoreWhitespace');
+        debug('awaitNonWhitespace');
 
-        async.defer(after);
+        awaitCharacter().then(step);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function after () {
-            debug('ignoreWhitespace::after');
-
-            awaitCharacter().then(step);
-        }
-
         function step (hasCharacter) {
-            debug('ignoreWhitespace::step');
+            debug('awaitNonWhitespace::step');
 
             if (!hasCharacter) {
-                return;
+                return resolve(false);
             }
 
-            if (isWhitespace(character())) {
-                return next().then(after);
+            if (!isWhitespace(character())) {
+                return resolve(true);
             }
 
-            resolve();
+            next().then(awaitCharacter).then(step);
         }
     }
 
@@ -298,9 +292,7 @@ function initialise (options) {
 
         debug('endScope');
 
-        ignoreWhitespace()
-            .then(awaitCharacter)
-            .then(after);
+        awaitNonWhitespace().then(after);
 
         return new Promise(function (r) {
             resolve = r;
@@ -327,26 +319,18 @@ function initialise (options) {
     function endValue () {
         debug('endValue');
 
-        // TODO: Implement awaitNonWhitespace
-        ignoreWhitespace().then(function () {
-            if (scopes.length === 0) {
-                return awaitCharacter().then(afterWait);
+        awaitNonWhitespace().then(function (hasCharacter) {
+            if (!hasCharacter) {
+                return endWalk();
             }
 
-            checkScope();
-        });
-
-        function afterWait (hasCharacter) {
-            debug('endValue::afterWait');
-
-            // TODO: Should ignore whitespace here
-            if (hasCharacter) {
+            if (scopes.length === 0) {
                 fail(character(), 'EOF', 'current');
                 return async.defer(value);
             }
 
-            endWalk();
-        }
+            checkScope();
+        });
 
         function checkScope () {
             var scope;
@@ -403,7 +387,7 @@ function initialise (options) {
     function property () {
         debug('property');
 
-        ignoreWhitespace()
+        awaitNonWhitespace()
             .then(next)
             .then(propertyName);
     }
@@ -414,7 +398,7 @@ function initialise (options) {
         checkCharacter(character, '"', 'previous');
 
         walkString(events.property)
-            .then(ignoreWhitespace)
+            .then(awaitNonWhitespace)
             .then(next)
             .then(propertyValue);
     }
