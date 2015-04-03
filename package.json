@@ -13,11 +13,13 @@
         "stringify",
         "walk",
         "parse",
+        "parser",
         "serialise",
         "serialize",
         "read",
         "write",
-        "fast"
+        "async",
+        "asynchronous"
     ],
     "repository": {
         "type": "git",
