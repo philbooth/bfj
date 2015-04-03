@@ -28,6 +28,25 @@ escapes = {
 
 module.exports = initialise;
 
+/**
+ * Public function `walk`.
+ *
+ * Initialises an asynchronous JSON walker and returns an object
+ * { stream, emitter }, where `stream` is a Writable instance
+ * that represents the incoming JSON stream and `emitter` is an
+ * EventEmitter instance that represents the outgoing JSON token
+ * events.
+ *
+ * @option delay:   Time in milliseconds to wait between attempts
+ *                  to continue after processing has paused. The
+ *                  default value is `1000`.
+ *
+ * @option discard: The number of characters to process before
+ *                  discarding the processed characters to save
+ *                  memory. The default value is `16384`.
+ *
+ * @option debug:   Log debug messages to the console.
+ **/
 function initialise (options) {
     var json, position, flags, scopes, handlers,
         emitter, stream, async, discardThreshold;

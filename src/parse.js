@@ -10,6 +10,26 @@ events = require('./events');
 
 module.exports = parse;
 
+/**
+ * Public function `parse`.
+ *
+ * Asynchronously parses a Readable instance as JSON and returns
+ * a promise. If there are no errors, the promise is resolved
+ * with the parsed data. If errors occur, the promise is rejected
+ * with the first error.
+ *
+ * @param stream:   Readable stream representing the incoming JSON.
+ *
+ * @option delay:   Time in milliseconds to wait between attempts
+ *                  to continue after processing has paused. The
+ *                  default value is `1000`.
+ *
+ * @option discard: The number of characters to process before
+ *                  discarding the processed characters to save
+ *                  memory. The default value is `16384`.
+ *
+ * @option debug:   Log debug messages to the console.
+ **/
 function parse (stream, options) {
     var walker, scopes, errors, resolve, reject, key;
 
