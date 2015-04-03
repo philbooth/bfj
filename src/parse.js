@@ -60,12 +60,20 @@ function parse (stream, options) {
     }
 
     function array () {
+        if (errors.length > 0) {
+            return;
+        }
+
         debug('array');
 
         beginScope([]);
     }
 
     function beginScope (parsed) {
+        if (errors.length > 0) {
+            return;
+        }
+
         debug('beginScope: parsed=' + parsed);
 
         if (scopes.length > 0) {
@@ -77,6 +85,10 @@ function parse (stream, options) {
 
     function value (v) {
         var scope;
+
+        if (errors.length > 0) {
+            return;
+        }
 
         debug('value: v=' + v);
 
@@ -95,18 +107,30 @@ function parse (stream, options) {
     }
 
     function object () {
+        if (errors.length > 0) {
+            return;
+        }
+
         debug('object');
 
         beginScope({});
     }
 
     function property (name) {
+        if (errors.length > 0) {
+            return;
+        }
+
         debug('property: name=' + name);
 
         key = name;
     }
 
     function endScope () {
+        if (errors.length > 0) {
+            return;
+        }
+
         debug('endScope');
 
         if (scopes.length > 1) {
