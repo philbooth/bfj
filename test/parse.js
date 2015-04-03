@@ -223,13 +223,10 @@ suite('parse:', function () {
                     assert.strictEqual(log.counts.resolve, 0);
                 });
 
-                test('reject was not called', function () {
-                    assert.strictEqual(log.counts.reject, 0);
-                });
-
                 suite('end event:', function () {
-                    setup(function () {
+                    setup(function (done) {
                         log.args.on[8][1]();
+                        setImmediate(done);
                     });
 
                     test('resolve was called once', function () {
@@ -243,19 +240,8 @@ suite('parse:', function () {
                         assert.lengthOf(log.args.resolve[0][0], 0);
                     });
 
-                    test('reject was called once', function () {
-                        assert.strictEqual(log.counts.reject, 1);
-                    });
-
-                    test('reject was called correctly', function () {
-                        assert.isUndefined(log.these.reject[0]);
-                        assert.lengthOf(log.args.reject[0], 1);
-                        assert.isError(log.args.reject[0][0]);
-                        assert.lengthOf(log.args.reject[0][0], 0);
-                    });
-
-                    test('resolve was not called', function () {
-                        assert.strictEqual(log.counts.resolve, 0);
+                    test('reject was not called', function () {
+                        assert.strictEqual(log.counts.reject, 0);
                     });
                 });
 
@@ -264,26 +250,25 @@ suite('parse:', function () {
                         log.args.on[3][1]('foo');
                     });
 
-                    test('callback was not called', function () {
-                        assert.strictEqual(log.counts.callback, 0);
+                    test('resolve was not called', function () {
+                        assert.strictEqual(log.counts.resolve, 0);
                     });
 
                     suite('end event:', function () {
-                        setup(function () {
+                        setup(function (done) {
                             log.args.on[8][1]();
+                            setImmediate(done);
                         });
 
-                        test('callback was called once', function () {
-                            assert.strictEqual(log.counts.callback, 1);
+                        test('resolve was called once', function () {
+                            assert.strictEqual(log.counts.resolve, 1);
                         });
 
-                        test('callback was called correctly', function () {
-                            assert.isUndefined(log.these.callback[0]);
-                            assert.lengthOf(log.args.callback[0], 2);
-                            assert.isUndefined(log.args.callback[0][0]);
-                            assert.isArray(log.args.callback[0][1]);
-                            assert.lengthOf(log.args.callback[0][1], 1);
-                            assert.strictEqual(log.args.callback[0][1][0], 'foo');
+                        test('resolve was called correctly', function () {
+                            assert.lengthOf(log.args.resolve[0], 1);
+                            assert.isArray(log.args.resolve[0][0]);
+                            assert.lengthOf(log.args.resolve[0][0], 1);
+                            assert.strictEqual(log.args.resolve[0][0][0], 'foo');
                         });
                     });
 
@@ -292,24 +277,24 @@ suite('parse:', function () {
                             log.args.on[3][1]('bar');
                         });
 
-                        test('callback was not called', function () {
-                            assert.strictEqual(log.counts.callback, 0);
+                        test('resolve was not called', function () {
+                            assert.strictEqual(log.counts.resolve, 0);
                         });
 
                         suite('end event:', function () {
-                            setup(function () {
+                            setup(function (done) {
                                 log.args.on[8][1]();
+                                setImmediate(done);
                             });
 
-                            test('callback was called once', function () {
-                                assert.strictEqual(log.counts.callback, 1);
+                            test('resolve was called once', function () {
+                                assert.strictEqual(log.counts.resolve, 1);
                             });
 
-                            test('callback was called correctly', function () {
-                                assert.isArray(log.args.callback[0][1]);
-                                assert.lengthOf(log.args.callback[0][1], 2);
-                                assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                assert.strictEqual(log.args.callback[0][1][1], 'bar');
+                            test('resolve was called correctly', function () {
+                                assert.lengthOf(log.args.resolve[0][0], 2);
+                                assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                assert.strictEqual(log.args.resolve[0][0][1], 'bar');
                             });
                         });
                     });
@@ -319,24 +304,25 @@ suite('parse:', function () {
                             log.args.on[0][1]();
                         });
 
-                        test('callback was not called', function () {
-                            assert.strictEqual(log.counts.callback, 0);
+                        test('resolve was not called', function () {
+                            assert.strictEqual(log.counts.resolve, 0);
                         });
 
                         suite('end event:', function () {
-                            setup(function () {
+                            setup(function (done) {
                                 log.args.on[8][1]();
+                                setImmediate(done);
                             });
 
-                            test('callback was called once', function () {
-                                assert.strictEqual(log.counts.callback, 1);
+                            test('resolve was called once', function () {
+                                assert.strictEqual(log.counts.resolve, 1);
                             });
 
-                            test('callback was called correctly', function () {
-                                assert.lengthOf(log.args.callback[0][1], 2);
-                                assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                assert.isArray(log.args.callback[0][1][1]);
-                                assert.lengthOf(log.args.callback[0][1][1], 0);
+                            test('resolve was called correctly', function () {
+                                assert.lengthOf(log.args.resolve[0][0], 2);
+                                assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                assert.isArray(log.args.resolve[0][0][1]);
+                                assert.lengthOf(log.args.resolve[0][0][1], 0);
                             });
                         });
 
@@ -345,25 +331,26 @@ suite('parse:', function () {
                                 log.args.on[3][1]('bar');
                             });
 
-                            test('callback was not called', function () {
-                                assert.strictEqual(log.counts.callback, 0);
+                            test('resolve was not called', function () {
+                                assert.strictEqual(log.counts.resolve, 0);
                             });
 
                             suite('end event:', function () {
-                                setup(function () {
+                                setup(function (done) {
                                     log.args.on[8][1]();
+                                    setImmediate(done);
                                 });
 
-                                test('callback was called once', function () {
-                                    assert.strictEqual(log.counts.callback, 1);
+                                test('resolve was called once', function () {
+                                    assert.strictEqual(log.counts.resolve, 1);
                                 });
 
-                                test('callback was called correctly', function () {
-                                    assert.lengthOf(log.args.callback[0][1], 2);
-                                    assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                    assert.isArray(log.args.callback[0][1][1]);
-                                    assert.lengthOf(log.args.callback[0][1][1], 1);
-                                    assert.strictEqual(log.args.callback[0][1][1][0], 'bar');
+                                test('resolve was called correctly', function () {
+                                    assert.lengthOf(log.args.resolve[0][0], 2);
+                                    assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                    assert.isArray(log.args.resolve[0][0][1]);
+                                    assert.lengthOf(log.args.resolve[0][0][1], 1);
+                                    assert.strictEqual(log.args.resolve[0][0][1][0], 'bar');
                                 });
                             });
 
@@ -372,26 +359,27 @@ suite('parse:', function () {
                                     log.args.on[3][1]('baz');
                                 });
 
-                                test('callback was not called', function () {
-                                    assert.strictEqual(log.counts.callback, 0);
+                                test('resolve was not called', function () {
+                                    assert.strictEqual(log.counts.resolve, 0);
                                 });
 
                                 suite('end event:', function () {
-                                    setup(function () {
+                                    setup(function (done) {
                                         log.args.on[8][1]();
+                                        setImmediate(done);
                                     });
 
-                                    test('callback was called once', function () {
-                                        assert.strictEqual(log.counts.callback, 1);
+                                    test('resolve was called once', function () {
+                                        assert.strictEqual(log.counts.resolve, 1);
                                     });
 
-                                    test('callback was called correctly', function () {
-                                        assert.lengthOf(log.args.callback[0][1], 2);
-                                        assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                        assert.isArray(log.args.callback[0][1][1]);
-                                        assert.lengthOf(log.args.callback[0][1][1], 2);
-                                        assert.strictEqual(log.args.callback[0][1][1][0], 'bar');
-                                        assert.strictEqual(log.args.callback[0][1][1][1], 'baz');
+                                    test('resolve was called correctly', function () {
+                                        assert.lengthOf(log.args.resolve[0][0], 2);
+                                        assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                        assert.isArray(log.args.resolve[0][0][1]);
+                                        assert.lengthOf(log.args.resolve[0][0][1], 2);
+                                        assert.strictEqual(log.args.resolve[0][0][1][0], 'bar');
+                                        assert.strictEqual(log.args.resolve[0][0][1][1], 'baz');
                                     });
                                 });
                             });
@@ -406,26 +394,27 @@ suite('parse:', function () {
                                         log.args.on[3][1]('baz');
                                     });
 
-                                    test('callback was not called', function () {
-                                        assert.strictEqual(log.counts.callback, 0);
+                                    test('resolve was not called', function () {
+                                        assert.strictEqual(log.counts.resolve, 0);
                                     });
 
                                     suite('end event:', function () {
-                                        setup(function () {
+                                        setup(function (done) {
                                             log.args.on[8][1]();
+                                            setImmediate(done);
                                         });
 
-                                        test('callback was called once', function () {
-                                            assert.strictEqual(log.counts.callback, 1);
+                                        test('resolve was called once', function () {
+                                            assert.strictEqual(log.counts.resolve, 1);
                                         });
 
-                                        test('callback was called correctly', function () {
-                                            assert.lengthOf(log.args.callback[0][1], 3);
-                                            assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                            assert.isArray(log.args.callback[0][1][1]);
-                                            assert.lengthOf(log.args.callback[0][1][1], 1);
-                                            assert.strictEqual(log.args.callback[0][1][1][0], 'bar');
-                                            assert.strictEqual(log.args.callback[0][1][2], 'baz');
+                                        test('resolve was called correctly', function () {
+                                            assert.lengthOf(log.args.resolve[0][0], 3);
+                                            assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                            assert.isArray(log.args.resolve[0][0][1]);
+                                            assert.lengthOf(log.args.resolve[0][0][1], 1);
+                                            assert.strictEqual(log.args.resolve[0][0][1][0], 'bar');
+                                            assert.strictEqual(log.args.resolve[0][0][2], 'baz');
                                         });
                                     });
                                 });
@@ -438,24 +427,25 @@ suite('parse:', function () {
                             log.args.on[1][1]();
                         });
 
-                        test('callback was not called', function () {
-                            assert.strictEqual(log.counts.callback, 0);
+                        test('resolve was not called', function () {
+                            assert.strictEqual(log.counts.resolve, 0);
                         });
 
                         suite('end event:', function () {
-                            setup(function () {
+                            setup(function (done) {
                                 log.args.on[8][1]();
+                                setImmediate(done);
                             });
 
-                            test('callback was called once', function () {
-                                assert.strictEqual(log.counts.callback, 1);
+                            test('resolve was called once', function () {
+                                assert.strictEqual(log.counts.resolve, 1);
                             });
 
-                            test('callback was called correctly', function () {
-                                assert.lengthOf(log.args.callback[0][1], 2);
-                                assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                assert.isObject(log.args.callback[0][1][1]);
-                                assert.lengthOf(Object.keys(log.args.callback[0][1][1]), 0);
+                            test('resolve was called correctly', function () {
+                                assert.lengthOf(log.args.resolve[0][0], 2);
+                                assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                assert.isObject(log.args.resolve[0][0][1]);
+                                assert.lengthOf(Object.keys(log.args.resolve[0][0][1]), 0);
                             });
                         });
 
@@ -469,25 +459,26 @@ suite('parse:', function () {
                                     log.args.on[3][1]('baz');
                                 });
 
-                                test('callback was not called', function () {
-                                    assert.strictEqual(log.counts.callback, 0);
+                                test('resolve was not called', function () {
+                                    assert.strictEqual(log.counts.resolve, 0);
                                 });
 
                                 suite('end event:', function () {
-                                    setup(function () {
+                                    setup(function (done) {
                                         log.args.on[8][1]();
+                                        setImmediate(done);
                                     });
 
-                                    test('callback was called once', function () {
-                                        assert.strictEqual(log.counts.callback, 1);
+                                    test('resolve was called once', function () {
+                                        assert.strictEqual(log.counts.resolve, 1);
                                     });
 
-                                    test('callback was called correctly', function () {
-                                        assert.lengthOf(log.args.callback[0][1], 2);
-                                        assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                        assert.isObject(log.args.callback[0][1][1]);
-                                        assert.lengthOf(Object.keys(log.args.callback[0][1][1]), 1);
-                                        assert.strictEqual(log.args.callback[0][1][1].bar, 'baz');
+                                    test('resolve was called correctly', function () {
+                                        assert.lengthOf(log.args.resolve[0][0], 2);
+                                        assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                        assert.isObject(log.args.resolve[0][0][1]);
+                                        assert.lengthOf(Object.keys(log.args.resolve[0][0][1]), 1);
+                                        assert.strictEqual(log.args.resolve[0][0][1].bar, 'baz');
                                     });
                                 });
 
@@ -501,26 +492,27 @@ suite('parse:', function () {
                                             log.args.on[3][1]('wibble');
                                         });
 
-                                        test('callback was not called', function () {
-                                            assert.strictEqual(log.counts.callback, 0);
+                                        test('resolve was not called', function () {
+                                            assert.strictEqual(log.counts.resolve, 0);
                                         });
 
                                         suite('end event:', function () {
-                                            setup(function () {
+                                            setup(function (done) {
                                                 log.args.on[8][1]();
+                                                setImmediate(done);
                                             });
 
-                                            test('callback was called once', function () {
-                                                assert.strictEqual(log.counts.callback, 1);
+                                            test('resolve was called once', function () {
+                                                assert.strictEqual(log.counts.resolve, 1);
                                             });
 
-                                            test('callback was called correctly', function () {
-                                                assert.lengthOf(log.args.callback[0][1], 2);
-                                                assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                                assert.isObject(log.args.callback[0][1][1]);
-                                                assert.lengthOf(Object.keys(log.args.callback[0][1][1]), 2);
-                                                assert.strictEqual(log.args.callback[0][1][1].bar, 'baz');
-                                                assert.strictEqual(log.args.callback[0][1][1].qux, 'wibble');
+                                            test('resolve was called correctly', function () {
+                                                assert.lengthOf(log.args.resolve[0][0], 2);
+                                                assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                                assert.isObject(log.args.resolve[0][0][1]);
+                                                assert.lengthOf(Object.keys(log.args.resolve[0][0][1]), 2);
+                                                assert.strictEqual(log.args.resolve[0][0][1].bar, 'baz');
+                                                assert.strictEqual(log.args.resolve[0][0][1].qux, 'wibble');
                                             });
                                         });
                                     });
@@ -536,26 +528,27 @@ suite('parse:', function () {
                                             log.args.on[3][1]('wibble');
                                         });
 
-                                        test('callback was not called', function () {
-                                            assert.strictEqual(log.counts.callback, 0);
+                                        test('resolve was not called', function () {
+                                            assert.strictEqual(log.counts.resolve, 0);
                                         });
 
                                         suite('end event:', function () {
-                                            setup(function () {
+                                            setup(function (done) {
                                                 log.args.on[8][1]();
+                                                setImmediate(done);
                                             });
 
-                                            test('callback was called once', function () {
-                                                assert.strictEqual(log.counts.callback, 1);
+                                            test('resolve was called once', function () {
+                                                assert.strictEqual(log.counts.resolve, 1);
                                             });
 
-                                            test('callback was called correctly', function () {
-                                                assert.lengthOf(log.args.callback[0][1], 3);
-                                                assert.strictEqual(log.args.callback[0][1][0], 'foo');
-                                                assert.isObject(log.args.callback[0][1][1]);
-                                                assert.lengthOf(Object.keys(log.args.callback[0][1][1]), 1);
-                                                assert.strictEqual(log.args.callback[0][1][1].bar, 'baz');
-                                                assert.strictEqual(log.args.callback[0][1][2], 'wibble');
+                                            test('resolve was called correctly', function () {
+                                                assert.lengthOf(log.args.resolve[0][0], 3);
+                                                assert.strictEqual(log.args.resolve[0][0][0], 'foo');
+                                                assert.isObject(log.args.resolve[0][0][1]);
+                                                assert.lengthOf(Object.keys(log.args.resolve[0][0][1]), 1);
+                                                assert.strictEqual(log.args.resolve[0][0][1].bar, 'baz');
+                                                assert.strictEqual(log.args.resolve[0][0][2], 'wibble');
                                             });
                                         });
                                     });
@@ -570,23 +563,24 @@ suite('parse:', function () {
                         log.args.on[9][1]('foo');
                     });
 
-                    test('callback was not called', function () {
-                        assert.strictEqual(log.counts.callback, 0);
+                    test('reject was not called', function () {
+                        assert.strictEqual(log.counts.reject, 0);
                     });
 
                     suite('end event:', function () {
-                        setup(function () {
+                        setup(function (done) {
                             log.args.on[8][1]();
+                            setImmediate(done);
                         });
 
-                        test('callback was called once', function () {
-                            assert.strictEqual(log.counts.callback, 1);
+                        test('reject was called once', function () {
+                            assert.strictEqual(log.counts.reject, 1);
                         });
 
-                        test('callback was called correctly', function () {
-                            assert.strictEqual(log.args.callback[0][0], 'foo');
-                            assert.isArray(log.args.callback[0][1]);
-                            assert.lengthOf(log.args.callback[0][1], 0);
+                        test('reject was called correctly', function () {
+                            assert.isUndefined(log.these.reject[0]);
+                            assert.lengthOf(log.args.reject[0], 1);
+                            assert.strictEqual(log.args.reject[0][0], 'foo');
                         });
                     });
 
@@ -595,23 +589,22 @@ suite('parse:', function () {
                             log.args.on[9][1]('bar');
                         });
 
-                        test('callback was not called', function () {
-                            assert.strictEqual(log.counts.callback, 0);
+                        test('reject was not called', function () {
+                            assert.strictEqual(log.counts.reject, 0);
                         });
 
                         suite('end event:', function () {
-                            setup(function () {
+                            setup(function (done) {
                                 log.args.on[8][1]();
+                                setImmediate(done);
                             });
 
-                            test('callback was called once', function () {
-                                assert.strictEqual(log.counts.callback, 1);
+                            test('reject was called once', function () {
+                                assert.strictEqual(log.counts.reject, 1);
                             });
 
-                            test('callback was called correctly', function () {
-                                assert.strictEqual(log.args.callback[0][0], 'foo');
-                                assert.isArray(log.args.callback[0][1]);
-                                assert.lengthOf(log.args.callback[0][1], 0);
+                            test('reject was called correctly', function () {
+                                assert.strictEqual(log.args.reject[0][0], 'foo');
                             });
                         });
                     });
@@ -623,22 +616,23 @@ suite('parse:', function () {
                     log.args.on[1][1]();
                 });
 
-                test('callback was not called', function () {
-                    assert.strictEqual(log.counts.callback, 0);
+                test('resolve was not called', function () {
+                    assert.strictEqual(log.counts.resolve, 0);
                 });
 
                 suite('end event:', function () {
-                    setup(function () {
+                    setup(function (done) {
                         log.args.on[8][1]();
+                        setImmediate(done);
                     });
 
-                    test('callback was called once', function () {
-                        assert.strictEqual(log.counts.callback, 1);
+                    test('resolve was called once', function () {
+                        assert.strictEqual(log.counts.resolve, 1);
                     });
 
-                    test('callback was called correctly', function () {
-                        assert.isObject(log.args.callback[0][1]);
-                        assert.lengthOf(Object.keys(log.args.callback[0][1]), 0);
+                    test('resolve was called correctly', function () {
+                        assert.isObject(log.args.resolve[0][0]);
+                        assert.lengthOf(Object.keys(log.args.resolve[0][0]), 0);
                     });
                 });
             });

@@ -1,4 +1,4 @@
-/*globals require, module, Promise */
+/*globals require, module, Promise, console */
 
 'use strict';
 
