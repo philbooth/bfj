@@ -1505,7 +1505,6 @@ suite('walk:', function () {
             });
 
             test('error event did not occur', function () {
-                console.log(log.args.error);
                 assert.strictEqual(log.counts.error, 0);
             });
         });

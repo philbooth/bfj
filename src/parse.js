@@ -2,9 +2,8 @@
 
 'use strict';
 
-var check, walk, events;
+var walk, events;
 
-check = require('check-types');
 walk = require('./walk');
 events = require('./events');
 

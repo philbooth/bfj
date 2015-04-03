@@ -9,7 +9,6 @@ spooks = require('spooks');
 modulePath = '../src/parse';
 
 mockery.registerAllowable(modulePath);
-mockery.registerAllowable('check-types');
 mockery.registerAllowable('./events');
 
 suite('parse:', function () {
@@ -94,7 +93,7 @@ suite('parse:', function () {
             var options;
 
             setup(function () {
-                options = { delay: 4, debug: true };
+                options = { delay: 4 };
                 parse({ pipe: spooks.fn({ name: 'pipe', log: log }) }, options)
                     .then(spooks.fn({ name: 'resolve', log: log }))
                     .catch(spooks.fn({ name: 'reject', log: log }));
@@ -113,7 +112,7 @@ suite('parse:', function () {
                 assert.lengthOf(log.args.walk[0], 1);
                 assert.strictEqual(log.args.walk[0][0], options);
                 assert.strictEqual(log.args.walk[0][0].delay, 4);
-                assert.lengthOf(Object.keys(log.args.walk[0][0]), 2);
+                assert.lengthOf(Object.keys(log.args.walk[0][0]), 1);
             });
 
             test('EventEmitter.on was called ten times', function () {
