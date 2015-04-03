@@ -2694,7 +2694,7 @@ suite('walk:', function () {
                 emitter = result.emitter;
                 stream = result.stream;
 
-                stream.write('"\\');
+                stream.write('"');
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -2705,10 +2705,11 @@ suite('walk:', function () {
 
                 emitter.on(events.end, done);
 
-                setTimeout(stream.write.bind(stream, 't\\u'), 8);
-                setTimeout(stream.write.bind(stream, '00'), 16);
-                setTimeout(stream.write.bind(stream, 'a0'), 24);
-                setTimeout(stream.write.bind(stream, '"'), 32);
+                setTimeout(stream.write.bind(stream, '\\'), 8);
+                setTimeout(stream.write.bind(stream, 't\\u'), 16);
+                setTimeout(stream.write.bind(stream, '00'), 24);
+                setTimeout(stream.write.bind(stream, 'a0'), 32);
+                setTimeout(stream.write.bind(stream, '"'), 40);
 
                 emitter.on(events.string, function () {
                     setTimeout(stream.end.bind(stream), 10);

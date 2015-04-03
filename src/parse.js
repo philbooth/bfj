@@ -16,8 +16,13 @@ function parse (stream, options) {
     walker = walk(options);
     stream.pipe(walker.stream);
 
+    options = options || {};
     scopes = [];
     errors = [];
+
+    if (!options.debug) {
+        debug = function () {};
+    }
 
     walker.emitter.on(events.array, array);
     walker.emitter.on(events.object, object);
@@ -35,11 +40,19 @@ function parse (stream, options) {
         reject = rej;
     });
 
+    function debug (message) {
+        console.log(message);
+    }
+
     function array () {
+        debug('array');
+
         beginScope([]);
     }
 
     function beginScope (parsed) {
+        debug('beginScope: parsed=' + parsed);
+
         if (scopes.length > 0) {
             value(parsed);
         }
@@ -48,6 +61,8 @@ function parse (stream, options) {
     }
 
     function value (v) {
+        debug('value: v=' + v);
+
         var scope = scopes[scopes.length - 1];
 
         if (key) {
@@ -59,18 +74,26 @@ function parse (stream, options) {
     }
 
     function object () {
+        debug('object');
+
         beginScope({});
     }
 
     function property (name) {
+        debug('property: name=' + name);
+
         key = name;
     }
 
     function endScope () {
+        debug('endScope');
+
         scopes.pop();
     }
 
     function end () {
+        debug('end: errors.length=' + errors.length);
+
         if (errors.length > 0) {
             return reject(errors[0]);
         }
@@ -79,6 +102,8 @@ function parse (stream, options) {
     }
 
     function error (e) {
+        debug('error: e=' + e);
+
         errors.push(e);
     }
 }
