@@ -2,6 +2,8 @@
 
 [![Build status][ci-image]][ci-status]
 
+Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
+
 * [Why would I want those?](#why-would-i-want-those)
 * [What functions does it implement?](#what-functions-does-it-implement)
 * [How do I install it?](#how-do-i-install-it)
@@ -17,8 +19,6 @@
 * [What versions of node.js does it support?](#what-versions-of-nodejs-does-it-support)
 * [What license is it released under?](#what-license-is-it-released-under)
 
-Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
-
 ## Why would I want those?
 
 If you need
@@ -29,9 +29,8 @@ large JavaScript data sets
 to JSON,
 it makes sense
 to do so asynchronously
-rather than in
-a blocking call
-that monopolises
+rather than
+monopolising
 the event loop.
 BFJ implements
 those asynchronous functions.
@@ -70,7 +69,7 @@ Additionally,
 work is underway
 on functions
 that handle
-the reverse transformation;
+the reverse transformations;
 serialising
 JavaScript data
 to JSON.
@@ -343,8 +342,8 @@ with the command
 [readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
 [history]: HISTORY.md
 [jshint]: https://github.com/jshint/node-jshint
-[mocha]: http://visionmedia.github.com/mocha
-[chai]: http://chaijs.com/
+[mocha]: https://github.com/mochajs/mocha
+[chai]: https://github.com/chaijs
 [mockery]: https://github.com/mfncooper/mockery
 [spooks]: https://github.com/philbooth/spooks.js
 [license]: COPYING

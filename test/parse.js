@@ -636,7 +636,5 @@ suite('parse:', function () {
             });
         });
     });
-
-    function nop () {};
 });
 
