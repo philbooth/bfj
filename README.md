@@ -24,9 +24,8 @@ Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
 If you need
 to parse
 large JSON strings
-or serialise
-large JavaScript data sets
-to JSON,
+or stringify
+large JavaScript data sets,
 it makes sense
 to do so asynchronously
 rather than
@@ -39,7 +38,7 @@ those asynchronous functions.
 
 At the moment,
 three functions
-are implemented.
+are available.
 They are all
 concerned with
 parsing, or
@@ -243,9 +242,8 @@ walker.emitter.on(events.error, error);
 ### bfj.parse (stream, options)
 
 `parse` asynchronously parses
-data from
+JSON from
 a [Readable] instance
-as JSON
 and returns a promise.
 If there are
 no syntax errors,
