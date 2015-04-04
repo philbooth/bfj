@@ -153,58 +153,64 @@ function initialise (options) {
     }
 
     function awaitNonWhitespace () {
-        var resolve;
+        var resolve, reject;
 
         debug('awaitNonWhitespace');
 
-        awaitCharacter().then(step);
+        setImmediate(wait);
 
-        return new Promise(function (r) {
-            resolve = r;
+        return new Promise(function (res, rej) {
+            resolve = res;
+            reject = rej;
         });
 
-        function step (hasCharacter) {
+        function wait () {
+            awaitCharacter().then(step).catch(reject);
+        }
+
+        function step () {
             debug('awaitNonWhitespace::step');
 
-            if (!hasCharacter) {
-                return resolve(false);
-            }
-
             if (!isWhitespace(character())) {
-                return resolve(true);
+                return resolve();
             }
 
-            next().then(awaitCharacter).then(step);
+            next().then(wait);
         }
     }
 
     function awaitCharacter () {
-        var resolve;
+        var resolve, reject;
 
         debug('awaitCharacter');
 
         if (position.index < json.length) {
-            return Promise.resolve(true);
+            return Promise.resolve();
         }
 
         if (flags.stream.ended) {
             setImmediate(endWalk);
-            return Promise.resolve(false);
+            return Promise.reject();
         }
 
         resume = after;
 
-        return new Promise(function (r) {
-            resolve = r;
+        return new Promise(function (res, rej) {
+            resolve = res;
+            reject = rej;
         });
 
         function after () {
             debug('awaitCharacter::after');
 
-            resolve(position.index < json.length);
+            if (position.index < json.length) {
+                return resolve();
+            }
+
+            reject();
 
             if (flags.stream.ended) {
-                return setImmediate(endWalk);
+                setImmediate(endWalk);
             }
         }
     }
@@ -220,14 +226,10 @@ function initialise (options) {
             resolve = r;
         });
 
-        function after (hasCharacter) {
+        function after () {
             var result;
 
             debug('next::after');
-
-            if (!hasCharacter) {
-                return;
-            }
 
             result = character();
 
@@ -305,18 +307,14 @@ function initialise (options) {
 
         debug('endScope');
 
-        awaitNonWhitespace().then(after);
+        awaitNonWhitespace().then(after).catch(endWalk);
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function after (hasCharacter) {
+        function after () {
             debug('endScope::after');
-
-            if (!hasCharacter) {
-                return setImmediate(endWalk);
-            }
 
             if (character() !== terminators[scope]) {
                 return resolve();
@@ -332,18 +330,16 @@ function initialise (options) {
     function endValue () {
         debug('endValue');
 
-        awaitNonWhitespace().then(function (hasCharacter) {
-            if (!hasCharacter) {
-                return endWalk();
-            }
+        awaitNonWhitespace().then(after).catch(endWalk);
 
+        function after () {
             if (scopes.length === 0) {
                 fail(character(), 'EOF', 'current');
                 return setImmediate(value);
             }
 
             checkScope();
-        });
+        }
 
         function checkScope () {
             var scope;
@@ -567,19 +563,17 @@ function initialise (options) {
             if (character() === 'e' || character() === 'E') {
                 return next().then(function (character) {
                     digits += character;
-                    awaitCharacter().then(checkSign);
+                    awaitCharacter()
+                        .then(checkSign)
+                        .catch(fail.bind(null, 'EOF', 'exponent', 'current'));
                 });
             }
 
             endNumber();
         }
 
-        function checkSign (hasCharacter) {
+        function checkSign () {
             debug('number::checkExponent');
-
-            if (!hasCharacter) {
-                return fail('EOF', 'exponent', 'current');
-            }
 
             if (character() === '+' || character() === '-') {
                 return next().then(function (character) {
@@ -612,27 +606,42 @@ function initialise (options) {
 
         digits = '';
 
-        awaitCharacter().then(step);
+        wait();
 
         return new Promise(function (r) {
             resolve = r;
         });
 
-        function step (hasCharacter) {
+        function wait () {
+            debug('walkDigits::wait');
+
+            awaitCharacter().then(step).catch(atEnd);
+        }
+
+        function step () {
             debug('walkDigits::step');
 
-            if (hasCharacter && isDigit(character())) {
+            if (isDigit(character())) {
                 return next().then(function (character) {
                     debug('walkDigits::step::next');
 
                     digits += character;
-                    awaitCharacter().then(step);
+                    wait();
                 });
             }
 
             resolve({
                 digits: digits,
-                atEnd: !hasCharacter
+                atEnd: false
+            });
+        }
+
+        function atEnd () {
+            debug('walkDigits::atEnd');
+
+            resolve({
+                digits: digits,
+                atEnd: true
             });
         }
     }
@@ -648,35 +657,55 @@ function initialise (options) {
 
         debug('literal');
 
-        awaitCharacter().then(step);
+        wait();
 
-        function step (hasCharacter) {
+        function wait () {
+            debug('literal::wait');
+
+            awaitCharacter().then(step).catch(atEnd);
+        }
+
+        function step () {
             debug('literal::step');
 
-            if (invalid || expectedCharacters.length === 0 || !hasCharacter) {
-                if (invalid) {
-                    fail(actual, expected, 'previous');
-                } else if (expectedCharacters.length > 0) {
-                    fail('EOF', expectedCharacters.shift(), 'current');
-                } else {
-                    emitter.emit(events.literal, value);
-                }
-
-                return setImmediate(endValue);
+            if (invalid || expectedCharacters.length === 0) {
+                return atEnd();
             }
 
-            next().then(function (character) {
-                debug('literal::step::next');
+            next().then(afterNext);
+        }
 
-                actual = character;
-                expected = expectedCharacters.shift();
+        function atEnd () {
+            debug('literal::atEnd');
 
-                if (actual !== expected) {
-                    invalid = true;
-                }
+            if (invalid) {
+                fail(actual, expected, 'previous');
+            } else if (expectedCharacters.length > 0) {
+                fail('EOF', expectedCharacters.shift(), 'current');
+            } else {
+                done();
+            }
 
-                awaitCharacter().then(step);
-            });
+            setImmediate(endValue);
+        }
+
+        function afterNext (character) {
+            debug('literal::afterNext');
+
+            actual = character;
+            expected = expectedCharacters.shift();
+
+            if (actual !== expected) {
+                invalid = true;
+            }
+
+            wait();
+        }
+
+        function done () {
+            debug('literal::done');
+
+            emitter.emit(events.literal, value);
         }
     }
 
