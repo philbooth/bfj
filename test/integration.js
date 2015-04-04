@@ -78,7 +78,7 @@ suite('integration:', function () {
                     foo: [ 'b', 'a', 'r' ],
                     baz: null,
                     qux: 3.14159265359e42
-                }));
+                }, null, '\t'));
                 bfj.read(file)
                     .then(function (r) {
                         result = r;
