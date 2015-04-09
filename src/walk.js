@@ -165,6 +165,8 @@ function initialise (options) {
         });
 
         function wait () {
+            debug('awaitNonWhitespace::wait');
+
             awaitCharacter().then(step).catch(reject);
         }
 
