@@ -157,7 +157,7 @@ function initialise (options) {
 
         debug('awaitNonWhitespace');
 
-        setImmediate(wait);
+        wait();
 
         return new Promise(function (res, rej) {
             resolve = res;
