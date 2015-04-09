@@ -99,6 +99,7 @@ function initialise (options) {
         if (!flags.walk.begun) {
             flags.walk.begun = true;
             setImmediate(value);
+            return;
         }
 
         resume();
