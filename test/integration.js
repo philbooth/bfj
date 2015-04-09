@@ -149,7 +149,7 @@ suite('integration:', function () {
                 failed = false;
                 file = path.join(__dirname, 'data.json');
                 fs.writeFileSync(file, '"foo" "bar"');
-                bfj.read(file, { debug: true })
+                bfj.read(file)
                     .then(function (r) {
                         result = r;
                         done();
