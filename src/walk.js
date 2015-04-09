@@ -44,7 +44,7 @@ module.exports = initialise;
  **/
 function initialise (options) {
     var json, position, flags, scopes, handlers,
-        resume, emitter, stream, discardThreshold;
+        resumeFn, emitter, stream, discardThreshold;
 
     options = options || {};
     json = '';
@@ -101,10 +101,7 @@ function initialise (options) {
             setImmediate(value);
         }
 
-        if (resume) {
-            setImmediate(resume);
-            resume = undefined;
-        }
+        resume();
     }
 
     function debug (caller) {
@@ -195,7 +192,7 @@ function initialise (options) {
             return Promise.reject();
         }
 
-        resume = after;
+        resumeFn = after;
 
         return new Promise(function (res, rej) {
             resolve = res;
@@ -729,12 +726,11 @@ function initialise (options) {
         flags.stream.ended = true;
 
         if (!flags.walk.begun) {
-            endWalk();
+            setImmediate(endWalk);
+            return;
         }
 
-        if (resume) {
-            resume();
-        }
+        resume();
     }
 
     function endWalk () {
@@ -755,6 +751,13 @@ function initialise (options) {
         }
 
         emitter.emit(events.end);
+    }
+
+    function resume () {
+        if (resumeFn) {
+            setImmediate(resumeFn);
+            resumeFn = undefined;
+        }
     }
 }
 
