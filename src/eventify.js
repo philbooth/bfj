@@ -2,7 +2,7 @@
 
 'use strict';
 
-var EventEmitter;
+var EventEmitter, error, events;
 
 EventEmitter = require('events').EventEmitter;
 error = require('./error');
@@ -15,32 +15,34 @@ module.exports = eventify;
  *
  * Asynchronously traverses a data structure (depth-first) and returns an
  * EventEmitter instance, emitting events as it encounters data. Sanely
- * handles promises, dates, sets and maps.
+ * handles promises, dates, maps and other iterables.
  *
- * @param data:      The data structure to traverse.
+ * @param data:        The data structure to traverse.
  *
- * @option apply:    Dictionary of {function name:argument array} pairs.
- *                   When functions are encountered in the data, this
- *                   object is checked for keys that match the function
- *                   name. If a match exists, the function is applied
- *                   using the associated argument array and an event is
- *                   emitted for the result. If no match exists or this
- *                   option is not specified, the function is ignored.
+ * @option apply:      Dictionary of {function name:argument array} pairs.
+ *                     When functions are encountered in the data, this
+ *                     object is checked for keys that match the function
+ *                     name. If a match exists, the function is applied
+ *                     using the associated argument array and an event is
+ *                     emitted for the result. If no match exists or this
+ *                     option is not specified, the function is ignored.
  *                   
- * @option promises: 'resolve' or 'ignore', default is 'resolve'.
+ * @option promises:   'resolve' or 'ignore', default is 'resolve'.
  *
- * @option dates:    'json' or 'ignore', default is 'json'.
+ * @option poll:       Promise resolution polling period in milliseconds,
+ *                     default is 1000.
  *
- * @option sets:     'array', or 'ignore', default is 'array'.
+ * @option dates:      'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:     'object', or 'ignore', default is 'object'.
+ * @option maps:       'object', or 'ignore', default is 'object'.
  *
- * @option debug:    Log debug messages to the console.
+ * @option iterables:  'array', or 'ignore', default is 'array'.
+ *
+ * @option debug:      Log debug messages to the console.
  **/
 function eventify (data, options) {
-    var await, coerce, context, emitter, current;
+    var coerce, context, emitter, current;
 
-    await = {};
     coerce = {};
     context = [];
     emitter = new EventEmitter();
@@ -53,20 +55,21 @@ function eventify (data, options) {
     function normaliseOptions () {
         options = options || {};
         options.apply = options.apply || {};
+        options.poll = options.poll || 1000;
 
-        normaliseOption('promises', await);
-        normaliseOption('dates', coerce);
-        normaliseOption('sets', coerce);
-        normaliseOption('maps', coerce);
+        normaliseOption('promises');
+        normaliseOption('dates');
+        normaliseOption('maps');
+        normaliseOption('iterables');
 
         if (!options.debug) {
             debug = function () {};
         }
     }
 
-    function normaliseOption (key, action) {
+    function normaliseOption (key) {
         if (options[key] !== 'ignore') {
-            action[key] = true;
+            coerce[key] = true;
         }
     }
 
@@ -76,10 +79,100 @@ function eventify (data, options) {
     }
 
     function proceed () {
-        emitter.emit(getEvent(current));
+        if (current) {
+            context.push(current);
+        }
+
+        current = coerce(data);
+
+        if (current === undefined) {
+            return;
+        }
+
+        if (current === false || current === true || current === null) {
+            emitter.emit(events.literal, current);
+            return;
+        }
+
+        type = typeof current;
+
+        if (type === 'string' || type === 'number') {
+            emitter.emit(events[type], current);
+            return;
+        }
+
+        if (Array.isArray(current)) {
+            emitter.emit(events.array);
+            // recur for items
+            return;
+        }
+
+        emitter.emit(events.object);
+        // recur for items
+        return;
     }
 
-    function getEvent (value) {
+    function coerce () {
+        if (current instanceof Promise) {
+            return coerceThing('promises', coercePromise);
+        }
+
+        if (current instanceof Date) {
+            return coerceThing('dates', coerceDate);
+        }
+
+        if (current instanceof Map) {
+            return coerceThing('maps', coerceMap);
+        }
+
+        if (typeof current[Symbol.iterator] === 'function') {
+            return coerceThing('iterables', coerceIterable);
+        }
+
+        return current;
+    }
+
+    function coerceThing (thing, fn) {
+        if (coerce[thing]) {
+            return fn();
+        }
+
+        return undefined;
+    }
+
+    function coercePromise () {
+        var result;
+
+        current.then(function (r) {
+            result = r;
+            done = true;
+        }).catch(function () {
+            done = true;
+        });
+
+        while (!done) {
+            setTimeout(function () {}, options.poll);
+        }
+
+        return result;
+    }
+
+    function coerceDate () {
+        return current.toJSON();
+    }
+
+    function coerceMap () {
+        var result = {};
+
+        current.forEach(function (value, key) {
+            result[key] = value;
+        });
+
+        return result;
+    }
+
+    function coerceIterable () {
+        return Array.from(current);
     }
 }
 
