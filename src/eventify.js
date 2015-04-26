@@ -8,10 +8,6 @@ EventEmitter = require('events').EventEmitter;
 error = require('./error');
 events = require('./events');
 
-if (typeof Array.from !== 'function') {
-    Array.from = require('./arrayfrom');
-}
-
 module.exports = eventify;
 
 /**
