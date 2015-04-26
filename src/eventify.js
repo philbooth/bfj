@@ -92,31 +92,31 @@ function eventify (data, options) {
 
         debug('proceed:', datum);
 
-        datum = coerce(datum);
+        return coerce(datum).then(after);
 
-        if (datum === undefined) {
-            return Promise.resolve();
-        }
+        function after (coerced) {
+            debug('proceed::after:', coerced);
 
-        if (datum === false || datum === true || datum === null) {
-            literal(datum);
-            return Promise.resolve();
-        }
-
-        type = typeof datum;
-
-        if (type === 'string' || type === 'number') {
-            value(datum, type);
-            return Promise.resolve();
-        }
-
-        return new Promise(function (resolve) {
-            if (Array.isArray(datum)) {
-                array(datum).then(resolve);
-            } else {
-                object(datum).then(resolve);
+            if (coerced === undefined) {
+                return;
             }
-        });
+
+            if (coerced === false || coerced === true || coerced === null) {
+                return literal(coerced);
+            }
+
+            type = typeof coerced;
+
+            if (type === 'string' || type === 'number') {
+                return value(coerced, type);
+            }
+
+            if (Array.isArray(coerced)) {
+                return array(coerced);
+            }
+
+            return object(coerced);
+        }
     }
 
     function coerce (datum) {
@@ -140,7 +140,7 @@ function eventify (data, options) {
             return coerceThing(datum, 'iterables', coerceIterable);
         }
 
-        return datum;
+        return Promise.resolve(datum);
     }
 
     function coerceThing (datum, thing, fn) {
@@ -148,48 +148,41 @@ function eventify (data, options) {
             return fn(datum);
         }
 
-        debug('coerceThing(%s): returning undefined', thing);
+        debug('coerceThing(%s): resolving to undefined', thing);
 
-        return undefined;
+        return Promise.resolve();
     }
 
     function coercePromise (promise) {
-        var result, done;
-
-        promise.then(function (r) {
-            result = r;
+        return promise.then(function (result) {
             debug('coercePromise: resolved to %s', result);
-            done = true;
+            return result;
         }).catch(function () {
             debug('coercePromise: rejected');
-            done = true;
+            return;
         });
-
-        while (!done) {
-            // TODO: This won't work. Make everything async, then resume on resolution.
-        }
-
-        debug('coercePromise: returning `%s`', result);
-
-        return result;
     }
 
     function coerceDate (date) {
-        return date.toJSON();
+        return Promise.resolve(date.toJSON());
     }
 
     function coerceMap (map) {
         var result = {};
 
+        // TODO: coerce recursively
+
         map.forEach(function (value, key) {
             result[key] = value;
         });
 
-        return result;
+        return Promise.resolve(result);
     }
 
     function coerceIterable (iterable) {
-        return Array.from(iterable);
+        // TODO: coerce recursively
+
+        return Promise.resolve(Array.from(iterable));
     }
 
     function literal (datum) {
