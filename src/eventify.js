@@ -174,19 +174,25 @@ function eventify (data, options) {
     function coerceMap (map) {
         var result = {};
 
-        map.forEach(function (value, key) {
+        return coerceCollection(map, result, function (value, key) {
             result[key] = value;
         });
+    }
 
-        debug('coerceMap: resolving to {}');
+    function coerceCollection (collection, target, push) {
+        collection.forEach(push);
 
-        return Promise.resolve(result);
+        debug('coerceCollection: resolving %s[%d]', collection.constructor.name, target.length);
+
+        return Promise.resolve(target);
     }
 
     function coerceIterable (iterable) {
-        debug('coerceIterable: resolving to []');
+        var result = [];
 
-        return Promise.resolve(Array.from(iterable));
+        return coerceCollection(iterable, result, function (value) {
+            result.push(value);
+        });
     }
 
     function literal (datum) {
