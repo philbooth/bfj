@@ -23,14 +23,6 @@ module.exports = eventify;
  *
  * @param data:        The data structure to traverse.
  *
- * @option apply:      Dictionary of {function name:argument array} pairs.
- *                     When functions are encountered in the data, this
- *                     object is checked for keys that match the function
- *                     name. If a match exists, the function is applied
- *                     using the associated argument array and an event is
- *                     emitted for the result. If no match exists or this
- *                     option is not specified, the function is ignored.
- *
  * @option promises:   'resolve' or 'ignore', default is 'resolve'.
  *
  * @option poll:       Promise resolution polling period in milliseconds,
@@ -57,7 +49,6 @@ function eventify (data, options) {
 
     function normaliseOptions () {
         options = options || {};
-        options.apply = options.apply || {};
         options.poll = options.poll || 1000;
 
         normaliseOption('promises');
@@ -120,6 +111,9 @@ function eventify (data, options) {
     }
 
     function coerce (datum) {
+        if (typeof datum === 'function') {
+        }
+
         if (datum instanceof Promise) {
             return coerceThing(datum, 'promises', coercePromise);
         }
