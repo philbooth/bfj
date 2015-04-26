@@ -41,14 +41,13 @@ module.exports = eventify;
  * @option debug:      Log debug messages to the console.
  **/
 function eventify (data, options) {
-    var coercions, context, emitter;
+    var coercions, emitter;
 
     coercions = {};
-    context = [];
     emitter = new EventEmitter();
 
     normaliseOptions();
-    setImmediate(proceed.bind(null, data));
+    setImmediate(begin);
 
     return emitter;
 
@@ -73,8 +72,19 @@ function eventify (data, options) {
         }
     }
 
+    function begin () {
+        debug('begin');
+
+        proceed(data);
+
+        debug('begin: emitting end');
+        emitter.emit(events.end);
+    }
+
     function proceed (datum) {
         var type;
+
+        debug('proceed:', datum);
 
         datum = coerce(datum);
 
@@ -83,30 +93,21 @@ function eventify (data, options) {
         }
 
         if (datum === false || datum === true || datum === null) {
-            emitter.emit(events.literal, datum);
-            return;
+            return literal(datum);
         }
 
         type = typeof datum;
 
         if (type === 'string' || type === 'number') {
-            emitter.emit(events[type], datum);
-            return;
+            return value(datum, type);
         }
-
-        context.push(datum);
 
         if (Array.isArray(datum)) {
-            emitter.emit(events.array);
-            datum.forEach(proceed);
+            array(datum);
         } else {
-            emitter.emit(events.object);
-            Object.keys(datum).forEach(function (key) {
-                proceed(datum[key]);
-            });
+            object(datum);
         }
 
-        context.pop();
         return;
     }
 
@@ -123,7 +124,7 @@ function eventify (data, options) {
             return coerceThing(datum, 'maps', coerceMap);
         }
 
-        if (typeof datum[Symbol.iterator] === 'function') {
+        if (datum && typeof datum[Symbol.iterator] === 'function') {
             return coerceThing(datum, 'iterables', coerceIterable);
         }
 
@@ -172,9 +173,38 @@ function eventify (data, options) {
     function coerceIterable (iterable) {
         return Array.from(iterable);
     }
-}
 
-function debug () {
-    console.log.apply(console, arguments);
+    function literal (datum) {
+        value(datum, 'literal');
+    }
+
+    function value (datum, type) {
+        debug('proceed: emitting %s `%s`', type, datum);
+        emitter.emit(events[type], datum);
+    }
+
+    function array (datum) {
+        collection(datum, 'array', proceed);
+    }
+
+    function collection (c, type, action) {
+        debug('proceed: emitting %s[%d]', type, c.length);
+        emitter.emit(events[type]);
+
+        c.forEach(action);
+
+        debug('proceed: emitting end-%s[%d]', type, c.length);
+        emitter.emit(events.endPrefix + events[type]);
+    }
+
+    function object (datum) {
+        collection(Object.keys(datum), 'object', function (key) {
+            proceed(datum[key]);
+        });
+    }
+
+    function debug () {
+        console.log.apply(console, arguments);
+    }
 }
 
