@@ -868,7 +868,7 @@ suite('eventify:', function () {
             setup(function (done) {
                 var emitter, resolve;
 
-                emitter = eventify(new Date(1977, 5, 10, 11, 30));
+                emitter = eventify(new Date('1977-06-10T10:30:00.000Z'));
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -934,7 +934,7 @@ suite('eventify:', function () {
             setup(function (done) {
                 var emitter, resolve;
 
-                emitter = eventify(new Date(1977, 5, 10, 11, 30), { dates: 'ignore' });
+                emitter = eventify(new Date('1977-06-10T10:30:00.000Z'), { dates: 'ignore' });
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
