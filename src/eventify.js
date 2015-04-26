@@ -155,7 +155,7 @@ function eventify (data, options) {
 
     function coercePromise (promise) {
         return promise.then(function (result) {
-            debug('coercePromise: resolved to %s', result);
+            debug('coercePromise: resolved to `%s`', result);
             return result;
         }).catch(function () {
             debug('coercePromise: rejected');
@@ -164,23 +164,27 @@ function eventify (data, options) {
     }
 
     function coerceDate (date) {
-        return Promise.resolve(date.toJSON());
+        var result = date.toJSON();
+
+        debug('coerceDate: resolving to `%s`', result);
+
+        return Promise.resolve(result);
     }
 
     function coerceMap (map) {
         var result = {};
 
-        // TODO: coerce recursively
-
         map.forEach(function (value, key) {
             result[key] = value;
         });
+
+        debug('coerceMap: resolving to {}');
 
         return Promise.resolve(result);
     }
 
     function coerceIterable (iterable) {
-        // TODO: coerce recursively
+        debug('coerceIterable: resolving to []');
 
         return Promise.resolve(Array.from(iterable));
     }
