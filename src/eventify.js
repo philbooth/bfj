@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, Promise, Map, Symbol, setTimeout, console */
+/*globals require, module, setImmediate, Promise, Map, Symbol, console */
 
 'use strict';
 
@@ -79,10 +79,12 @@ function eventify (data, options) {
     function begin () {
         debug('begin');
 
-        proceed(data);
+        proceed(data).then(after);
 
-        debug('begin: emitting end');
-        emitter.emit(events.end);
+        function after () {
+            debug('begin::after: emitting end');
+            emitter.emit(events.end);
+        }
     }
 
     function proceed (datum) {
@@ -90,29 +92,31 @@ function eventify (data, options) {
 
         debug('proceed:', datum);
 
-        datum = coerce(datum);
+        return coerce(datum).then(after);
 
-        if (datum === undefined) {
-            return;
+        function after (coerced) {
+            debug('proceed::after:', coerced);
+
+            if (coerced === undefined) {
+                return;
+            }
+
+            if (coerced === false || coerced === true || coerced === null) {
+                return literal(coerced);
+            }
+
+            type = typeof coerced;
+
+            if (type === 'string' || type === 'number') {
+                return value(coerced, type);
+            }
+
+            if (Array.isArray(coerced)) {
+                return array(coerced);
+            }
+
+            return object(coerced);
         }
-
-        if (datum === false || datum === true || datum === null) {
-            return literal(datum);
-        }
-
-        type = typeof datum;
-
-        if (type === 'string' || type === 'number') {
-            return value(datum, type);
-        }
-
-        if (Array.isArray(datum)) {
-            array(datum);
-        } else {
-            object(datum);
-        }
-
-        return;
     }
 
     function coerce (datum) {
@@ -136,7 +140,7 @@ function eventify (data, options) {
             return coerceThing(datum, 'iterables', coerceIterable);
         }
 
-        return datum;
+        return Promise.resolve(datum);
     }
 
     function coerceThing (datum, thing, fn) {
@@ -144,42 +148,51 @@ function eventify (data, options) {
             return fn(datum);
         }
 
-        return undefined;
+        debug('coerceThing(%s): resolving to undefined', thing);
+
+        return Promise.resolve();
     }
 
     function coercePromise (promise) {
-        var result, done;
-
-        promise.then(function (r) {
-            result = r;
-            done = true;
+        return promise.then(function (result) {
+            debug('coercePromise: resolved to `%s`', result);
+            return result;
         }).catch(function () {
-            done = true;
+            debug('coercePromise: rejected');
+            return;
         });
-
-        while (!done) {
-            setTimeout(function () {}, options.poll);
-        }
-
-        return result;
     }
 
     function coerceDate (date) {
-        return date.toJSON();
+        var result = date.toJSON();
+
+        debug('coerceDate: resolving to `%s`', result);
+
+        return Promise.resolve(result);
     }
 
     function coerceMap (map) {
         var result = {};
 
-        map.forEach(function (value, key) {
+        return coerceCollection(map, result, function (value, key) {
             result[key] = value;
         });
+    }
 
-        return result;
+    function coerceCollection (collection, target, push) {
+        collection.forEach(push);
+
+        debug('coerceCollection: resolving %s[%d]', collection.constructor.name, target.length);
+
+        return Promise.resolve(target);
     }
 
     function coerceIterable (iterable) {
-        return Array.from(iterable);
+        var result = [];
+
+        return coerceCollection(iterable, result, function (value) {
+            result.push(value);
+        });
     }
 
     function literal (datum) {
@@ -187,30 +200,44 @@ function eventify (data, options) {
     }
 
     function value (datum, type) {
-        debug('proceed: emitting %s `%s`', type, datum);
+        debug('value: emitting %s `%s`', type, datum);
         emitter.emit(events[type], datum);
     }
 
     function array (datum) {
-        collection(datum, 'array', proceed);
+        return collection(datum, 'array', proceed);
     }
 
     function collection (c, type, action) {
+        var resolve;
+
         debug('proceed: emitting %s[%d]', type, c.length);
         emitter.emit(events[type]);
 
-        c.forEach(action);
+        setImmediate(item.bind(null, 0));
 
-        debug('proceed: emitting end-%s[%d]', type, c.length);
-        emitter.emit(events.endPrefix + events[type]);
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function item (index) {
+            if (index >= c.length) {
+                debug('proceed::item: emitting end-%s[%d]', type, c.length);
+                emitter.emit(events.endPrefix + events[type]);
+
+                return resolve();
+            }
+
+            action(c[index]).then(item.bind(null, index + 1));
+        }
     }
 
     function object (datum) {
-        collection(Object.keys(datum), 'object', function (key) {
+        return collection(Object.keys(datum), 'object', function (key) {
             debug('proceed: emitting property `%s`', key);
             emitter.emit(events.property, key);
 
-            proceed(datum[key]);
+            return proceed(datum[key]);
         });
     }
 
