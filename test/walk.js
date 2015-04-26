@@ -81,7 +81,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('end event occurred once', function () {
@@ -156,7 +156,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -235,7 +235,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred once', function () {
@@ -314,7 +314,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('string event occurred once', function () {
@@ -390,7 +390,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('number event occurred once', function () {
@@ -466,7 +466,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('literal event occurred once', function () {
@@ -542,7 +542,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('literal event occurred once', function () {
@@ -617,7 +617,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('literal event occurred once', function () {
@@ -692,7 +692,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -759,7 +759,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred once', function () {
@@ -831,7 +831,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('error event occurred once', function () {
@@ -881,7 +881,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('error event occurred once', function () {
@@ -931,7 +931,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('error event occurred once', function () {
@@ -977,7 +977,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('number event did not occur', function () {
@@ -1027,7 +1027,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('number event occurred once', function () {
@@ -1088,7 +1088,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('error event occurred once', function () {
@@ -1134,7 +1134,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('error event occurred once', function () {
@@ -1180,7 +1180,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('error event occurred four times', function () {
@@ -1247,7 +1247,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred twice', function () {
@@ -1290,7 +1290,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred three times', function () {
@@ -1333,7 +1333,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred three times', function () {
@@ -1376,7 +1376,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred three times', function () {
@@ -1430,7 +1430,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1481,7 +1481,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1532,7 +1532,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1583,7 +1583,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1641,7 +1641,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1696,7 +1696,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1751,7 +1751,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1806,7 +1806,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1857,7 +1857,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1912,7 +1912,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -1967,7 +1967,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -2018,7 +2018,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -2073,7 +2073,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -2128,7 +2128,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred twice', function () {
@@ -2180,7 +2180,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred twice', function () {
@@ -2243,7 +2243,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred once', function () {
@@ -2326,7 +2326,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred three times', function () {
@@ -2388,7 +2388,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred once', function () {
@@ -2465,7 +2465,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred three times', function () {
@@ -2520,7 +2520,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -2564,7 +2564,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {
@@ -2614,7 +2614,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('object event occurred once', function () {
@@ -2666,7 +2666,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('string event occurred once', function () {
@@ -2717,7 +2717,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('number event occurred once', function () {
@@ -2764,7 +2764,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('literal event occurred once', function () {
@@ -2820,7 +2820,7 @@ suite('walk:', function () {
             });
 
             teardown(function () {
-                emitter = undefined;
+                stream = emitter = undefined;
             });
 
             test('array event occurred once', function () {

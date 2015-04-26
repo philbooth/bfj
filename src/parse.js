@@ -55,8 +55,8 @@ function parse (stream, options) {
         reject = rej;
     });
 
-    function debug (message) {
-        console.log(message);
+    function debug () {
+        console.log.apply(console, arguments);
     }
 
     function array () {
@@ -74,7 +74,7 @@ function parse (stream, options) {
             return;
         }
 
-        debug('beginScope: parsed=' + parsed);
+        debug('beginScope: parsed=%s', parsed);
 
         if (scopes.length > 0) {
             value(parsed);
@@ -90,7 +90,7 @@ function parse (stream, options) {
             return;
         }
 
-        debug('value: v=' + v);
+        debug('value: v=`%s`', v);
 
         if (scopes.length === 0) {
             return scopes.push(v);
@@ -121,7 +121,7 @@ function parse (stream, options) {
             return;
         }
 
-        debug('property: name=' + name);
+        debug('property: name="%s"', name);
 
         key = name;
     }
@@ -139,7 +139,7 @@ function parse (stream, options) {
     }
 
     function end () {
-        debug('end: errors.length=' + errors.length);
+        debug('end: errors.length=%d', errors.length);
 
         if (errors.length > 0) {
             return reject(errors[0]);
@@ -149,7 +149,7 @@ function parse (stream, options) {
     }
 
     function error (e) {
-        debug('error: e=' + e);
+        debug('error: e={%s}', e.message);
 
         errors.push(e);
     }
