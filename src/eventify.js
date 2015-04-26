@@ -21,9 +21,6 @@ module.exports = eventify;
  *
  * @option promises:   'resolve' or 'ignore', default is 'resolve'.
  *
- * @option poll:       Promise resolution polling period in milliseconds,
- *                     default is 1000.
- *
  * @option dates:      'toJSON' or 'ignore', default is 'toJSON'.
  *
  * @option maps:       'object', or 'ignore', default is 'object'.
@@ -45,7 +42,6 @@ function eventify (data, options) {
 
     function normaliseOptions () {
         options = options || {};
-        options.poll = options.poll || 1000;
 
         normaliseOption('promises');
         normaliseOption('dates');
