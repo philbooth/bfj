@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, Promise, Map, Symbol, setTimeout, console */
+/*globals require, module, setImmediate, Promise, Map, Symbol, console */
 
 'use strict';
 
@@ -79,10 +79,12 @@ function eventify (data, options) {
     function begin () {
         debug('begin');
 
-        proceed(data);
+        proceed(data).then(after);
 
-        debug('begin: emitting end');
-        emitter.emit(events.end);
+        function after () {
+            debug('begin::after: emitting end');
+            emitter.emit(events.end);
+        }
     }
 
     function proceed (datum) {
@@ -93,26 +95,28 @@ function eventify (data, options) {
         datum = coerce(datum);
 
         if (datum === undefined) {
-            return;
+            return Promise.resolve();
         }
 
         if (datum === false || datum === true || datum === null) {
-            return literal(datum);
+            literal(datum);
+            return Promise.resolve();
         }
 
         type = typeof datum;
 
         if (type === 'string' || type === 'number') {
-            return value(datum, type);
+            value(datum, type);
+            return Promise.resolve();
         }
 
-        if (Array.isArray(datum)) {
-            array(datum);
-        } else {
-            object(datum);
-        }
-
-        return;
+        return new Promise(function (resolve) {
+            if (Array.isArray(datum)) {
+                array(datum).then(resolve);
+            } else {
+                object(datum).then(resolve);
+            }
+        });
     }
 
     function coerce (datum) {
@@ -144,6 +148,8 @@ function eventify (data, options) {
             return fn(datum);
         }
 
+        debug('coerceThing(%s): returning undefined', thing);
+
         return undefined;
     }
 
@@ -152,14 +158,18 @@ function eventify (data, options) {
 
         promise.then(function (r) {
             result = r;
+            debug('coercePromise: resolved to %s', result);
             done = true;
         }).catch(function () {
+            debug('coercePromise: rejected');
             done = true;
         });
 
         while (!done) {
-            setTimeout(function () {}, options.poll);
+            // TODO: This won't work. Make everything async, then resume on resolution.
         }
+
+        debug('coercePromise: returning `%s`', result);
 
         return result;
     }
@@ -187,30 +197,44 @@ function eventify (data, options) {
     }
 
     function value (datum, type) {
-        debug('proceed: emitting %s `%s`', type, datum);
+        debug('value: emitting %s `%s`', type, datum);
         emitter.emit(events[type], datum);
     }
 
     function array (datum) {
-        collection(datum, 'array', proceed);
+        return collection(datum, 'array', proceed);
     }
 
     function collection (c, type, action) {
+        var resolve;
+
         debug('proceed: emitting %s[%d]', type, c.length);
         emitter.emit(events[type]);
 
-        c.forEach(action);
+        setImmediate(item.bind(null, 0));
 
-        debug('proceed: emitting end-%s[%d]', type, c.length);
-        emitter.emit(events.endPrefix + events[type]);
+        return new Promise(function (r) {
+            resolve = r;
+        });
+
+        function item (index) {
+            if (index >= c.length) {
+                debug('proceed::item: emitting end-%s[%d]', type, c.length);
+                emitter.emit(events.endPrefix + events[type]);
+
+                return resolve();
+            }
+
+            action(c[index]).then(item.bind(null, index + 1));
+        }
     }
 
     function object (datum) {
-        collection(Object.keys(datum), 'object', function (key) {
+        return collection(Object.keys(datum), 'object', function (key) {
             debug('proceed: emitting property `%s`', key);
             emitter.emit(events.property, key);
 
-            proceed(datum[key]);
+            return proceed(datum[key]);
         });
     }
 
