@@ -8,6 +8,10 @@ EventEmitter = require('events').EventEmitter;
 error = require('./error');
 events = require('./events');
 
+if (typeof Array.from !== 'function') {
+    Array.from = require('./arrayfrom');
+}
+
 module.exports = eventify;
 
 /**
@@ -124,7 +128,11 @@ function eventify (data, options) {
             return coerceThing(datum, 'maps', coerceMap);
         }
 
-        if (datum && typeof datum[Symbol.iterator] === 'function') {
+        if (
+            datum &&
+            typeof datum !== 'string' &&
+            typeof datum[Symbol.iterator] === 'function'
+        ) {
             return coerceThing(datum, 'iterables', coerceIterable);
         }
 
@@ -199,6 +207,9 @@ function eventify (data, options) {
 
     function object (datum) {
         collection(Object.keys(datum), 'object', function (key) {
+            debug('proceed: emitting property `%s`', key);
+            emitter.emit(events.property, key);
+
             proceed(datum[key]);
         });
     }
