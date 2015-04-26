@@ -111,11 +111,8 @@ function eventify (data, options) {
     }
 
     function coerce (datum) {
-        if (typeof datum === 'function') {
-        }
-
         if (datum instanceof Promise) {
-            return coerceThing(datum, 'promises', coercePromise);
+            return coerceThing(datum, 'promises', coercePromise).then(coerce);
         }
 
         if (datum instanceof Date) {

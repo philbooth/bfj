@@ -1258,6 +1258,87 @@ suite('eventify:', function () {
                 assert.strictEqual(log.counts.endPrefix, 0);
             });
         });
+
+        suite('promise resolved to a map:', function () {
+            setup(function (done) {
+                var emitter, resolve;
+
+                emitter = eventify(new Promise(function (r) {
+                    resolve = r;
+                }), { poll: 4 });
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+
+                setImmediate(resolve.bind(null, new Map([['foo','bar'],['baz','qux']])));
+            });
+
+            test('object event occurred once', function () {
+                assert.strictEqual(log.counts.object, 1);
+            });
+
+            test('property event occurred twice', function () {
+                assert.strictEqual(log.counts.property, 2);
+            });
+
+            test('property event was dispatched correctly first time', function () {
+                assert.strictEqual(log.args.property[0][0], 'foo');
+            });
+
+            test('property event was dispatched correctly second time', function () {
+                assert.strictEqual(log.args.property[1][0], 'baz');
+            });
+
+            test('string event occurred twice', function () {
+                assert.strictEqual(log.counts.string, 2);
+            });
+
+            test('string event was dispatched correctly first time', function () {
+                assert.strictEqual(log.args.string[0][0], 'bar');
+            });
+
+            test('string event was dispatched correctly second time', function () {
+                assert.strictEqual(log.args.string[1][0], 'qux');
+            });
+
+            test('endObject event occurred once', function () {
+                assert.strictEqual(log.counts.endObject, 1);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('array event did not occur', function () {
+                assert.strictEqual(log.counts.array, 0);
+            });
+
+            test('number event did not occur', function () {
+                assert.strictEqual(log.counts.number, 0);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
+            });
+
+            test('endArray event did not occur', function () {
+                assert.strictEqual(log.counts.endArray, 0);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+
+            test('endPrefix event did not occur', function () {
+                assert.strictEqual(log.counts.endPrefix, 0);
+            });
+        });
     });
 });
 
