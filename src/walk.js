@@ -46,6 +46,8 @@ function initialise (options) {
     var json, position, flags, scopes, handlers,
         resumeFn, emitter, stream, discardThreshold;
 
+    // TODO: options.reviver
+
     options = options || {};
     json = '';
     position = {

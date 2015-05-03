@@ -1,9 +1,10 @@
-/*globals require, module, setImmediate, Promise, Map, Symbol, console */
+/*globals require, module, setImmediate, Promise, Buffer, Map, console */
 
 'use strict';
 
-var EventEmitter, error, events;
+var check, EventEmitter, error, events;
 
+check = require('check-types');
 EventEmitter = require('events').EventEmitter;
 error = require('./error');
 events = require('./events');
@@ -20,6 +21,8 @@ module.exports = eventify;
  * @param data:        The data structure to traverse.
  *
  * @option promises:   'resolve' or 'ignore', default is 'resolve'.
+ *
+ * @option buffers:    'toString' or 'ignore', default is 'toString'.
  *
  * @option dates:      'toJSON' or 'ignore', default is 'toJSON'.
  *
@@ -44,6 +47,7 @@ function eventify (data, options) {
         options = options || {};
 
         normaliseOption('promises');
+        normaliseOption('buffers');
         normaliseOption('dates');
         normaliseOption('maps');
         normaliseOption('iterables');
@@ -103,22 +107,26 @@ function eventify (data, options) {
     }
 
     function coerce (datum) {
-        if (datum instanceof Promise) {
+        if (check.instance(datum, Promise)) {
             return coerceThing(datum, 'promises', coercePromise).then(coerce);
         }
 
-        if (datum instanceof Date) {
+        if (check.instance(datum, Buffer)) {
+            return coerceThing(datum, 'buffers', coerceBuffer);
+        }
+
+        if (check.instance(datum, Date)) {
             return coerceThing(datum, 'dates', coerceDate);
         }
 
-        if (datum instanceof Map) {
+        if (check.instance(datum, Map)) {
             return coerceThing(datum, 'maps', coerceMap);
         }
 
         if (
-            datum &&
-            typeof datum !== 'string' &&
-            typeof datum[Symbol.iterator] === 'function'
+            check.iterable(datum) &&
+            check.not.string(datum) &&
+            check.not.array(datum)
         ) {
             return coerceThing(datum, 'iterables', coerceIterable);
         }
@@ -144,6 +152,14 @@ function eventify (data, options) {
             debug('coercePromise: rejected');
             return;
         });
+    }
+
+    function coerceBuffer (buffer) {
+        var result = buffer.toString();
+
+        debug('coerceBuffer: resolving to `%s`', result);
+
+        return Promise.resolve(result);
     }
 
     function coerceDate (date) {

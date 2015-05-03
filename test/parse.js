@@ -105,10 +105,10 @@ suite('parse:', function () {
 
             test('walk was called once', function () {
                 assert.strictEqual(log.counts.walk, 1);
+                assert.isUndefined(log.these.walk[0]);
             });
 
             test('walk was called correctly', function () {
-                assert.isUndefined(log.these.walk[0]);
                 assert.lengthOf(log.args.walk[0], 1);
                 assert.strictEqual(log.args.walk[0][0], options);
                 assert.lengthOf(Object.keys(log.args.walk[0][0]), 0);
