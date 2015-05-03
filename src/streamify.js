@@ -20,6 +20,8 @@ module.exports = streamify;
  *
  * @option promises:   'resolve' or 'ignore', default is 'resolve'.
  *
+ * @option buffers:    'toString' or 'ignore', default is 'toString'.
+ *
  * @option dates:      'toJSON' or 'ignore', default is 'toJSON'.
  *
  * @option maps:       'object', or 'ignore', default is 'object'.
@@ -32,7 +34,7 @@ module.exports = streamify;
 function streamify (data, options) {
     var stream, emitter, json, isBegun, isEnded, isProperty;
 
-    // TODO: options.buffers, options.replacer, options.space
+    // TODO: options.replacer, options.space
 
     stream = new JsonStream(push);
     emitter = eventify(data, options);
