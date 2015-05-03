@@ -10,6 +10,8 @@ check = require('check-types');
 
 util.inherits(JsonStream, Readable);
 
+module.exports = JsonStream;
+
 function JsonStream (read) {
     // https://nodejs.org/api/stream.html#stream_class_stream_readable_1
 
