@@ -36,7 +36,7 @@
         "spooks": "2.0.x"
     },
     "scripts": {
-        "test": "mocha --bail --ui tdd --reporter spec --recursive --colors --slow 120 test",
+        "test": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test",
         "lint": "jshint src"
     }
 }
