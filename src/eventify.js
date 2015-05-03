@@ -35,8 +35,6 @@ module.exports = eventify;
 function eventify (data, options) {
     var coercions, emitter;
 
-    // TODO: options.buffers, options.reviver
-
     coercions = {};
     emitter = new EventEmitter();
 
