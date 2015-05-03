@@ -32,7 +32,7 @@ module.exports = streamify;
  **/
 
 function streamify (data, options) {
-    var stream, emitter, json, isBegun, isEnded, isProperty;
+    var stream, emitter, json, needsComma, isEnded, isProperty;
 
     // TODO: options.replacer, options.space
 
@@ -53,7 +53,7 @@ function streamify (data, options) {
     return stream;
 
     function push () {
-        if (isEnded) {
+        if (isEnded && json === '') {
             return stream.push(null);
         }
 
@@ -62,24 +62,27 @@ function streamify (data, options) {
     }
 
     function array () {
-        begin();
+        begin(true);
         json += '[';
+        needsComma = false;
     }
 
-    function begin () {
-        if (isBegun) {
-            if (isProperty) {
-                isProperty = false;
-            } else {
-                json += ',';
+    function begin (isScope) {
+        if (isProperty) {
+            isProperty = false;
+        } else if (needsComma) {
+            if (isScope) {
+                needsComma = false;
             }
+
+            json += ',';
         } else {
-            isBegun = true;
+            needsComma = true;
         }
     }
 
     function object () {
-        begin();
+        begin(true);
         json += '{';
     }
 
