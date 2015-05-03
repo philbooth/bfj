@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, Promise, Map, Symbol, console */
+/*globals require, module, setImmediate, Promise, Buffer, Map, console */
 
 'use strict';
 
