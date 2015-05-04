@@ -64,6 +64,38 @@ suite('integration:', function () {
             assert.lengthOf(bfj.read, 2);
         });
 
+        test('eventify function is exported', function () {
+            assert.isFunction(bfj.eventify);
+        });
+
+        test('eventify expects two arguments', function () {
+            assert.lengthOf(bfj.eventify, 2);
+        });
+
+        test('streamify function is exported', function () {
+            assert.isFunction(bfj.streamify);
+        });
+
+        test('streamify expects two arguments', function () {
+            assert.lengthOf(bfj.streamify, 2);
+        });
+
+        test('stringify function is exported', function () {
+            assert.isFunction(bfj.stringify);
+        });
+
+        test('stringify expects two arguments', function () {
+            assert.lengthOf(bfj.stringify, 2);
+        });
+
+        test('write function is exported', function () {
+            assert.isFunction(bfj.write);
+        });
+
+        test('write expects two arguments', function () {
+            assert.lengthOf(bfj.write, 3);
+        });
+
         test('events are exported', function () {
             assert.deepEqual(bfj.events, require('../src/events'));
         });
@@ -170,6 +202,31 @@ suite('integration:', function () {
                 assert.isTrue(failed);
                 assert.isUndefined(result);
                 assert.instanceOf(error, Error);
+            });
+        });
+
+        suite('write object:', function () {
+            var failed, file, result;
+
+            setup(function (done) {
+                failed = false;
+                file = path.join(__dirname, 'data.json');
+                bfj.write(
+                    file,
+                    { foo: [ 'b', 'a', 'r' ], baz: null, qux: 3.14159265359e42 }
+                ).on('finish', function () {
+                    result = fs.readFileSync(file, { encoding: 'utf8' });
+                    done();
+                });
+            });
+
+            teardown(function () {
+                fs.unlinkSync(file);
+                failed = file = result = undefined;
+            });
+
+            test('result was correct', function () {
+                assert.strictEqual(result, '{"foo":["b","a","r"],"baz":null,"qux":3.14159265359e+42}');
             });
         });
     });
