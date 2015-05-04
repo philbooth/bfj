@@ -205,6 +205,27 @@ suite('integration:', function () {
             });
         });
 
+        suite('stringify value:', function () {
+            var result;
+
+            setup(function (done) {
+                bfj.stringify(new Promise(function (resolve) {
+                    setTimeout(resolve.bind(null, 'foo\tbar'), 20);
+                })).then(function (r) {
+                    result = r;
+                    done();
+                });
+            });
+
+            teardown(function () {
+                result = undefined;
+            });
+
+            test('result was correct', function () {
+                assert.strictEqual(result, '"foo\tbar"');
+            });
+        });
+
         suite('write object:', function () {
             var failed, file, result;
 
