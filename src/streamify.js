@@ -14,7 +14,8 @@ module.exports = streamify;
  * Public function `streamify`.
  *
  * Asynchronously serialises a data structure into a stream of JSON
- * data. Sanely handles promises, dates, maps and other iterables.
+ * data. Sanely handles promises, buffers, dates, maps and other
+ * iterables.
  *
  * @param data:        The data to transform
  *
@@ -30,7 +31,6 @@ module.exports = streamify;
  *
  * @option debug:      Log debug messages to the console.
  **/
-
 function streamify (data, options) {
     var stream, emitter, json, needsComma, isEnded, isProperty;
 
