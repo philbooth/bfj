@@ -1,4 +1,4 @@
-/*globals require, module */
+/*globals require, module, Promise */
 
 'use strict';
 
@@ -38,14 +38,14 @@ function stringify (data, options) {
     json = '';
 
     stream.setEncoding('utf8');
-    stream.on('data', data);
+    stream.on('data', read);
     stream.on('end', end);
 
     return new Promise(function (res) {
         resolve = res;
     });
 
-    function data (chunk) {
+    function read (chunk) {
         json += chunk;
     }
 
