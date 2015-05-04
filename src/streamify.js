@@ -96,7 +96,7 @@ function streamify (data, options) {
             }
 
             json += ',';
-        } else {
+        } else if (!isScope) {
             needsComma = true;
         }
     }
