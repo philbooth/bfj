@@ -1,6 +1,6 @@
 # History
 
-## 0.2.0 (coming soon)
+## 0.2.0
 
 * Implement `eventify`.
 * Implement `streamify`.
