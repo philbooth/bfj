@@ -97,7 +97,7 @@ suite('streamify:', function () {
 
             setup(function () {
                 data = {};
-                options = { debug: true };
+                options = {};
                 result = streamify(data, options);
             });
 
@@ -125,7 +125,7 @@ suite('streamify:', function () {
                 assert.strictEqual(log.args.eventify[0][0], data);
                 assert.lengthOf(Object.keys(log.args.eventify[0][0]), 0);
                 assert.strictEqual(log.args.eventify[0][1], options);
-                assert.lengthOf(Object.keys(log.args.eventify[0][1]), 1);
+                assert.lengthOf(Object.keys(log.args.eventify[0][1]), 0);
             });
 
             test('EventEmitter.on was called nine times', function () {
