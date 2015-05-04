@@ -12,7 +12,8 @@ module.exports = stringify;
  * Public function `stringify`.
  *
  * Asynchronously serialises a data structure and returns a promise
- * that resolves to a JSON string. Sanely handles promises, buffers, dates, maps and other iterables.
+ * that resolves to a JSON string. Sanely handles promises, buffers,
+ * dates, maps and other iterables.
  *
  * @param data:        The data to transform
  *
@@ -28,7 +29,6 @@ module.exports = stringify;
  *
  * @option debug:      Log debug messages to the console.
  **/
-
 function stringify (data, options) {
     var stream, json, resolve;
 
