@@ -4,6 +4,7 @@
 
 * Implement `eventify`.
 * Implement `streamify`.
+* Implement `stringify`.
 
 ## 0.1.0
 
