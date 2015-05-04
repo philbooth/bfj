@@ -14,6 +14,14 @@ Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
     * [Example](#example-1)
   * [bfj.read (path, options)](#bfjread-path-options)
     * [Example](#example-2)
+  * [bfj.eventify (data, options)](#bfjeventify-data-options)
+    * [Example](#example-3)
+  * [bfj.streamify (data, options)](#bfjstreamify-data-options)
+    * [Example](#example-4)
+  * [bfj.stringify (data, options)](#bfjstringify-data-options)
+    * [Example](#example-5)
+  * [bfj.write (path, data, options)](#bfjwrite-path-data-options)
+    * [Example](#example-6)
 * [Is there a change log?](#is-there-a-change-log)
 * [How do I set up the dev environment?](#how-do-i-set-up-the-dev-environment)
 * [What versions of node.js does it support?](#what-versions-of-nodejs-does-it-support)
@@ -36,10 +44,10 @@ those asynchronous functions.
 
 ## What functions does it implement?
 
-At the moment,
-three functions
-are available.
-They are all
+Seven functions
+are exported.
+
+Three are
 concerned with
 parsing, or
 turning JSON strings
@@ -60,18 +68,34 @@ into JavaScript data:
 
 * `read`:
   Asynchronously reads
-  a file
-  and parses it
-  as JSON.
+  and parses
+  a JSON file from disk.
 
-Additionally,
-work is underway
-on functions
-that handle
-the reverse transformations;
+The four remaining functions
+handle the reverse transformations;
 serialising
 JavaScript data
-to JSON.
+to JSON:
+
+* `eventify`:
+  Asynchronously traverses
+  a data structure,
+  emitting events
+  as it encounters items.
+  Analagous to a
+  SAX serialiser.
+
+* `streamify`:
+  Asynchronously serialises
+  JSON to a stream.
+
+* `stringify`:
+  Asynchronously serialises
+  a JSON string.
+
+* `write`:
+  Asynchronously writes
+  a JSON file to disk.
 
 ## How do I install it?
 
@@ -97,11 +121,15 @@ using `require`:
 var bfj = require('bfj');
 ```
 
-Three functions
+Seven functions
 are exported:
 `walk`,
-`parse` and
-`read`.
+`parse`,
+`read`,
+`eventify`,
+`streamify`,
+`stringify` and
+`write`.
 
 ### bfj.walk (options)
 
@@ -227,16 +255,16 @@ var walker = bfj.walk();
 
 fs.createReadStream(path).pipe(walker.stream);
 
-walker.emitter.on(events.array, array);
-walker.emitter.on(events.object, object);
-walker.emitter.on(events.property, property);
-walker.emitter.on(events.string, value);
-walker.emitter.on(events.number, value);
-walker.emitter.on(events.literal, value);
-walker.emitter.on(events.endArray, endScope);
-walker.emitter.on(events.endObject, endScope);
-walker.emitter.on(events.end, end);
-walker.emitter.on(events.error, error);
+walker.emitter.on(bfj.events.array, array);
+walker.emitter.on(bfj.events.object, object);
+walker.emitter.on(bfj.events.property, property);
+walker.emitter.on(bfj.events.string, value);
+walker.emitter.on(bfj.events.number, value);
+walker.emitter.on(bfj.events.literal, value);
+walker.emitter.on(bfj.events.endArray, endScope);
+walker.emitter.on(bfj.events.endObject, endScope);
+walker.emitter.on(bfj.events.end, end);
+walker.emitter.on(bfj.events.error, error);
 ```
 
 ### bfj.parse (stream, options)
@@ -288,6 +316,218 @@ bfj.read(path)
     .catch(function (error) {
         // :(
     });
+```
+
+### bfj.eventify (data, options)
+
+`eventify` returns an EventEmitter
+and asynchronously performs
+depth-first traversal,
+emitting events as it
+encounters data.
+By default
+it coerces
+promises,
+buffers,
+dates,
+maps and
+other iterables
+to JSON-friendly values.
+
+The emitted events
+are defined
+in a public property,
+`events`:
+
+* `bfj.events.array`:
+  Indicates that
+  an array
+  has been encountered.
+
+* `bfj.events.endArray`:
+  Indicates that
+  the end of an array
+  has been encountered.
+
+* `bfj.events.object`:
+  Indicates that
+  an object
+  has been encountered.
+
+* `bfj.events.endObject`:
+  Indicates that
+  the end of an object
+  has been encountered.
+
+* `bfj.events.property`:
+  Indicates that
+  a property
+  has been encountered
+  in an object.
+  The listener
+  will be passed
+  the name of the property
+  and the next event
+  to be emitted
+  will represent
+  the property's value.
+
+* `bfj.events.string`:
+  Indicates that
+  a string
+  has been encountered.
+  The listener
+  will be passed
+  the string.
+
+* `bfj.events.number`:
+  Indicates that
+  a number
+  has been encountered.
+  The listener
+  will be passed
+  the number.
+
+* `bfj.events.literal`:
+  Indicates that
+  a literal
+  (either `true`, `false` or `null`)
+  has been encountered.
+  The listener
+  will be passed
+  the literal.
+
+* `bfj.events.end`:
+  Indicates that
+  the end of the input
+  has been reached and
+  no further events
+  will be emitted.
+
+`eventify` takes
+two arguments,
+the data to traverse and
+an options object
+that supports
+the following properties:
+
+* `options.promises`:
+  By default,
+  promises are coerced
+  to their resolved value.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore promises
+  in the data.
+
+* `options.buffers`:
+  By default,
+  buffers are coerced
+  using their `toString` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore buffers
+  in the data.
+
+* `options.dates`:
+  By default,
+  dates are coerced
+  using their `toJSON` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore dates
+  in the data.
+
+* `options.maps`:
+  By default,
+  maps are coerced
+  to plain objects.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore maps
+  in the data.
+
+* `options.iterables`:
+  By default,
+  other iterables
+  (i.e. not arrays, strings or maps)
+  are coerced
+  to arrays.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore other iterables
+  in the data.
+
+* `options.debug`:
+  Log debug messages
+  to the console.
+
+#### Example
+
+```js
+var emitter = bfj.eventify(data);
+
+emitter.on(bfj.events.array, array);
+emitter.on(bfj.events.object, object);
+emitter.on(bfj.events.property, property);
+emitter.on(bfj.events.string, string);
+emitter.on(bfj.events.number, value);
+emitter.on(bfj.events.literal, value);
+emitter.on(bfj.events.endArray, endArray);
+emitter.on(bfj.events.endObject, endObject);
+emitter.on(bfj.events.end, end);
+```
+
+### bfj.streamify (data, options)
+
+`streamify` asynchronously serialises data
+to a JSON stream,
+returning a `Readable` instance.
+
+#### Example
+
+```js
+var stream = bfj.streamify(data);
+
+stream.on('data', read);
+stream.on('end', end);
+```
+
+### bfj.stringify (data, options)
+
+`stringify` asynchronously serialises data
+to a JSON string,
+returning a promise
+that is resolved
+when serialisation is complete.
+
+#### Example
+
+```js
+bfj.stringify(data)
+    .then(function (json) {
+	    // :)
+	});
+```
+
+### bfj.write (path, data, options)
+
+`write` asynchronously serialises data
+to a JSON file on disk,
+returning the target file stream.
+
+#### Example
+
+```js
+bfj.write(path, data)
+    .on('finish', function () {
+	    // :)
+	});
 ```
 
 ## Is there a change log?
