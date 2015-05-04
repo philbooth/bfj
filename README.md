@@ -79,11 +79,14 @@ to JSON:
 
 * `eventify`:
   Asynchronously traverses
-  a data structure,
+  a data structure
+  depth-first,
   emitting events
   as it encounters items.
-  Analagous to a
-  SAX serialiser.
+  By default
+  it coerces
+  promises, buffers, dates, maps and other iterables
+  to JSON-friendly values.
 
 * `streamify`:
   Asynchronously serialises
