@@ -1,4 +1,4 @@
-/*globals require, module */
+/*globals require, module, console */
 
 'use strict';
 
@@ -32,7 +32,7 @@ module.exports = streamify;
  * @option debug:      Log debug messages to the console.
  **/
 function streamify (data, options) {
-    var stream, emitter, json, needsComma, isEnded, isProperty;
+    var stream, emitter, json, needsComma, isEnded, isProperty, awaitPush;
 
     // TODO: options.replacer, options.space
 
@@ -41,6 +41,7 @@ function streamify (data, options) {
 
     options = options || {};
     json = '';
+    awaitPush = true;
 
     if (!options.debug) {
         debug = function () {};
@@ -63,26 +64,43 @@ function streamify (data, options) {
     }
 
     function push () {
-        debug('push: isEnded=%s, json=`%s`', isEnded, json);
+        debug('push: awaitPush=%s, isEnded=%s, json=`%s`', awaitPush, isEnded, json);
 
-        if (isEnded && json === '') {
-            return stream.push(null);
+        if (awaitPush) {
+            awaitPush = false;
         }
 
-        stream.push(json, 'utf8');
+        if (json === '') {
+            if (isEnded) {
+                return stream.push(null);
+            }
+
+            return;
+        }
+
+        if (!stream.push(json, 'utf8')) {
+            awaitPush = true;
+        }
+
         json = '';
     }
 
     function array () {
         debug('array');
 
-        begin(true);
+        before(true);
+
         json += '[';
         needsComma = false;
+
+        after();
     }
 
-    function begin (isScope) {
-        debug('begin: isProperty=%s, needsComma=%s, isScope=%s', isProperty, needsComma, isScope);
+    function before (isScope) {
+        debug(
+            'before: isProperty=%s, needsComma=%s, isScope=%s',
+            isProperty, needsComma, isScope
+        );
 
         if (isProperty) {
             isProperty = false;
@@ -97,19 +115,33 @@ function streamify (data, options) {
         }
     }
 
+    function after () {
+        debug('after: awaitPush=%s', awaitPush);
+
+        if (!awaitPush) {
+            push();
+        }
+    }
+
     function object () {
         debug('object');
 
-        begin(true);
+        before(true);
+
         json += '{';
+
+        after();
     }
 
     function property (name) {
         debug('property: name="%s"', name);
 
-        begin();
+        before();
+
         json += '"' + name + '":';
         isProperty = true;
+
+        after();
     }
 
     function string (s) {
@@ -119,8 +151,11 @@ function streamify (data, options) {
     function value (v) {
         debug('value: v=`%s`', v);
 
-        begin();
+        before();
+
         json += v;
+
+        after();
     }
 
     function endArray () {
