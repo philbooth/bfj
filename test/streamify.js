@@ -252,26 +252,8 @@ suite('streamify:', function () {
                             log.args.JsonStream[0][0]();
                         });
 
-                        test('stream.push was called once', function () {
-                            assert.strictEqual(log.counts.push, 2);
-                        });
-
-                        test('stream.push was called correctly', function () {
-                            assert.strictEqual(log.args.push[1][0], '');
-                        });
-
-                        suite('read stream:', function () {
-                            setup(function () {
-                                log.args.JsonStream[0][0]();
-                            });
-
-                            test('stream.push was called once', function () {
-                                assert.strictEqual(log.counts.push, 3);
-                            });
-
-                            test('stream.push was called correctly', function () {
-                                assert.strictEqual(log.args.push[2][0], '');
-                            });
+                        test('stream.push was not called', function () {
+                            assert.strictEqual(log.counts.push, 1);
                         });
                     });
                 });
