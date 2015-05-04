@@ -16,7 +16,7 @@ module.exports = eventify;
  *
  * Asynchronously traverses a data structure (depth-first) and returns an
  * EventEmitter instance, emitting events as it encounters data. Sanely
- * handles promises, dates, maps and other iterables.
+ * handles promises, buffers, dates, maps and other iterables.
  *
  * @param data:        The data structure to traverse.
  *
