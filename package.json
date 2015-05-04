@@ -29,9 +29,9 @@
         "check-types": "3.2.x"
     },
     "devDependencies": {
-        "jshint": "2.6.x",
+        "jshint": "2.7.x",
         "mocha": "2.2.x",
-        "chai": "2.1.x",
+        "chai": "2.3.x",
         "mockery": "1.4.x",
         "spooks": "2.0.x"
     },
