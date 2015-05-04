@@ -38,7 +38,13 @@ function streamify (data, options) {
 
     stream = new JsonStream(push);
     emitter = eventify(data, options);
+
+    options = options || {};
     json = '';
+
+    if (!options.debug) {
+        debug = function () {};
+    }
 
     emitter.on(events.array, array);
     emitter.on(events.object, object);
@@ -52,7 +58,13 @@ function streamify (data, options) {
 
     return stream;
 
+    function debug () {
+        console.log.apply(console, arguments);
+    }
+
     function push () {
+        debug('push: isEnded=%s, json=`%s`', isEnded, json);
+
         if (isEnded && json === '') {
             return stream.push(null);
         }
@@ -62,12 +74,16 @@ function streamify (data, options) {
     }
 
     function array () {
+        debug('array');
+
         begin(true);
         json += '[';
         needsComma = false;
     }
 
     function begin (isScope) {
+        debug('begin: isProperty=%s, needsComma=%s, isScope=%s', isProperty, needsComma, isScope);
+
         if (isProperty) {
             isProperty = false;
         } else if (needsComma) {
@@ -82,11 +98,15 @@ function streamify (data, options) {
     }
 
     function object () {
+        debug('object');
+
         begin(true);
         json += '{';
     }
 
     function property (name) {
+        debug('property: name="%s"', name);
+
         begin();
         json += '"' + name + '":';
         isProperty = true;
@@ -97,19 +117,27 @@ function streamify (data, options) {
     }
 
     function value (v) {
+        debug('value: v=`%s`', v);
+
         begin();
         json += v;
     }
 
     function endArray () {
+        debug('endArray');
+
         json += ']';
     }
 
     function endObject () {
+        debug('endObject');
+
         json += '}';
     }
 
     function end () {
+        debug('end');
+
         isEnded = true;
     }
 }
