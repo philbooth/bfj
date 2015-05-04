@@ -22,7 +22,6 @@ suite('stringify:', function () {
             log: log,
             results: [
                 {
-                    setEncoding: spooks.fn({ name: 'setEncoding', log: log }),
                     on: spooks.fn({ name: 'on', log: log })
                 }
             ]
@@ -101,16 +100,6 @@ suite('stringify:', function () {
                 assert.lengthOf(Object.keys(log.args.streamify[0][0]), 0);
                 assert.strictEqual(log.args.streamify[0][1], options);
                 assert.lengthOf(Object.keys(log.args.streamify[0][1]), 0);
-            });
-
-            test('stream.setEncoding was called once', function () {
-                assert.strictEqual(log.counts.setEncoding, 1);
-                assert.strictEqual(log.these.setEncoding[0], require('./streamify')());
-            });
-
-            test('stream.setEncoding was called correctly', function () {
-                assert.lengthOf(log.args.setEncoding[0], 1);
-                assert.strictEqual(log.args.setEncoding[0][0], 'utf8');
             });
 
             test('stream.on was called twice', function () {
