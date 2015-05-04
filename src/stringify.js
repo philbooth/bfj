@@ -37,7 +37,6 @@ function stringify (data, options) {
     stream = streamify(data, options);
     json = '';
 
-    stream.setEncoding('utf8');
     stream.on('data', read);
     stream.on('end', end);
 
