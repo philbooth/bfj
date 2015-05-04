@@ -36,7 +36,7 @@ function streamify (data, options) {
 
     // TODO: options.replacer, options.space
 
-    stream = new JsonStream(push);
+    stream = new JsonStream(read);
     emitter = eventify(data, options);
 
     options = options || {};
@@ -63,26 +63,12 @@ function streamify (data, options) {
         console.log.apply(console, arguments);
     }
 
-    function push () {
-        debug('push: awaitPush=%s, isEnded=%s, json=`%s`', awaitPush, isEnded, json);
+    function read () {
+        debug('read: awaitPush=%s', awaitPush);
 
         if (awaitPush) {
             awaitPush = false;
         }
-
-        if (json === '') {
-            if (isEnded) {
-                return stream.push(null);
-            }
-
-            return;
-        }
-
-        if (!stream.push(json, 'utf8')) {
-            awaitPush = true;
-        }
-
-        json = '';
     }
 
     function array () {
@@ -116,11 +102,27 @@ function streamify (data, options) {
     }
 
     function after () {
-        debug('after: awaitPush=%s', awaitPush);
+        debug('after: awaitPush=%s, isEnded=%s, json=`%s`', awaitPush, isEnded, json);
 
-        if (!awaitPush) {
-            push();
+        if (awaitPush) {
+            return;
         }
+
+        if (json === '') {
+            if (isEnded) {
+                stream.push(null);
+            }
+
+            return;
+        }
+
+        if (!stream.push(json, 'utf8')) {
+            awaitPush = true;
+        }
+
+        json = '';
+
+        debug('after: leaving');
     }
 
     function object () {
@@ -162,18 +164,24 @@ function streamify (data, options) {
         debug('endArray');
 
         json += ']';
+
+        after();
     }
 
     function endObject () {
         debug('endObject');
 
         json += '}';
+
+        after();
     }
 
     function end () {
         debug('end');
 
         isEnded = true;
+
+        after();
     }
 }
 
