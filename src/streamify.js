@@ -32,7 +32,7 @@ module.exports = streamify;
  * @option debug:      Log debug messages to the console.
  **/
 function streamify (data, options) {
-    var stream, emitter, json, needsComma, isEnded, isProperty, awaitPush;
+    var stream, emitter, json, needsComma, isProperty, awaitPush;
 
     // TODO: options.replacer, options.space
 
@@ -102,17 +102,9 @@ function streamify (data, options) {
     }
 
     function after () {
-        debug('after: awaitPush=%s, isEnded=%s, json=`%s`', awaitPush, isEnded, json);
+        debug('after: awaitPush=%s, json=`%s`', awaitPush, json);
 
-        if (awaitPush) {
-            return;
-        }
-
-        if (json === '') {
-            if (isEnded) {
-                stream.push(null);
-            }
-
+        if (awaitPush || json === '') {
             return;
         }
 
@@ -121,8 +113,6 @@ function streamify (data, options) {
         }
 
         json = '';
-
-        debug('after: leaving');
     }
 
     function object () {
@@ -179,9 +169,9 @@ function streamify (data, options) {
     function end () {
         debug('end');
 
-        isEnded = true;
-
         after();
+
+        stream.push(null);
     }
 }
 

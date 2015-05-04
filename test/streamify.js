@@ -19,7 +19,8 @@ suite('streamify:', function () {
         results = {
             eventify: [
                 { on: spooks.fn({ name: 'on', log: log }) }
-            ]
+            ],
+            push: [ true ]
         };
 
         mockery.enable({ useCleanCache: true });
@@ -31,7 +32,8 @@ suite('streamify:', function () {
         mockery.registerMock('./rstream', spooks.ctor({
             name: 'JsonStream',
             log: log,
-            archetype: { instance: { push: function () {} } }
+            archetype: { instance: { push: function () {} } },
+            results: results
         }));
     });
 
@@ -95,7 +97,7 @@ suite('streamify:', function () {
 
             setup(function () {
                 data = {};
-                options = {};
+                options = { debug: true };
                 result = streamify(data, options);
             });
 
@@ -123,7 +125,7 @@ suite('streamify:', function () {
                 assert.strictEqual(log.args.eventify[0][0], data);
                 assert.lengthOf(Object.keys(log.args.eventify[0][0]), 0);
                 assert.strictEqual(log.args.eventify[0][1], options);
-                assert.lengthOf(Object.keys(log.args.eventify[0][1]), 0);
+                assert.lengthOf(Object.keys(log.args.eventify[0][1]), 1);
             });
 
             test('EventEmitter.on was called nine times', function () {
@@ -231,9 +233,9 @@ suite('streamify:', function () {
                     assert.strictEqual(log.counts.push, 0);
                 });
 
-                suite('read stream:', function () {
+                suite('end event:', function () {
                     setup(function () {
-                        log.args.JsonStream[0][0]();
+                        log.args.on[8][1]();
                     });
 
                     test('stream.push was called once', function () {
@@ -242,86 +244,46 @@ suite('streamify:', function () {
                     });
 
                     test('stream.push was called correctly', function () {
-                        assert.lengthOf(log.args.push[0], 2);
-                        assert.strictEqual(log.args.push[0][0], '[');
-                        assert.strictEqual(log.args.push[0][1], 'utf8');
-                    });
-
-                    suite('read stream:', function () {
-                        setup(function () {
-                            log.args.JsonStream[0][0]();
-                        });
-
-                        test('stream.push was not called', function () {
-                            assert.strictEqual(log.counts.push, 1);
-                        });
+                        assert.lengthOf(log.args.push[0], 1);
+                        assert.isNull(log.args.push[0][0]);
                     });
                 });
 
-                suite('end event:', function () {
+                suite('read stream:', function () {
                     setup(function () {
-                        log.args.on[8][1]();
+                        log.args.JsonStream[0][0]();
                     });
 
                     test('stream.push was not called', function () {
                         assert.strictEqual(log.counts.push, 0);
                     });
 
-                    suite('read stream:', function () {
+                    suite('end event:', function () {
                         setup(function () {
-                            log.args.JsonStream[0][0]();
+                            log.args.on[8][1]();
                         });
 
-                        test('stream.push was called once', function () {
-                            assert.strictEqual(log.counts.push, 1);
+                        test('stream.push was called twice', function () {
+                            assert.strictEqual(log.counts.push, 2);
+                            assert.strictEqual(log.these.push[0], require('./rstream')());
+                            assert.strictEqual(log.these.push[1], require('./rstream')());
                         });
 
-                        test('stream.push was called correctly', function () {
+                        test('stream.push was called correctly first time', function () {
+                            assert.lengthOf(log.args.push[0], 2);
                             assert.strictEqual(log.args.push[0][0], '[');
+                            assert.strictEqual(log.args.push[0][1], 'utf8');
                         });
 
-                        suite('read stream:', function () {
-                            setup(function () {
-                                log.args.JsonStream[0][0]();
-                            });
-
-                            test('stream.push was called once', function () {
-                                assert.strictEqual(log.counts.push, 2);
-                            });
-
-                            test('stream.push was called correctly', function () {
-                                assert.isNull(log.args.push[1][0]);
-                            });
-
-                            suite('read stream:', function () {
-                                setup(function () {
-                                    log.args.JsonStream[0][0]();
-                                });
-
-                                test('stream.push was called once', function () {
-                                    assert.strictEqual(log.counts.push, 3);
-                                });
-
-                                test('stream.push was called correctly', function () {
-                                    assert.isNull(log.args.push[2][0]);
-                                });
-                            });
+                        test('stream.push was called correctly second time', function () {
+                            assert.lengthOf(log.args.push[1], 1);
+                            assert.isNull(log.args.push[1][0]);
                         });
                     });
-                });
 
-                suite('string event:', function () {
-                    setup(function () {
-                        log.args.on[3][1]('foo');
-                    });
-
-                    test('stream.push was not called', function () {
-                        assert.strictEqual(log.counts.push, 0);
-                    });
-
-                    suite('read stream:', function () {
+                    suite('string event:', function () {
                         setup(function () {
-                            log.args.JsonStream[0][0]();
+                            log.args.on[3][1]('foo');
                         });
 
                         test('stream.push was called once', function () {
@@ -331,105 +293,45 @@ suite('streamify:', function () {
                         test('stream.push was called correctly', function () {
                             assert.strictEqual(log.args.push[0][0], '["foo"');
                         });
-                    });
-
-                    suite('string event:', function () {
-                        setup(function () {
-                            log.args.on[3][1]('bar');
-                        });
-
-                        test('stream.push was not called', function () {
-                            assert.strictEqual(log.counts.push, 0);
-                        });
-
-                        suite('read stream:', function () {
-                            setup(function () {
-                                log.args.JsonStream[0][0]();
-                            });
-
-                            test('stream.push was called once', function () {
-                                assert.strictEqual(log.counts.push, 1);
-                            });
-
-                            test('stream.push was called correctly', function () {
-                                assert.strictEqual(log.args.push[0][0], '["foo","bar"');
-                            });
-                        });
-                    });
-
-                    suite('array event:', function () {
-                        setup(function () {
-                            log.args.on[0][1]();
-                        });
-
-                        test('stream.push was not called', function () {
-                            assert.strictEqual(log.counts.push, 0);
-                        });
-
-                        suite('read stream:', function () {
-                            setup(function () {
-                                log.args.JsonStream[0][0]();
-                            });
-
-                            test('stream.push was called once', function () {
-                                assert.strictEqual(log.counts.push, 1);
-                            });
-
-                            test('stream.push was called correctly', function () {
-                                assert.strictEqual(log.args.push[0][0], '["foo",[');
-                            });
-                        });
 
                         suite('string event:', function () {
                             setup(function () {
                                 log.args.on[3][1]('bar');
                             });
 
-                            test('stream.push was not called', function () {
-                                assert.strictEqual(log.counts.push, 0);
+                            test('stream.push was called once', function () {
+                                assert.strictEqual(log.counts.push, 2);
                             });
 
-                            suite('read stream:', function () {
-                                setup(function () {
-                                    log.args.JsonStream[0][0]();
-                                });
+                            test('stream.push was called correctly', function () {
+                                assert.strictEqual(log.args.push[1][0], ',"bar"');
+                            });
+                        });
 
-                                test('stream.push was called once', function () {
-                                    assert.strictEqual(log.counts.push, 1);
-                                });
+                        suite('array event:', function () {
+                            setup(function () {
+                                log.args.on[0][1]();
+                            });
 
-                                test('stream.push was called correctly', function () {
-                                    assert.strictEqual(log.args.push[0][0], '["foo",["bar"');
-                                });
+                            test('stream.push was called once', function () {
+                                assert.strictEqual(log.counts.push, 2);
+                            });
+
+                            test('stream.push was called correctly', function () {
+                                assert.strictEqual(log.args.push[1][0], ',[');
                             });
 
                             suite('string event:', function () {
                                 setup(function () {
-                                    log.args.on[3][1]('baz');
+                                    log.args.on[3][1]('bar');
                                 });
 
-                                test('stream.push was not called', function () {
-                                    assert.strictEqual(log.counts.push, 0);
+                                test('stream.push was called once', function () {
+                                    assert.strictEqual(log.counts.push, 3);
                                 });
 
-                                suite('read stream:', function () {
-                                    setup(function () {
-                                        log.args.JsonStream[0][0]();
-                                    });
-
-                                    test('stream.push was called once', function () {
-                                        assert.strictEqual(log.counts.push, 1);
-                                    });
-
-                                    test('stream.push was called correctly', function () {
-                                        assert.strictEqual(log.args.push[0][0], '["foo",["bar","baz"');
-                                    });
-                                });
-                            });
-
-                            suite('endArray event:', function () {
-                                setup(function () {
-                                    log.args.on[6][1]();
+                                test('stream.push was called correctly', function () {
+                                    assert.strictEqual(log.args.push[2][0], '"bar"');
                                 });
 
                                 suite('string event:', function () {
@@ -437,152 +339,136 @@ suite('streamify:', function () {
                                         log.args.on[3][1]('baz');
                                     });
 
-                                    test('stream.push was not called', function () {
-                                        assert.strictEqual(log.counts.push, 0);
-                                    });
-
-                                    suite('read stream:', function () {
-                                        setup(function () {
-                                            log.args.JsonStream[0][0]();
-                                        });
-
-                                        test('stream.push was called once', function () {
-                                            assert.strictEqual(log.counts.push, 1);
-                                        });
-
-                                        test('stream.push was called correctly', function () {
-                                            assert.strictEqual(log.args.push[0][0], '["foo",["bar"],"baz"');
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-
-                    suite('object event:', function () {
-                        setup(function () {
-                            log.args.on[1][1]();
-                        });
-
-                        test('stream.push was not called', function () {
-                            assert.strictEqual(log.counts.push, 0);
-                        });
-
-                        suite('read stream:', function () {
-                            setup(function () {
-                                log.args.JsonStream[0][0]();
-                            });
-
-                            test('stream.push was called once', function () {
-                                assert.strictEqual(log.counts.push, 1);
-                            });
-
-                            test('stream.push was called correctly', function () {
-                                assert.strictEqual(log.args.push[0][0], '["foo",{');
-                            });
-                        });
-
-                        suite('property event:', function () {
-                            setup(function () {
-                                log.args.on[2][1]('bar');
-                            });
-
-                            test('stream.push was not called', function () {
-                                assert.strictEqual(log.counts.push, 0);
-                            });
-
-                            suite('read stream:', function () {
-                                setup(function () {
-                                    log.args.JsonStream[0][0]();
-                                });
-
-                                test('stream.push was called once', function () {
-                                    assert.strictEqual(log.counts.push, 1);
-                                });
-
-                                test('stream.push was called correctly', function () {
-                                    assert.strictEqual(log.args.push[0][0], '["foo",{"bar":');
-                                });
-                            });
-
-                            suite('string event:', function () {
-                                setup(function () {
-                                    log.args.on[3][1]('baz');
-                                });
-
-                                test('stream.push was not called', function () {
-                                    assert.strictEqual(log.counts.push, 0);
-                                });
-
-                                suite('read stream:', function () {
-                                    setup(function () {
-                                        log.args.JsonStream[0][0]();
-                                    });
-
                                     test('stream.push was called once', function () {
-                                        assert.strictEqual(log.counts.push, 1);
+                                        assert.strictEqual(log.counts.push, 4);
                                     });
 
                                     test('stream.push was called correctly', function () {
-                                        assert.strictEqual(log.args.push[0][0], '["foo",{"bar":"baz"');
+                                        assert.strictEqual(log.args.push[3][0], ',"baz"');
                                     });
                                 });
 
-                                suite('property event:', function () {
+                                suite('endArray event:', function () {
                                     setup(function () {
-                                        log.args.on[2][1]('qux');
+                                        log.args.on[6][1]();
+                                    });
+
+                                    test('stream.push was called once', function () {
+                                        assert.strictEqual(log.counts.push, 4);
+                                    });
+
+                                    test('stream.push was called correctly', function () {
+                                        assert.strictEqual(log.args.push[3][0], ']');
                                     });
 
                                     suite('string event:', function () {
                                         setup(function () {
-                                            log.args.on[3][1]('wibble');
+                                            log.args.on[3][1]('baz');
                                         });
 
-                                        test('stream.push was not called', function () {
-                                            assert.strictEqual(log.counts.push, 0);
+                                        test('stream.push was called once', function () {
+                                            assert.strictEqual(log.counts.push, 5);
                                         });
 
-                                        suite('read stream:', function () {
-                                            setup(function () {
-                                                log.args.JsonStream[0][0]();
-                                            });
-
-                                            test('stream.push was called once', function () {
-                                                assert.strictEqual(log.counts.push, 1);
-                                            });
-
-                                            test('stream.push was called correctly', function () {
-                                                assert.strictEqual(log.args.push[0][0], '["foo",{"bar":"baz","qux":"wibble"');
-                                            });
+                                        test('stream.push was called correctly', function () {
+                                            assert.strictEqual(log.args.push[4][0], ',"baz"');
                                         });
                                     });
                                 });
+                            });
+                        });
 
-                                suite('endObject event:', function () {
+                        suite('object event:', function () {
+                            setup(function () {
+                                log.args.on[1][1]();
+                            });
+
+                            test('stream.push was called once', function () {
+                                assert.strictEqual(log.counts.push, 2);
+                            });
+
+                            test('stream.push was called correctly', function () {
+                                assert.strictEqual(log.args.push[1][0], ',{');
+                            });
+
+                            suite('property event:', function () {
+                                setup(function () {
+                                    log.args.on[2][1]('bar');
+                                });
+
+                                test('stream.push was called once', function () {
+                                    assert.strictEqual(log.counts.push, 3);
+                                });
+
+                                test('stream.push was called correctly', function () {
+                                    assert.strictEqual(log.args.push[2][0], '"bar":');
+                                });
+
+                                suite('string event:', function () {
                                     setup(function () {
-                                        log.args.on[7][1]();
+                                        log.args.on[3][1]('baz');
                                     });
 
-                                    suite('string event:', function () {
+                                    test('stream.push was called once', function () {
+                                        assert.strictEqual(log.counts.push, 4);
+                                    });
+
+                                    test('stream.push was called correctly', function () {
+                                        assert.strictEqual(log.args.push[3][0], '"baz"');
+                                    });
+
+                                    suite('property event:', function () {
                                         setup(function () {
-                                            log.args.on[3][1]('wibble');
+                                            log.args.on[2][1]('qux');
                                         });
 
-                                        test('stream.push was not called', function () {
-                                            assert.strictEqual(log.counts.push, 0);
+                                        test('stream.push was called once', function () {
+                                            assert.strictEqual(log.counts.push, 5);
                                         });
 
-                                        suite('read stream:', function () {
+                                        test('stream.push was called correctly', function () {
+                                            assert.strictEqual(log.args.push[4][0], ',"qux":');
+                                        });
+
+                                        suite('string event:', function () {
                                             setup(function () {
-                                                log.args.JsonStream[0][0]();
+                                                log.args.on[3][1]('wibble');
                                             });
 
                                             test('stream.push was called once', function () {
-                                                assert.strictEqual(log.counts.push, 1);
+                                                assert.strictEqual(log.counts.push, 6);
                                             });
 
                                             test('stream.push was called correctly', function () {
-                                                assert.strictEqual(log.args.push[0][0], '["foo",{"bar":"baz"},"wibble"');
+                                                assert.strictEqual(log.args.push[5][0], '"wibble"');
+                                            });
+                                        });
+                                    });
+
+                                    suite('endObject event:', function () {
+                                        setup(function () {
+                                            log.args.on[7][1]();
+                                        });
+
+                                        test('stream.push was called once', function () {
+                                            assert.strictEqual(log.counts.push, 5);
+                                        });
+
+                                        test('stream.push was called correctly', function () {
+                                            assert.strictEqual(log.args.push[4][0], '}');
+                                        });
+
+                                        suite('string event:', function () {
+                                            setup(function () {
+                                                log.args.on[3][1]('wibble');
+                                            });
+
+                                            test('stream.push was called once', function () {
+                                                assert.strictEqual(log.counts.push, 6);
+                                            });
+
+                                            test('stream.push was called correctly', function () {
+                                                assert.strictEqual(log.args.push[5][0], ',"wibble"');
                                             });
                                         });
                                     });
@@ -591,20 +477,11 @@ suite('streamify:', function () {
                         });
                     });
                 });
-            });
 
-            suite('object event:', function () {
-                setup(function () {
-                    log.args.on[1][1]();
-                });
-
-                test('stream.push was not called', function () {
-                    assert.strictEqual(log.counts.push, 0);
-                });
-
-                suite('read stream:', function () {
+                suite('object event:', function () {
                     setup(function () {
                         log.args.JsonStream[0][0]();
+                        log.args.on[1][1]();
                     });
 
                     test('stream.push was called once', function () {
@@ -612,7 +489,7 @@ suite('streamify:', function () {
                     });
 
                     test('stream.push was called correctly', function () {
-                        assert.strictEqual(log.args.push[0][0], '{');
+                        assert.strictEqual(log.args.push[0][0], '[{');
                     });
                 });
             });
