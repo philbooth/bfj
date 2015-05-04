@@ -29,7 +29,6 @@ module.exports = stringify;
  *
  * @option debug:      Log debug messages to the console.
  **/
-
 function stringify (data, options) {
     var stream, json, resolve;
 
