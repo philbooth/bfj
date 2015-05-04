@@ -17,7 +17,7 @@ module.exports = write;
  *
  * @param path:        Path to the JSON file.
  *
- * @param data:        The data to transform
+ * @param data:        The data to transform.
  *
  * @option promises:   'resolve' or 'ignore', default is 'resolve'.
  *
