@@ -21,9 +21,7 @@ function JsonStream (read) {
 
     check.assert.function(read, 'Invalid read implementation');
 
-    this._read = function () {
-        // TODO: Check it is okay to ignore size argument
-
+    this._read = function (/*size*/) {
         read();
     };
 
