@@ -13,7 +13,7 @@ module.exports = streamify;
 /**
  * Public function `streamify`.
  *
- * Asynchronously serialises a data structure into a stream of JSON
+ * Asynchronously serialises a data structure to a stream of JSON
  * data. Sanely handles promises, buffers, dates, maps and other
  * iterables.
  *

@@ -67,8 +67,7 @@ into JavaScript data:
   a stream of JSON.
 
 * `read`:
-  Asynchronously reads
-  and parses
+  Asynchronously parses
   a JSON file from disk.
 
 The four remaining functions
@@ -89,16 +88,16 @@ to JSON:
   to JSON-friendly values.
 
 * `streamify`:
-  Asynchronously serialises
-  JSON to a stream.
+  Asynchronously serialises data
+  to a stream of JSON.
 
 * `stringify`:
   Asynchronously serialises
   a JSON string.
 
 * `write`:
-  Asynchronously writes
-  a JSON file to disk.
+  Asynchronously serialises data
+  to a JSON file on disk.
 
 ## How do I install it?
 
@@ -272,10 +271,9 @@ walker.emitter.on(bfj.events.error, error);
 
 ### bfj.parse (stream, options)
 
-`parse` asynchronously parses
-JSON from
-a [Readable] instance
-and returns a promise.
+`parse` returns a promise and
+asynchronously parses
+a [Readable] stream of JSON data.
 If there are
 no syntax errors,
 the promise is resolved
@@ -298,9 +296,9 @@ bfj.parse(fs.createReadStream(path))
 
 ### bfj.read (path, options)
 
-`read` asynchronously parses
-a JSON file and
-returns a promise.
+`read` returns a promise and
+asynchronously parses
+a JSON file read from disk.
 If there are
 no syntax errors,
 the promise is resolved
@@ -323,7 +321,7 @@ bfj.read(path)
 
 ### bfj.eventify (data, options)
 
-`eventify` returns an EventEmitter
+`eventify` returns an event emitter
 and asynchronously performs
 depth-first traversal,
 emitting events as it
@@ -488,9 +486,8 @@ emitter.on(bfj.events.end, end);
 
 ### bfj.streamify (data, options)
 
-`streamify` asynchronously serialises data
-to a JSON stream,
-returning a `Readable` instance.
+`streamify` asynchronously serialises a data structure
+to a readable stream of JSON data.
 
 #### Example
 
@@ -503,10 +500,11 @@ stream.on('end', end);
 
 ### bfj.stringify (data, options)
 
-`stringify` asynchronously serialises data
-to a JSON string,
-returning a promise
-that is resolved
+`stringify` returns a promise and
+asynchronously serialises a data structure
+to a JSON string.
+The promise is resolved
+to the JSON string
 when serialisation is complete.
 
 #### Example
@@ -520,7 +518,7 @@ bfj.stringify(data)
 
 ### bfj.write (path, data, options)
 
-`write` asynchronously serialises data
+`write` asynchronously serialises a data structure
 to a JSON file on disk,
 returning the target file stream.
 
