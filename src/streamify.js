@@ -6,7 +6,7 @@ var eventify, events, JsonStream;
 
 eventify = require('./eventify');
 events = require('./events');
-JsonStream = require('./rstream');
+JsonStream = require('./jsonstream');
 
 module.exports = streamify;
 

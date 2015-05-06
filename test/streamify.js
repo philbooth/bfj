@@ -29,7 +29,7 @@ suite('streamify:', function () {
             log: log,
             results: results.eventify
         }));
-        mockery.registerMock('./rstream', spooks.ctor({
+        mockery.registerMock('./jsonstream', spooks.ctor({
             name: 'JsonStream',
             log: log,
             archetype: { instance: { push: function () {} } },
@@ -38,7 +38,7 @@ suite('streamify:', function () {
     });
 
     teardown(function () {
-        mockery.deregisterMock('./rstream');
+        mockery.deregisterMock('./jsonstream');
         mockery.deregisterMock('./eventify');
         mockery.disable();
 
@@ -77,7 +77,7 @@ suite('streamify:', function () {
         });
 
         test('streamify returns stream', function () {
-            assert.strictEqual(streamify(), require('./rstream')());
+            assert.strictEqual(streamify(), require('./jsonstream')());
         });
 
         test('JsonStream was not called', function () {
@@ -240,7 +240,7 @@ suite('streamify:', function () {
 
                     test('stream.push was called once', function () {
                         assert.strictEqual(log.counts.push, 1);
-                        assert.strictEqual(log.these.push[0], require('./rstream')());
+                        assert.strictEqual(log.these.push[0], require('./jsonstream')());
                     });
 
                     test('stream.push was called correctly', function () {
@@ -265,8 +265,8 @@ suite('streamify:', function () {
 
                         test('stream.push was called twice', function () {
                             assert.strictEqual(log.counts.push, 2);
-                            assert.strictEqual(log.these.push[0], require('./rstream')());
-                            assert.strictEqual(log.these.push[1], require('./rstream')());
+                            assert.strictEqual(log.these.push[0], require('./jsonstream')());
+                            assert.strictEqual(log.these.push[1], require('./jsonstream')());
                         });
 
                         test('stream.push was called correctly first time', function () {
