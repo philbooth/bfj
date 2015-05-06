@@ -2,10 +2,10 @@
 
 'use strict';
 
-var EventEmitter, JsonStream, error, events, terminators, escapes;
+var EventEmitter, check, error, events, terminators, escapes;
 
 EventEmitter = require('events').EventEmitter;
-JsonStream = require('./stream');
+check = require('check-types');
 error = require('./error');
 events = require('./events');
 
@@ -30,21 +30,22 @@ module.exports = initialise;
 /**
  * Public function `walk`.
  *
- * Initialises an asynchronous JSON walker and returns an object
- * { stream, emitter }, where `stream` is a Writable instance
- * that represents the incoming JSON stream and `emitter` is an
- * EventEmitter instance that represents the outgoing JSON token
- * events.
+ * Returns an EventEmitter instance and asynchronously walks a stream of JSON
+ * data, emitting events as it encounters tokens.
+ *
+ * @param stream:   Readable instance representing the incoming JSON.
  *
  * @option discard: The number of characters to process before
- *                  discarding the processed characters to save
- *                  memory. The default value is `16384`.
+ *                  discarding them to save memory. The default
+ *                  value is `16384`.
  *
  * @option debug:   Log debug messages to the console.
  **/
-function initialise (options) {
+function initialise (stream, options) {
     var json, position, flags, scopes, handlers,
-        resumeFn, emitter, stream, discardThreshold;
+        resumeFn, emitter, discardThreshold;
+
+    check.assert.instance(stream, require('stream').Readable);
 
     // TODO: options.reviver
 
@@ -75,26 +76,24 @@ function initialise (options) {
     };
 
     emitter = new EventEmitter();
-    stream = new JsonStream(proceed);
 
     discardThreshold = options.discard || 16384;
     if (!options.debug) {
         debug = function () {};
     }
 
-    stream.on('finish', endStream);
+    stream.setEncoding('utf8');
+    stream.on('data', readStream);
+    stream.on('end', endStream);
 
-    return {
-        emitter: emitter,
-        stream: stream
-    };
+    return emitter;
 
-    function proceed (chunk) {
-        debug('proceed');
+    function readStream (chunk) {
+        debug('readStream');
 
-        if (!chunk || chunk.length === 0) {
-            return;
-        }
+        //if (!chunk || chunk.length === 0) {
+        //    return;
+        //}
 
         json += chunk;
 

@@ -12,12 +12,11 @@ module.exports = parse;
 /**
  * Public function `parse`.
  *
- * Asynchronously parses a Readable instance as JSON and returns
- * a promise. If there are no errors, the promise is resolved
- * with the parsed data. If errors occur, the promise is rejected
- * with the first error.
+ * Returns a promise and asynchronously parses a stream of JSON data. If
+ * there are no errors, the promise is resolved with the parsed data. If
+ * errors occur, the promise is rejected with the first error.
  *
- * @param stream:   Readable stream representing the incoming JSON.
+ * @param stream:   Readable instance representing the incoming JSON.
  *
  * @option discard: The number of characters to process before
  *                  discarding the processed characters to save
@@ -26,10 +25,9 @@ module.exports = parse;
  * @option debug:   Log debug messages to the console.
  **/
 function parse (stream, options) {
-    var walker, scopes, errors, resolve, reject, key;
+    var emitter, scopes, errors, resolve, reject, key;
 
-    walker = walk(options);
-    stream.pipe(walker.stream);
+    emitter = walk(stream, options);
 
     options = options || {};
     scopes = [];
@@ -39,16 +37,16 @@ function parse (stream, options) {
         debug = function () {};
     }
 
-    walker.emitter.on(events.array, array);
-    walker.emitter.on(events.object, object);
-    walker.emitter.on(events.property, property);
-    walker.emitter.on(events.string, value);
-    walker.emitter.on(events.number, value);
-    walker.emitter.on(events.literal, value);
-    walker.emitter.on(events.endArray, endScope);
-    walker.emitter.on(events.endObject, endScope);
-    walker.emitter.on(events.end, end);
-    walker.emitter.on(events.error, error);
+    emitter.on(events.array, array);
+    emitter.on(events.object, object);
+    emitter.on(events.property, property);
+    emitter.on(events.string, value);
+    emitter.on(events.number, value);
+    emitter.on(events.literal, value);
+    emitter.on(events.endArray, endScope);
+    emitter.on(events.endObject, endScope);
+    emitter.on(events.end, end);
+    emitter.on(events.error, error);
 
     return new Promise(function (res, rej) {
         resolve = res;

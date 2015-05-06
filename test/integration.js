@@ -45,7 +45,7 @@ suite('integration:', function () {
         });
 
         test('walk expects one argument', function () {
-            assert.lengthOf(bfj.walk, 1);
+            assert.lengthOf(bfj.walk, 2);
         });
 
         test('parse function is exported', function () {

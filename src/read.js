@@ -12,10 +12,9 @@ module.exports = read;
 /**
  * Public function `read`.
  *
- * Asynchronously parses a JSON file read from disk and returns
- * a promise. If there are no errors, the promise is resolved
- * with the parsed data. If errors occur, the promise is rejected
- * with the first error.
+ * Returns a promise and asynchronously parses a JSON file read from disk. If
+ * there are no errors, the promise is resolved with the parsed data. If errors
+ * occur, the promise is rejected with the first error.
  *
  * @param path:     Path to the JSON file.
  *

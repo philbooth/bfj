@@ -18,10 +18,7 @@ suite('parse:', function () {
         log = {};
         results = {
             walk: [
-                {
-                    emitter: { on: spooks.fn({ name: 'on', log: log }) },
-                    stream: {}
-                }
+                { on: spooks.fn({ name: 'on', log: log }) }
             ]
         };
 
@@ -65,20 +62,14 @@ suite('parse:', function () {
             assert.lengthOf(parse, 2);
         });
 
-        test('parse does not throw when pipe method is defined on stream', function () {
+        test('parse does not throw', function () {
             assert.doesNotThrow(function () {
-                parse({ pipe: function () {} }, null);
+                parse();
             });
         });
 
-        test('parse throws when no pipe method is defined on stream', function () {
-            assert.throws(function () {
-                parse({}, null);
-            });
-        });
-
-        test('parse returns promise', function () {
-            assert.instanceOf(parse({ pipe: function () {} }, null), Promise);
+        test('parse returns a promise', function () {
+            assert.instanceOf(parse(), Promise);
         });
 
         test('walk was not called', function () {
@@ -90,17 +81,18 @@ suite('parse:', function () {
         });
 
         suite('parse:', function () {
-            var options;
+            var stream, options;
 
             setup(function () {
+                stream = {};
                 options = {};
-                parse({ pipe: spooks.fn({ name: 'pipe', log: log }) }, options)
+                parse(stream, options)
                     .then(spooks.fn({ name: 'resolve', log: log }))
                     .catch(spooks.fn({ name: 'reject', log: log }));
             });
 
             teardown(function () {
-                options = undefined;
+                stream = options = undefined;
             });
 
             test('walk was called once', function () {
@@ -109,23 +101,25 @@ suite('parse:', function () {
             });
 
             test('walk was called correctly', function () {
-                assert.lengthOf(log.args.walk[0], 1);
-                assert.strictEqual(log.args.walk[0][0], options);
+                assert.lengthOf(log.args.walk[0], 2);
+                assert.strictEqual(log.args.walk[0][0], stream);
                 assert.lengthOf(Object.keys(log.args.walk[0][0]), 0);
+                assert.strictEqual(log.args.walk[0][1], options);
+                assert.lengthOf(Object.keys(log.args.walk[0][1]), 0);
             });
 
             test('EventEmitter.on was called ten times', function () {
                 assert.strictEqual(log.counts.on, 10);
-                assert.strictEqual(log.these.on[0], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[1], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[2], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[3], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[4], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[5], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[6], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[7], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[8], results.walk[0].emitter);
-                assert.strictEqual(log.these.on[9], results.walk[0].emitter);
+                assert.strictEqual(log.these.on[0], results.walk[0]);
+                assert.strictEqual(log.these.on[1], results.walk[0]);
+                assert.strictEqual(log.these.on[2], results.walk[0]);
+                assert.strictEqual(log.these.on[3], results.walk[0]);
+                assert.strictEqual(log.these.on[4], results.walk[0]);
+                assert.strictEqual(log.these.on[5], results.walk[0]);
+                assert.strictEqual(log.these.on[6], results.walk[0]);
+                assert.strictEqual(log.these.on[7], results.walk[0]);
+                assert.strictEqual(log.these.on[8], results.walk[0]);
+                assert.strictEqual(log.these.on[9], results.walk[0]);
             });
 
             test('EventEmitter.on was called correctly first time', function () {
