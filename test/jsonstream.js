@@ -5,9 +5,9 @@ var assert, spooks, modulePath;
 assert = require('chai').assert;
 spooks = require('spooks');
 
-modulePath = '../src/stream';
+modulePath = '../src/jsonstream';
 
-suite('stream:', function () {
+suite('jsonstream:', function () {
     var log;
 
     setup(function () {
@@ -51,7 +51,7 @@ suite('stream:', function () {
 
         test('calling Stream with object argument throws', function () {
             assert.throws(function () {
-                Stream({ write: function () {} });
+                Stream({ read: function () {} });
             });
         });
 
@@ -59,8 +59,8 @@ suite('stream:', function () {
             assert.instanceOf(new Stream(function () {}), Stream);
         });
 
-        test('calling Stream with new returns Writable instance', function () {
-            assert.instanceOf(new Stream(function () {}), require('stream').Writable);
+        test('calling Stream with new returns Readable instance', function () {
+            assert.instanceOf(new Stream(function () {}), require('stream').Readable);
         });
 
         test('calling Stream without new returns Stream instance', function () {
@@ -68,52 +68,40 @@ suite('stream:', function () {
         });
 
         suite('instantiate:', function () {
-            var stream;
+            var jsonstream;
 
             setup(function () {
-                stream = new Stream(spooks.fn({ name: 'write', log: log }));
+                jsonstream = new Stream(spooks.fn({ name: 'read', log: log }));
             });
 
             teardown(function () {
-                stream = undefined;
+                jsonstream = undefined;
             });
 
-            test('stream has _write method', function () {
-                assert.isFunction(stream._write);
+            test('jsonstream has _read method', function () {
+                assert.isFunction(jsonstream._read);
             });
 
-            test('_write expects three arguments', function () {
-                assert.lengthOf(stream._write, 3);
+            test('_read expects no arguments', function () {
+                assert.lengthOf(jsonstream._read, 0);
             });
 
-            test('write was not called', function () {
-                assert.strictEqual(log.counts.write, 0);
+            test('read was not called', function () {
+                assert.strictEqual(log.counts.read, 0);
             });
 
-            suite('stream._write:', function () {
+            suite('jsonstream._read:', function () {
                 setup(function () {
-                    stream._write({
-                        toString: function () {
-                            return 'foo bar baz';
-                        }
-                    }, null, spooks.fn({ name: 'callback', log: log }));
+                    jsonstream._read();
                 });
 
-                test('write was called once', function () {
-                    assert.strictEqual(log.counts.write, 1);
+                test('read was called once', function () {
+                    assert.strictEqual(log.counts.read, 1);
+                    assert.isUndefined(log.these.read[0]);
                 });
 
-                test('write was called correctly', function () {
-                    assert.lengthOf(log.args.write[0], 1);
-                    assert.strictEqual(log.args.write[0][0], 'foo bar baz');
-                });
-
-                test('callback was called once', function () {
-                    assert.strictEqual(log.counts.callback, 1);
-                });
-
-                test('callback was called correctly', function () {
-                    assert.lengthOf(log.args.callback[0], 0);
+                test('read was called correctly', function () {
+                    assert.lengthOf(log.args.read[0], 0);
                 });
             });
         });
