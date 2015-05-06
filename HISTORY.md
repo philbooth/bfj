@@ -1,5 +1,9 @@
 # History
 
+## 1.0.0 (coming soon)
+
+* Breaking change: take `stream` parameter in `walk`.
+
 ## 0.2.0
 
 * Implement `eventify`.
