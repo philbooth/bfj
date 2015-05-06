@@ -30,14 +30,13 @@ module.exports = initialise;
 /**
  * Public function `walk`.
  *
- * Returns an EventEmitter instance and asynchronously walks a stream of JSON
- * data, emitting events as it encounters tokens.
+ * Returns an event emitter and asynchronously walks a stream of JSON data,
+ * emitting events as it encounters tokens.
  *
  * @param stream:   Readable instance representing the incoming JSON.
  *
- * @option discard: The number of characters to process before
- *                  discarding them to save memory. The default
- *                  value is `16384`.
+ * @option discard: The number of characters to process before discarding
+ *                  them to save memory. The default value is `16384`.
  *
  * @option debug:   Log debug messages to the console.
  **/

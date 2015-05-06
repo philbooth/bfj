@@ -15,21 +15,21 @@ module.exports = write;
  * Asynchronously serialises a data structure to a JSON file on disk.
  * Sanely handles promises, buffers, dates, maps and other iterables.
  *
- * @param path:        Path to the JSON file.
+ * @param path:       Path to the JSON file.
  *
- * @param data:        The data to transform.
+ * @param data:       The data to transform.
  *
- * @option promises:   'resolve' or 'ignore', default is 'resolve'.
+ * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
- * @option buffers:    'toString' or 'ignore', default is 'toString'.
+ * @option buffers:   'toString' or 'ignore', default is 'toString'.
  *
- * @option dates:      'toJSON' or 'ignore', default is 'toJSON'.
+ * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:       'object', or 'ignore', default is 'object'.
+ * @option maps:      'object', or 'ignore', default is 'object'.
  *
- * @option iterables:  'array', or 'ignore', default is 'array'.
+ * @option iterables: 'array', or 'ignore', default is 'array'.
  *
- * @option debug:      Log debug messages to the console.
+ * @option debug:     Log debug messages to the console.
  **/
 function write (path, data, options) {
     return streamify(data, options).pipe(fs.createWriteStream(path, options));

@@ -14,23 +14,23 @@ module.exports = eventify;
 /**
  * Public function `eventify`.
  *
- * Asynchronously traverses a data structure (depth-first) and returns an
- * EventEmitter instance, emitting events as it encounters data. Sanely
- * handles promises, buffers, dates, maps and other iterables.
+ * Returns an event emitter and asynchronously traverses a data structure
+ * (depth-first), emitting events as it encounters items. Sanely handles
+ * promises, buffers, dates, maps and other iterables.
  *
- * @param data:        The data structure to traverse.
+ * @param data:       The data structure to traverse.
  *
- * @option promises:   'resolve' or 'ignore', default is 'resolve'.
+ * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
- * @option buffers:    'toString' or 'ignore', default is 'toString'.
+ * @option buffers:   'toString' or 'ignore', default is 'toString'.
  *
- * @option dates:      'toJSON' or 'ignore', default is 'toJSON'.
+ * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:       'object', or 'ignore', default is 'object'.
+ * @option maps:      'object', or 'ignore', default is 'object'.
  *
- * @option iterables:  'array', or 'ignore', default is 'array'.
+ * @option iterables: 'array', or 'ignore', default is 'array'.
  *
- * @option debug:      Log debug messages to the console.
+ * @option debug:     Log debug messages to the console.
  **/
 function eventify (data, options) {
     var coercions, emitter;

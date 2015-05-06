@@ -18,9 +18,8 @@ module.exports = parse;
  *
  * @param stream:   Readable instance representing the incoming JSON.
  *
- * @option discard: The number of characters to process before
- *                  discarding the processed characters to save
- *                  memory. The default value is `16384`.
+ * @option discard: The number of characters to process before discarding
+ *                  them to save memory. The default value is `16384`.
  *
  * @option debug:   Log debug messages to the console.
  **/
