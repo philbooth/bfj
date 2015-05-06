@@ -18,7 +18,7 @@ module.exports = parse;
  *
  * @param stream:   Readable instance representing the incoming JSON.
  *
- * @option reviver: Transformation function.
+ * @option reviver: Transformation function, invoked depth-first.
  *
  * @option discard: The number of characters to process before discarding
  *                  them to save memory. The default value is `16384`.
@@ -28,13 +28,15 @@ module.exports = parse;
 function parse (stream, options) {
     var emitter, scopes, errors, reviver, resolve, reject, key;
 
+    check.assert.maybe.function(options.reviver);
+
     emitter = walk(stream, options);
 
     options = options || {};
     scopes = [];
     errors = [];
 
-    reviver = options.reviver || function (key, value) { return value; };
+    reviver = options.reviver;
     if (!options.debug) {
         debug = function () {};
     }
@@ -93,16 +95,16 @@ function parse (stream, options) {
         debug('value: v=`%s`', v);
 
         if (scopes.length === 0) {
-            return scopes.push(reviver('', v));
+            return scopes.push(v);
         }
 
         scope = scopes[scopes.length - 1];
 
         if (key) {
-            scope[key] = reviver(key, v);
+            scope[key] = v;
             key = undefined;
         } else {
-            scope.push(reviver(scope.length, v));
+            scope.push(v);
         }
     }
 
@@ -145,7 +147,21 @@ function parse (stream, options) {
             return reject(errors[0]);
         }
 
+        if (reviver) {
+            scopes[0] = transform(scopes[0], '');
+        }
+
         resolve(scopes[0]);
+    }
+
+    function transform (object, key) {
+        if (object && typeof object === 'object') {
+            Object.keys(object).forEach(function (key) {
+                object[key] = transform(object, key);
+            });
+        }
+
+        return reviver(key, object);
     }
 
     function error (e) {
