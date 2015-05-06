@@ -18,13 +18,15 @@ module.exports = parse;
  *
  * @param stream:   Readable instance representing the incoming JSON.
  *
+ * @option reviver: Transformation function.
+ *
  * @option discard: The number of characters to process before discarding
  *                  them to save memory. The default value is `16384`.
  *
  * @option debug:   Log debug messages to the console.
  **/
 function parse (stream, options) {
-    var emitter, scopes, errors, resolve, reject, key;
+    var emitter, scopes, errors, reviver, resolve, reject, key;
 
     emitter = walk(stream, options);
 
@@ -32,6 +34,7 @@ function parse (stream, options) {
     scopes = [];
     errors = [];
 
+    reviver = options.reviver || function (key, value) { return value; };
     if (!options.debug) {
         debug = function () {};
     }
@@ -90,16 +93,16 @@ function parse (stream, options) {
         debug('value: v=`%s`', v);
 
         if (scopes.length === 0) {
-            return scopes.push(v);
+            return scopes.push(reviver('', v));
         }
 
         scope = scopes[scopes.length - 1];
 
         if (key) {
-            scope[key] = v;
+            scope[key] = reviver(key, v);
             key = undefined;
         } else {
-            scope.push(v);
+            scope.push(reviver(scope.length, v));
         }
     }
 
