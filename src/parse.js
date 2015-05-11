@@ -2,8 +2,9 @@
 
 'use strict';
 
-var walk, events;
+var check, walk, events;
 
+check = require('check-types');
 walk = require('./walk');
 events = require('./events');
 
@@ -28,11 +29,12 @@ module.exports = parse;
 function parse (stream, options) {
     var emitter, scopes, errors, reviver, resolve, reject, key;
 
+    options = options || {};
+
     check.assert.maybe.function(options.reviver);
 
     emitter = walk(stream, options);
 
-    options = options || {};
     scopes = [];
     errors = [];
 
@@ -156,8 +158,8 @@ function parse (stream, options) {
 
     function transform (object, key) {
         if (object && typeof object === 'object') {
-            Object.keys(object).forEach(function (key) {
-                object[key] = transform(object, key);
+            Object.keys(object).forEach(function (childKey) {
+                object[childKey] = transform(object[childKey], childKey);
             });
         }
 
