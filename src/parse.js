@@ -27,21 +27,20 @@ module.exports = parse;
  * @option debug:   Log debug messages to the console.
  **/
 function parse (stream, options) {
-    var emitter, scopes, errors, reviver, resolve, reject, key;
+    var reviver, emitter, scopes, errors, resolve, reject, key;
 
     options = options || {};
+    reviver = options.reviver;
+    if (!options.debug) {
+        debug = function () {};
+    }
 
-    check.assert.maybe.function(options.reviver);
+    check.assert.maybe.function(reviver);
 
     emitter = walk(stream, options);
 
     scopes = [];
     errors = [];
-
-    reviver = options.reviver;
-    if (!options.debug) {
-        debug = function () {};
-    }
 
     emitter.on(events.array, array);
     emitter.on(events.object, object);
