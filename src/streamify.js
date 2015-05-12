@@ -47,6 +47,7 @@ function streamify (data, options) {
         debug = function () {};
     }
 
+    /*jshint expr:true */
     check.function(replacer) || check.assert.maybe.array(replacer);
     check.string(space) || check.assert.maybe.number(space);
 
