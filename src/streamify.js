@@ -2,8 +2,9 @@
 
 'use strict';
 
-var eventify, events, JsonStream;
+var check, eventify, events, JsonStream;
 
+check = require('check-types');
 eventify = require('./eventify');
 events = require('./events');
 JsonStream = require('./jsonstream');
@@ -17,7 +18,12 @@ module.exports = streamify;
  * data. Sanely handles promises, buffers, dates, maps and other
  * iterables.
  *
- * @param data:       The data to transform
+ * @param data:       The data to transform.
+ *
+ * @option replacer:  Transformation function or whitelist array of
+ *                    keys to preserve in the output.
+ *
+ * @option space:     Indentation factor.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
@@ -32,20 +38,23 @@ module.exports = streamify;
  * @option debug:     Log debug messages to the console.
  **/
 function streamify (data, options) {
-    var stream, emitter, json, needsComma, isProperty, awaitPush;
+    var replacer, space, stream, emitter, json, needsComma, isProperty, awaitPush;
 
-    // TODO: options.replacer, options.space
+    options = options || {};
+    replacer = options.replacer;
+    space = options.space;
+    if (!options.debug) {
+        debug = function () {};
+    }
+
+    check.function(replacer) || check.assert.maybe.array(replacer);
+    check.string(space) || check.assert.maybe.number(space);
 
     stream = new JsonStream(read);
     emitter = eventify(data, options);
 
-    options = options || {};
     json = '';
     awaitPush = true;
-
-    if (!options.debug) {
-        debug = function () {};
-    }
 
     emitter.on(events.array, array);
     emitter.on(events.object, object);
