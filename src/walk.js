@@ -46,8 +46,6 @@ function initialise (stream, options) {
 
     check.assert.instance(stream, require('stream').Readable);
 
-    // TODO: options.reviver
-
     options = options || {};
     json = '';
     position = {
