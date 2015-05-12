@@ -3,6 +3,7 @@
 ## 1.0.0 (coming soon)
 
 * Breaking change: take `stream` parameter in `walk`.
+* Add `reviver` option for `parse` and `read`.
 
 ## 0.2.0
 
