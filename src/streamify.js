@@ -40,10 +40,10 @@ module.exports = streamify;
 function streamify (data, options) {
     var replacer, space, stream, emitter, json, needsComma, isProperty, awaitPush;
 
-    normaliseOptions();
+    normaliseOptions(options || {});
 
     check.assert.function(replacer);
-    check.assert.string(space);
+    check.assert.unemptyString(space);
 
     stream = new JsonStream(read);
     emitter = eventify(data, options);
@@ -63,26 +63,24 @@ function streamify (data, options) {
 
     return stream;
 
-    function normaliseOptions () {
-        options = options || {};
-
-        if (check.array(options.replacer) {
+    function normaliseOptions (rawOptions) {
+        if (check.array(rawOptions.replacer) {
             replacer = function (key) {
-                if (options.replacer.indexOf(key) !== -1) {
+                if (rawOptions.replacer.indexOf(key) !== -1) {
                     return value;
                 }
             };
         } else {
-            replacer = options.replacer;
+            replacer = rawOptions.replacer;
         }
 
-        if (check.positive(options.space)) {
-            space = Array(options.space + 1).join(' ');
+        if (check.positive(rawOptions.space)) {
+            space = Array(rawOptions.space + 1).join(' ');
         } else {
-            space = options.space;
+            space = rawOptions.space;
         }
 
-        if (!options.debug) {
+        if (!rawOptions.debug) {
             debug = function () {};
         }
     }
