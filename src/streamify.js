@@ -134,13 +134,16 @@ function streamify (data, options) {
     }
 
     function afterScope () {
-        // TODO: Migrate to after?
         needsComma = false;
 
-        after(true);
+        if (space) {
+            indentation += space;
+        }
+
+        after();
     }
 
-    function after (isScope) {
+    function after () {
         debug('after: awaitPush=%s, json=`%s`', awaitPush, json);
 
         if (awaitPush || json === '') {
@@ -149,10 +152,6 @@ function streamify (data, options) {
 
         if (!stream.push(json, 'utf8')) {
             awaitPush = true;
-        }
-
-        if (space && isScope) {
-            indentation += space;
         }
 
         json = '';
