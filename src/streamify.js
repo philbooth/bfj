@@ -20,11 +20,8 @@ module.exports = streamify;
  *
  * @param data:       The data to transform.
  *
- * @option replacer:  Transformation function, invoked breadth-first,
- *                    or whitelist array of keys to preserve in the
- *                    output.
- *
- * @option space:     Indentation factor.
+ * @option space:     Indentation string, or the number of spaces
+ *                    to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
@@ -39,12 +36,11 @@ module.exports = streamify;
  * @option debug:     Log debug messages to the console.
  **/
 function streamify (data, options) {
-    var replacer, space, stream, emitter, json, indentation,
+    var space, stream, emitter, json, indentation,
         awaitPush, isProperty, needsComma;
 
     normaliseOptions(options || {});
 
-    check.assert.maybe.function(replacer);
     check.assert.maybe.unemptyString(space);
 
     stream = new JsonStream(read);
@@ -67,16 +63,6 @@ function streamify (data, options) {
     return stream;
 
     function normaliseOptions (rawOptions) {
-        if (check.array(rawOptions.replacer)) {
-            replacer = function (key) {
-                if (rawOptions.replacer.indexOf(key) !== -1) {
-                    return value;
-                }
-            };
-        } else {
-            replacer = rawOptions.replacer;
-        }
-
         if (check.positive(rawOptions.space)) {
             space = (new Array(rawOptions.space + 1)).join(' ');
         } else {

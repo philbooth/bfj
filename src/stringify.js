@@ -2,8 +2,9 @@
 
 'use strict';
 
-var streamify;
+var check, streamify;
 
+check = require('check-types');
 streamify = require('./streamify');
 
 module.exports = stringify;
@@ -16,6 +17,13 @@ module.exports = stringify;
  * iterables.
  *
  * @param data:       The data to transform
+ *
+ * @option replacer:  Transformation function, invoked breadth-first,
+ *                    or whitelist array of keys to preserve in the
+ *                    output.
+ *
+ * @option space:     Indentation string, or the number of spaces
+ *                    to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
@@ -30,9 +38,11 @@ module.exports = stringify;
  * @option debug:     Log debug messages to the console.
  **/
 function stringify (data, options) {
-    var stream, json, resolve;
+    var replacer, stream, json, resolve;
 
-    // TODO: options.replacer, options.space
+    normaliseOptions(options || {});
+
+    check.assert.maybe.function(replacer);
 
     stream = streamify(data, options);
     json = '';
@@ -43,6 +53,18 @@ function stringify (data, options) {
     return new Promise(function (res) {
         resolve = res;
     });
+
+    function normaliseOptions (rawOptions) {
+        if (check.array(rawOptions.replacer)) {
+            replacer = function (key, value) {
+                if (rawOptions.replacer.indexOf(key) !== -1) {
+                    return value;
+                }
+            };
+        } else {
+            replacer = rawOptions.replacer;
+        }
+    }
 
     function read (chunk) {
         json += chunk;
