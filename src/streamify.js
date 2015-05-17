@@ -20,8 +20,9 @@ module.exports = streamify;
  *
  * @param data:       The data to transform.
  *
- * @option replacer:  Transformation function or whitelist array of
- *                    keys to preserve in the output.
+ * @option replacer:  Transformation function, invoked breadth-first,
+ *                    or whitelist array of keys to preserve in the
+ *                    output.
  *
  * @option space:     Indentation factor.
  *
@@ -38,17 +39,19 @@ module.exports = streamify;
  * @option debug:     Log debug messages to the console.
  **/
 function streamify (data, options) {
-    var replacer, space, stream, emitter, json, needsComma, isProperty, awaitPush;
+    var replacer, space, stream, emitter, json, indentation,
+        awaitPush, isProperty, needsComma;
 
     normaliseOptions(options || {});
 
-    check.assert.function(replacer);
-    check.assert.unemptyString(space);
+    check.assert.maybe.function(replacer);
+    check.assert.maybe.unemptyString(space);
 
     stream = new JsonStream(read);
     emitter = eventify(data, options);
 
     json = '';
+    indentation = '';
     awaitPush = true;
 
     emitter.on(events.array, array);
@@ -64,7 +67,7 @@ function streamify (data, options) {
     return stream;
 
     function normaliseOptions (rawOptions) {
-        if (check.array(rawOptions.replacer) {
+        if (check.array(rawOptions.replacer)) {
             replacer = function (key) {
                 if (rawOptions.replacer.indexOf(key) !== -1) {
                     return value;
@@ -75,7 +78,7 @@ function streamify (data, options) {
         }
 
         if (check.positive(rawOptions.space)) {
-            space = Array(rawOptions.space + 1).join(' ');
+            space = (new Array(rawOptions.space + 1)).join(' ');
         } else {
             space = rawOptions.space;
         }
@@ -102,7 +105,9 @@ function streamify (data, options) {
 
         before(true);
 
-        json += '[';
+        addJson('[');
+
+        // TODO: Migrate to after?
         needsComma = false;
 
         after();
@@ -122,9 +127,23 @@ function streamify (data, options) {
             }
 
             json += ',';
-        } else if (!isScope) {
+        } else if (isScope && space) {
+            indentation += space;
+        } else {
             needsComma = true;
         }
+    }
+
+    function addJson (string, isScopeEnd) {
+        if (isScopeEnd && space) {
+            indentation = indentation.substr(space.length);
+        }
+
+        if (json.length > 0 && space && !isProperty) {
+            string = '\n' + indentation + string;
+        }
+
+        json += string;
     }
 
     function after () {
@@ -146,7 +165,10 @@ function streamify (data, options) {
 
         before(true);
 
-        json += '{';
+        addJson('{');
+
+        // TODO: Migrate to after?
+        needsComma = false;
 
         after();
     }
@@ -156,7 +178,7 @@ function streamify (data, options) {
 
         before();
 
-        json += '"' + name + '":';
+        addJson('"' + name + '":');
         isProperty = true;
 
         after();
@@ -171,7 +193,7 @@ function streamify (data, options) {
 
         before();
 
-        json += v;
+        addJson(v);
 
         after();
     }
@@ -179,7 +201,7 @@ function streamify (data, options) {
     function endArray () {
         debug('endArray');
 
-        json += ']';
+        addJson(']', true);
 
         after();
     }
@@ -187,7 +209,7 @@ function streamify (data, options) {
     function endObject () {
         debug('endObject');
 
-        json += '}';
+        addJson('}', true);
 
         after();
     }
