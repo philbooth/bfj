@@ -89,50 +89,58 @@ function streamify (data, options) {
     function array () {
         debug('array');
 
+        beforeScope();
+
+        json += '[';
+
+        afterScope();
+    }
+
+    function beforeScope () {
         before(true);
-
-        addJson('[');
-
-        // TODO: Migrate to after?
-        needsComma = false;
-
-        after();
     }
 
     function before (isScope) {
         debug(
-            'before: isProperty=%s, needsComma=%s, isScope=%s',
-            isProperty, needsComma, isScope
+            'before: isProperty=%s, needsComma=%s, isScope=%s, indentation=%d',
+            isProperty, needsComma, isScope, indentation.length
         );
 
         if (isProperty) {
             isProperty = false;
-        } else if (needsComma) {
-            if (isScope) {
-                needsComma = false;
+
+            if (space) {
+                json += ' ';
+            }
+        } else {
+            if (needsComma) {
+                if (isScope) {
+                    needsComma = false;
+                }
+
+                json += ',';
+            } else if (!isScope) {
+                needsComma = true;
             }
 
-            json += ',';
-        } else if (isScope && space) {
-            indentation += space;
-        } else {
-            needsComma = true;
+            if (space && indentation) {
+                indent();
+            }
         }
     }
 
-    function addJson (string, isScopeEnd) {
-        if (isScopeEnd && space) {
-            indentation = indentation.substr(space.length);
-        }
-
-        if (json.length > 0 && space && !isProperty) {
-            string = '\n' + indentation + string;
-        }
-
-        json += string;
+    function indent () {
+        json += '\n' + indentation;
     }
 
-    function after () {
+    function afterScope () {
+        // TODO: Migrate to after?
+        needsComma = false;
+
+        after(true);
+    }
+
+    function after (isScope) {
         debug('after: awaitPush=%s, json=`%s`', awaitPush, json);
 
         if (awaitPush || json === '') {
@@ -143,20 +151,21 @@ function streamify (data, options) {
             awaitPush = true;
         }
 
+        if (space && isScope) {
+            indentation += space;
+        }
+
         json = '';
     }
 
     function object () {
         debug('object');
 
-        before(true);
+        beforeScope();
 
-        addJson('{');
+        json += '{';
 
-        // TODO: Migrate to after?
-        needsComma = false;
-
-        after();
+        afterScope();
     }
 
     function property (name) {
@@ -164,7 +173,7 @@ function streamify (data, options) {
 
         before();
 
-        addJson('"' + name + '":');
+        json += '"' + name + '":';
         isProperty = true;
 
         after();
@@ -179,7 +188,7 @@ function streamify (data, options) {
 
         before();
 
-        addJson(v);
+        json += v;
 
         after();
     }
@@ -187,15 +196,27 @@ function streamify (data, options) {
     function endArray () {
         debug('endArray');
 
-        addJson(']', true);
+        beforeScopeEnd();
+
+        json += ']';
 
         after();
+    }
+
+    function beforeScopeEnd () {
+        if (space) {
+            indentation = indentation.substr(space.length);
+
+            indent();
+        }
     }
 
     function endObject () {
         debug('endObject');
 
-        addJson('}', true);
+        beforeScopeEnd();
+
+        json += '}';
 
         after();
     }
