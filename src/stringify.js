@@ -2,9 +2,7 @@
 
 'use strict';
 
-var streamify;
-
-streamify = require('./streamify');
+var streamify = require('./streamify');
 
 module.exports = stringify;
 
@@ -16,6 +14,9 @@ module.exports = stringify;
  * iterables.
  *
  * @param data:       The data to transform
+ *
+ * @option space:     Indentation string, or the number of spaces
+ *                    to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
@@ -31,8 +32,6 @@ module.exports = stringify;
  **/
 function stringify (data, options) {
     var stream, json, resolve;
-
-    // TODO: options.replacer, options.space
 
     stream = streamify(data, options);
     json = '';

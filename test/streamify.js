@@ -494,6 +494,219 @@ suite('streamify:', function () {
                 });
             });
         });
+
+        suite('streamify with space option:', function () {
+            var data, options, result;
+
+            setup(function () {
+                data = {};
+                options = { space: 2 };
+                result = streamify(data, options);
+            });
+
+            teardown(function () {
+                data = options = result = undefined;
+            });
+
+            test('JsonStream was called once', function () {
+                assert.strictEqual(log.counts.JsonStream, 1);
+            });
+
+            test('eventify was called once', function () {
+                assert.strictEqual(log.counts.eventify, 1);
+            });
+
+            test('EventEmitter.on was called nine times', function () {
+                assert.strictEqual(log.counts.on, 9);
+            });
+
+            test('stream.push was not called', function () {
+                assert.strictEqual(log.counts.push, 0);
+            });
+
+            suite('read stream, object event:', function () {
+                setup(function () {
+                    log.args.JsonStream[0][0]();
+                    log.args.on[1][1]();
+                });
+
+                test('stream.push was called once', function () {
+                    assert.strictEqual(log.counts.push, 1);
+                });
+
+                test('stream.push was called correctly', function () {
+                    assert.strictEqual(log.args.push[0][0], '{');
+                });
+
+                suite('property event:', function () {
+                    setup(function () {
+                        log.args.on[2][1]('foo');
+                    });
+
+                    test('stream.push was called once', function () {
+                        assert.strictEqual(log.counts.push, 2);
+                    });
+
+                    test('stream.push was called correctly', function () {
+                        assert.strictEqual(log.args.push[1][0], '\n  "foo":');
+                    });
+
+                    suite('string event:', function () {
+                        setup(function () {
+                            log.args.on[3][1]('bar');
+                        });
+
+                        test('stream.push was called once', function () {
+                            assert.strictEqual(log.counts.push, 3);
+                        });
+
+                        test('stream.push was called correctly', function () {
+                            assert.strictEqual(log.args.push[2][0], ' "bar"');
+                        });
+
+                        suite('property event:', function () {
+                            setup(function () {
+                                log.args.on[2][1]('baz');
+                            });
+
+                            test('stream.push was called once', function () {
+                                assert.strictEqual(log.counts.push, 4);
+                            });
+
+                            test('stream.push was called correctly', function () {
+                                assert.strictEqual(log.args.push[3][0], ',\n  "baz":');
+                            });
+
+                            suite('string event:', function () {
+                                setup(function () {
+                                    log.args.on[3][1]('qux');
+                                });
+
+                                test('stream.push was called once', function () {
+                                    assert.strictEqual(log.counts.push, 5);
+                                });
+
+                                test('stream.push was called correctly', function () {
+                                    assert.strictEqual(log.args.push[4][0], ' "qux"');
+                                });
+
+                                suite('property event:', function () {
+                                    setup(function () {
+                                        log.args.on[2][1]('wibble');
+                                    });
+
+                                    test('stream.push was called once', function () {
+                                        assert.strictEqual(log.counts.push, 6);
+                                    });
+
+                                    test('stream.push was called correctly', function () {
+                                        assert.strictEqual(log.args.push[5][0], ',\n  "wibble":');
+                                    });
+
+                                    suite('array event:', function () {
+                                        setup(function () {
+                                            log.args.on[0][1]();
+                                        });
+
+                                        test('stream.push was called once', function () {
+                                            assert.strictEqual(log.counts.push, 7);
+                                        });
+
+                                        test('stream.push was called correctly', function () {
+                                            assert.strictEqual(log.args.push[6][0], ' [');
+                                        });
+
+                                        suite('string event:', function () {
+                                            setup(function () {
+                                                log.args.on[3][1]('0');
+                                            });
+
+                                            test('stream.push was called once', function () {
+                                                assert.strictEqual(log.counts.push, 8);
+                                            });
+
+                                            test('stream.push was called correctly', function () {
+                                                assert.strictEqual(log.args.push[7][0], '\n    "0"');
+                                            });
+
+                                            suite('string event:', function () {
+                                                setup(function () {
+                                                    log.args.on[3][1]('1');
+                                                });
+
+                                                test('stream.push was called once', function () {
+                                                    assert.strictEqual(log.counts.push, 9);
+                                                });
+
+                                                test('stream.push was called correctly', function () {
+                                                    assert.strictEqual(log.args.push[8][0], ',\n    "1"');
+                                                });
+
+                                                suite('endArray event:', function () {
+                                                    setup(function () {
+                                                        log.args.on[6][1]();
+                                                    });
+
+                                                    test('stream.push was called once', function () {
+                                                        assert.strictEqual(log.counts.push, 10);
+                                                    });
+
+                                                    test('stream.push was called correctly', function () {
+                                                        assert.strictEqual(log.args.push[9][0], '\n  ]');
+                                                    });
+
+                                                    suite('property event:', function () {
+                                                        setup(function () {
+                                                            log.args.on[2][1]('a');
+                                                        });
+
+                                                        test('stream.push was called once', function () {
+                                                            assert.strictEqual(log.counts.push, 11);
+                                                        });
+
+                                                        test('stream.push was called correctly', function () {
+                                                            assert.strictEqual(log.args.push[10][0], ',\n  "a":');
+                                                        });
+
+                                                        suite('string event:', function () {
+                                                            setup(function () {
+                                                                log.args.on[3][1]('b');
+                                                            });
+
+                                                            test('stream.push was called once', function () {
+                                                                assert.strictEqual(log.counts.push, 12);
+                                                            });
+
+                                                            test('stream.push was called correctly', function () {
+                                                                assert.strictEqual(log.args.push[11][0], ' "b"');
+                                                            });
+
+                                                            suite('endObject event:', function () {
+                                                                setup(function () {
+                                                                    log.args.on[7][1]();
+                                                                });
+
+                                                                test('stream.push was called once', function () {
+                                                                    assert.strictEqual(log.counts.push, 13);
+                                                                });
+
+                                                                test('stream.push was called correctly', function () {
+                                                                    assert.strictEqual(log.args.push[12][0], '\n}');
+                                                                });
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 });
 

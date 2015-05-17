@@ -2,8 +2,9 @@
 
 'use strict';
 
-var eventify, events, JsonStream;
+var check, eventify, events, JsonStream;
 
+check = require('check-types');
 eventify = require('./eventify');
 events = require('./events');
 JsonStream = require('./jsonstream');
@@ -17,7 +18,10 @@ module.exports = streamify;
  * data. Sanely handles promises, buffers, dates, maps and other
  * iterables.
  *
- * @param data:       The data to transform
+ * @param data:       The data to transform.
+ *
+ * @option space:     Indentation string, or the number of spaces
+ *                    to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
@@ -32,20 +36,19 @@ module.exports = streamify;
  * @option debug:     Log debug messages to the console.
  **/
 function streamify (data, options) {
-    var stream, emitter, json, needsComma, isProperty, awaitPush;
+    var space, stream, emitter, json, indentation,
+        awaitPush, isProperty, needsComma;
 
-    // TODO: options.replacer, options.space
+    normaliseOptions(options || {});
+
+    check.assert.maybe.unemptyString(space);
 
     stream = new JsonStream(read);
     emitter = eventify(data, options);
 
-    options = options || {};
     json = '';
+    indentation = '';
     awaitPush = true;
-
-    if (!options.debug) {
-        debug = function () {};
-    }
 
     emitter.on(events.array, array);
     emitter.on(events.object, object);
@@ -58,6 +61,18 @@ function streamify (data, options) {
     emitter.on(events.end, end);
 
     return stream;
+
+    function normaliseOptions (rawOptions) {
+        if (check.positive(rawOptions.space)) {
+            space = (new Array(rawOptions.space + 1)).join(' ');
+        } else {
+            space = rawOptions.space;
+        }
+
+        if (!rawOptions.debug) {
+            debug = function () {};
+        }
+    }
 
     function debug () {
         console.log.apply(console, arguments);
@@ -74,31 +89,58 @@ function streamify (data, options) {
     function array () {
         debug('array');
 
-        before(true);
+        beforeScope();
 
         json += '[';
-        needsComma = false;
 
-        after();
+        afterScope();
+    }
+
+    function beforeScope () {
+        before(true);
     }
 
     function before (isScope) {
         debug(
-            'before: isProperty=%s, needsComma=%s, isScope=%s',
-            isProperty, needsComma, isScope
+            'before: isProperty=%s, needsComma=%s, isScope=%s, indentation=%d',
+            isProperty, needsComma, isScope, indentation.length
         );
 
         if (isProperty) {
             isProperty = false;
-        } else if (needsComma) {
-            if (isScope) {
-                needsComma = false;
+
+            if (space) {
+                json += ' ';
+            }
+        } else {
+            if (needsComma) {
+                if (isScope) {
+                    needsComma = false;
+                }
+
+                json += ',';
+            } else if (!isScope) {
+                needsComma = true;
             }
 
-            json += ',';
-        } else if (!isScope) {
-            needsComma = true;
+            if (space && indentation) {
+                indent();
+            }
         }
+    }
+
+    function indent () {
+        json += '\n' + indentation;
+    }
+
+    function afterScope () {
+        needsComma = false;
+
+        if (space) {
+            indentation += space;
+        }
+
+        after();
     }
 
     function after () {
@@ -118,11 +160,11 @@ function streamify (data, options) {
     function object () {
         debug('object');
 
-        before(true);
+        beforeScope();
 
         json += '{';
 
-        after();
+        afterScope();
     }
 
     function property (name) {
@@ -153,13 +195,25 @@ function streamify (data, options) {
     function endArray () {
         debug('endArray');
 
+        beforeScopeEnd();
+
         json += ']';
 
         after();
     }
 
+    function beforeScopeEnd () {
+        if (space) {
+            indentation = indentation.substr(space.length);
+
+            indent();
+        }
+    }
+
     function endObject () {
         debug('endObject');
+
+        beforeScopeEnd();
 
         json += '}';
 
