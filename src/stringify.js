@@ -2,10 +2,7 @@
 
 'use strict';
 
-var check, streamify;
-
-check = require('check-types');
-streamify = require('./streamify');
+var streamify = require('./streamify');
 
 module.exports = stringify;
 
