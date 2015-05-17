@@ -77,7 +77,7 @@ function streamify (data, options) {
         }
 
         if (check.positive(options.space)) {
-            space = Array(options.space).join(' ');
+            space = Array(options.space + 1).join(' ');
         } else {
             space = options.space;
         }
