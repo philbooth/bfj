@@ -5,9 +5,9 @@ var assert, spooks, Readable, events, modulePath;
 assert = require('chai').assert;
 spooks = require('spooks');
 Readable = require('stream').Readable;
-events = require('../src/events');
+events = require('../../src/events');
 
-modulePath = '../src/walk';
+modulePath = '../../src/walk';
 
 suite('walk:', function () {
     var log;

@@ -5,7 +5,7 @@ var assert, spooks, modulePath;
 assert = require('chai').assert;
 spooks = require('spooks');
 
-modulePath = '../src/jsonstream';
+modulePath = '../../src/jsonstream';
 
 suite('jsonstream:', function () {
     var log;

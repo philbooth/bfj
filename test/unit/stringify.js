@@ -6,7 +6,7 @@ assert = require('chai').assert;
 mockery = require('mockery');
 spooks = require('spooks');
 
-modulePath = '../src/stringify';
+modulePath = '../../src/stringify';
 
 mockery.registerAllowable(modulePath);
 

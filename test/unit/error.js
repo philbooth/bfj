@@ -3,7 +3,7 @@
 var assert, modulePath;
 
 assert = require('chai').assert;
-modulePath = '../src/error';
+modulePath = '../../src/error';
 
 suite('error:', function () {
     var log;

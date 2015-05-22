@@ -6,7 +6,7 @@ assert = require('chai').assert;
 mockery = require('mockery');
 spooks = require('spooks');
 
-modulePath = '../src/parse';
+modulePath = '../../src/parse';
 
 mockery.registerAllowable(modulePath);
 mockery.registerAllowable('check-types');

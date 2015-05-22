@@ -4,9 +4,9 @@ var assert, spooks, events, modulePath;
 
 assert = require('chai').assert;
 spooks = require('spooks');
-events = require('../src/events');
+events = require('../../src/events');
 
-modulePath = '../src/eventify';
+modulePath = '../../src/eventify';
 
 suite('eventify:', function () {
     var log;
