@@ -36,9 +36,10 @@
         "spooks": "2.0.x"
     },
     "scripts": {
-        "test": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/unit",
-        "test-int": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/integration",
-        "lint": "jshint src"
+        "lint": "jshint src",
+        "test": "npm run unit && npm run integration",
+        "unit": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/unit",
+        "integration": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/integration"
     }
 }
 
