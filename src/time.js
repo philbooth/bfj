@@ -6,13 +6,14 @@
 
 'use strict';
 
-var check, context, timings, sums;
+var check, context, timings, sums, nanosecondsPerSecond;
 
 check = require('check-types');
 
 timings = [];
 context = [];
 sums = {};
+nanosecondsPerSecond = 1000000000;
 
 module.exports = initialise;
 
@@ -47,7 +48,7 @@ function begin (functionName) {
 }
 
 function end (functionName) {
-    var datum, sum;
+    var datum, sum, nanoseconds;
 
     check.assert(context.length > 0);
 
@@ -57,8 +58,9 @@ function end (functionName) {
 
     datum.timing = process.hrtime(datum.timing);
     sum = sums[functionName];
-    sum.total[0] += datum.timing[0];
-    sum.total[1] += datum.timing[1];
+    nanoseconds = sum.total[1] + datum.timing[1];
+    sum.total[0] += datum.timing[0] + Math.floor(nanoseconds / nanosecondsPerSecond);
+    sum.total[1] = nanoseconds % nanosecondsPerSecond;
 
     context.pop();
 }
