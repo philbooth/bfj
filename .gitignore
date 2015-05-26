@@ -3,4 +3,8 @@ node_modules
 npm-debug.log
 test/data.json
 test/mtg.json
+test/mtg-timings.json
+test/mtg-sums.json
 test/wpt.json
+test/wpt-timings.json
+test/wpt-sums.json
