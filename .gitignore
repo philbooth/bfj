@@ -4,7 +4,7 @@ npm-debug.log
 test/data.json
 test/mtg.json
 test/mtg-timings.json
-test/mtg-sums.json
+test/mtg-sums.csv
 test/wpt.json
 test/wpt-timings.json
-test/wpt-sums.json
+test/wpt-sums.csv
