@@ -41,31 +41,21 @@ module.exports = initialise;
  * @option debug:   Log debug messages to the console.
  **/
 function initialise (stream, options) {
-    var json, position, flags, scopes, handlers,
-        resumeFn, emitter, discardThreshold;
+    var json, index, currentPosition, previousPosition,
+        isStreamEnded, isWalkBegun, isWalkEnded, isWalkingString,
+        scopes, handlers, resumeFn, emitter, discardThreshold;
 
     check.assert.instance(stream, require('stream').Readable);
 
     options = options || {};
     json = '';
-    position = {
-        index: 0,
-        current: {
-            line: 1,
-            column: 1
-        },
-        previous: {}
+    index = 0;
+    currentPosition = {
+        line: 1,
+        column: 1
     };
-    flags = {
-        stream: {
-            ended: false
-        },
-        walk: {
-            begun: false,
-            ended: false,
-            string: false
-        }
-    };
+    previousPosition = {};
+    isStreamEnded = isWalkBegun = isWalkEnded = isWalkingString = false;
     scopes = [];
     handlers = {
         arr: value,
@@ -88,15 +78,11 @@ function initialise (stream, options) {
     function readStream (chunk) {
         debug('readStream');
 
-        //if (!chunk || chunk.length === 0) {
-        //    return;
-        //}
-
         json += chunk;
 
-        if (!flags.walk.begun) {
-            flags.walk.begun = true;
-            setImmediate(value);
+        if (!isWalkBegun) {
+            isWalkBegun = true;
+            value();
             return;
         }
 
@@ -110,31 +96,31 @@ function initialise (stream, options) {
     function debugPosition () {
         var result;
 
-        if (position.index === json.length) {
+        if (index === json.length) {
             result = 'EOF';
         } else {
             result = character();
         }
 
-        return result + '[' + position.index + ']';
+        return result + '[' + index + ']';
     }
 
     function character () {
-        return json[position.index];
+        return json[index];
     }
 
     function debugFlags () {
         var result = '';
 
-        debugFlag('stream', 'ended', 'sx');
-        debugFlag('walk', 'begun', 'wb');
-        debugFlag('walk', 'string', 'ws');
-        debugFlag('walk', 'ended', 'wx');
+        debugFlag(isStreamEnded, 'sx');
+        debugFlag(isWalkBegun, 'wb');
+        debugFlag(isWalkingString, 'ws');
+        debugFlag(isWalkEnded, 'wx');
 
         return result;
 
-        function debugFlag (type, name, abbreviation) {
-            if (flags[type][name]) {
+        function debugFlag (flag, abbreviation) {
+            if (flag) {
                 result += ' ' + abbreviation;
             }
         }
@@ -182,11 +168,11 @@ function initialise (stream, options) {
 
         debug('awaitCharacter');
 
-        if (position.index < json.length) {
+        if (index < json.length) {
             return Promise.resolve();
         }
 
-        if (flags.stream.ended) {
+        if (isStreamEnded) {
             setImmediate(endWalk);
             return Promise.reject();
         }
@@ -201,13 +187,13 @@ function initialise (stream, options) {
         function after () {
             debug('awaitCharacter::after');
 
-            if (position.index < json.length) {
+            if (index < json.length) {
                 return resolve();
             }
 
             reject();
 
-            if (flags.stream.ended) {
+            if (isStreamEnded) {
                 setImmediate(endWalk);
             }
         }
@@ -231,20 +217,20 @@ function initialise (stream, options) {
 
             result = character();
 
-            position.index += 1;
-            position.previous.line = position.current.line;
-            position.previous.column = position.current.column;
+            index += 1;
+            previousPosition.line = currentPosition.line;
+            previousPosition.column = currentPosition.column;
 
             if (result === '\n') {
-                position.current.line += 1;
-                position.current.column = 1;
+                currentPosition.line += 1;
+                currentPosition.column = 1;
             } else {
-                position.current.column += 1;
+                currentPosition.column += 1;
             }
 
-            if (position.index === discardThreshold) {
-                json = json.substr(position.index);
-                position.index = 0;
+            if (index === discardThreshold) {
+                json = json.substring(index);
+                index = 0;
             }
 
             resolve(result);
@@ -281,7 +267,7 @@ function initialise (stream, options) {
             case 't':
                 return literalTrue();
             default:
-                fail(character, 'value', 'previous');
+                fail(character, 'value', previousPosition);
                 value();
         }
     }
@@ -332,7 +318,7 @@ function initialise (stream, options) {
 
         function after () {
             if (scopes.length === 0) {
-                fail(character(), 'EOF', 'current');
+                fail(character(), 'EOF', currentPosition);
                 return setImmediate(value);
             }
 
@@ -351,16 +337,16 @@ function initialise (stream, options) {
 
                 var handler = handlers[scope];
 
-                if (checkCharacter(character(), ',', 'current')) {
+                if (checkCharacter(character(), ',', currentPosition)) {
                     next().then(handler);
                 } else {
-                    setImmediate(handler);
+                    handler();
                 }
             });
         }
     }
 
-    function fail (actual, expected, positionKey) {
+    function fail (actual, expected, position) {
         debug('fail');
 
         emitter.emit(
@@ -368,17 +354,17 @@ function initialise (stream, options) {
             error.create(
                 actual,
                 expected,
-                position[positionKey].line,
-                position[positionKey].column
+                position.line,
+                position.column
             )
         );
     }
 
-    function checkCharacter (character, expected, positionKey) {
+    function checkCharacter (character, expected, position) {
         debug('checkCharacter');
 
         if (character !== expected) {
-            fail(character, expected, positionKey);
+            fail(character, expected, position);
             return false;
         }
 
@@ -402,7 +388,7 @@ function initialise (stream, options) {
     function propertyName (character) {
         debug('propertyName');
 
-        checkCharacter(character, '"', 'previous');
+        checkCharacter(character, '"', previousPosition);
 
         walkString(events.property)
             .then(awaitNonWhitespace)
@@ -413,8 +399,8 @@ function initialise (stream, options) {
     function propertyValue (character) {
         debug('propertyValue');
 
-        checkCharacter(character, ':', 'previous');
-        setImmediate(value);
+        checkCharacter(character, ':', previousPosition);
+        value();
     }
 
     function walkString (event) {
@@ -422,7 +408,7 @@ function initialise (stream, options) {
 
         debug('walkString');
 
-        flags.walk.string = true;
+        isWalkingString = true;
         isEscaping = false;
         string = '';
 
@@ -454,7 +440,7 @@ function initialise (stream, options) {
                 return next().then(step);
             }
 
-            flags.walk.string = false;
+            isWalkingString = false;
             emitter.emit(event, string);
             resolve();
         }
@@ -474,7 +460,7 @@ function initialise (stream, options) {
         } else if (character === 'u') {
             escapeHex().then(resolve);
         } else {
-            fail(character, 'escape character', 'previous');
+            fail(character, 'escape character', previousPosition);
             resolve('\\' + character);
         }
 
@@ -509,7 +495,7 @@ function initialise (stream, options) {
                 return resolve(String.fromCharCode(parseInt(hexits, 16)));
             }
 
-            fail(character, 'hex digit', 'previous');
+            fail(character, 'hex digit', previousPosition);
 
             resolve('\\u' + hexits + character);
         }
@@ -563,7 +549,7 @@ function initialise (stream, options) {
                     digits += character;
                     awaitCharacter()
                         .then(checkSign)
-                        .catch(fail.bind(null, 'EOF', 'exponent', 'current'));
+                        .catch(fail.bind(null, 'EOF', 'exponent', currentPosition));
                 });
             }
 
@@ -593,7 +579,7 @@ function initialise (stream, options) {
             debug('number::endNumber');
 
             emitter.emit(events.number, parseFloat(digits));
-            setImmediate(endValue);
+            endValue();
         }
     }
 
@@ -677,14 +663,14 @@ function initialise (stream, options) {
             debug('literal::atEnd');
 
             if (invalid) {
-                fail(actual, expected, 'previous');
+                fail(actual, expected, previousPosition);
             } else if (expectedCharacters.length > 0) {
-                fail('EOF', expectedCharacters.shift(), 'current');
+                fail('EOF', expectedCharacters.shift(), currentPosition);
             } else {
                 done();
             }
 
-            setImmediate(endValue);
+            endValue();
         }
 
         function afterNext (character) {
@@ -722,10 +708,10 @@ function initialise (stream, options) {
     function endStream () {
         debug('endStream');
 
-        flags.stream.ended = true;
+        isStreamEnded = true;
 
-        if (!flags.walk.begun) {
-            setImmediate(endWalk);
+        if (!isWalkBegun) {
+            endWalk();
             return;
         }
 
@@ -735,18 +721,18 @@ function initialise (stream, options) {
     function endWalk () {
         debug('endWalk');
 
-        if (flags.walk.ended) {
+        if (isWalkEnded) {
             return;
         }
 
-        flags.walk.ended = true;
+        isWalkEnded = true;
 
-        if (flags.walk.string) {
-            fail('EOF', '"', 'current');
+        if (isWalkingString) {
+            fail('EOF', '"', currentPosition);
         }
 
         while (scopes.length > 0) {
-            fail('EOF', terminators[scopes.pop()], 'current');
+            fail('EOF', terminators[scopes.pop()], currentPosition);
         }
 
         emitter.emit(events.end);
@@ -754,7 +740,7 @@ function initialise (stream, options) {
 
     function resume () {
         if (resumeFn) {
-            setImmediate(resumeFn);
+            resumeFn();
             resumeFn = undefined;
         }
     }
