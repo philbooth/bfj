@@ -9,6 +9,7 @@ spooks = require('spooks');
 modulePath = '../../src/stringify';
 
 mockery.registerAllowable(modulePath);
+mockery.registerAllowable('./time');
 
 suite('stringify:', function () {
     var log;

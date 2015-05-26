@@ -37,7 +37,7 @@ module.exports = streamify;
  **/
 function streamify (data, options) {
     var space, stream, emitter, json, indentation,
-        awaitPush, isProperty, needsComma;
+        awaitPush, isProperty, needsComma, time;
 
     normaliseOptions(options || {});
 
@@ -72,6 +72,8 @@ function streamify (data, options) {
         if (!rawOptions.debug) {
             debug = function () {};
         }
+
+        time = require('./time')(rawOptions);
     }
 
     function debug () {
@@ -79,14 +81,17 @@ function streamify (data, options) {
     }
 
     function read () {
+        time.begin('streamify::read');
         debug('read: awaitPush=%s', awaitPush);
 
         if (awaitPush) {
             awaitPush = false;
         }
+        time.end('streamify::read');
     }
 
     function array () {
+        time.begin('streamify::array');
         debug('array');
 
         beforeScope();
@@ -94,13 +99,17 @@ function streamify (data, options) {
         json += '[';
 
         afterScope();
+        time.end('streamify::array');
     }
 
     function beforeScope () {
+        time.begin('streamify::beforeScope');
         before(true);
+        time.end('streamify::beforeScope');
     }
 
     function before (isScope) {
+        time.begin('streamify::before');
         debug(
             'before: isProperty=%s, needsComma=%s, isScope=%s, indentation=%d',
             isProperty, needsComma, isScope, indentation.length
@@ -127,13 +136,17 @@ function streamify (data, options) {
                 indent();
             }
         }
+        time.end('streamify::before');
     }
 
     function indent () {
+        time.begin('streamify::indent');
         json += '\n' + indentation;
+        time.end('streamify::indent');
     }
 
     function afterScope () {
+        time.begin('streamify::afterScope');
         needsComma = false;
 
         if (space) {
@@ -141,12 +154,15 @@ function streamify (data, options) {
         }
 
         after();
+        time.end('streamify::afterScope');
     }
 
     function after () {
+        time.begin('streamify::after');
         debug('after: awaitPush=%s, json=`%s`', awaitPush, json);
 
         if (awaitPush || json === '') {
+            time.end('streamify::after');
             return;
         }
 
@@ -155,9 +171,11 @@ function streamify (data, options) {
         }
 
         json = '';
+        time.end('streamify::after');
     }
 
     function object () {
+        time.begin('streamify::object');
         debug('object');
 
         beforeScope();
@@ -165,9 +183,11 @@ function streamify (data, options) {
         json += '{';
 
         afterScope();
+        time.end('streamify::object');
     }
 
     function property (name) {
+        time.begin('streamify::property');
         debug('property: name="%s"', name);
 
         before();
@@ -176,13 +196,17 @@ function streamify (data, options) {
         isProperty = true;
 
         after();
+        time.end('streamify::property');
     }
 
     function string (s) {
+        time.begin('streamify::string');
         value('"' + s + '"');
+        time.end('streamify::string');
     }
 
     function value (v) {
+        time.begin('streamify::value');
         debug('value: v=`%s`', v);
 
         before();
@@ -190,9 +214,11 @@ function streamify (data, options) {
         json += v;
 
         after();
+        time.end('streamify::value');
     }
 
     function endArray () {
+        time.begin('streamify::endArray');
         debug('endArray');
 
         beforeScopeEnd();
@@ -200,17 +226,21 @@ function streamify (data, options) {
         json += ']';
 
         after();
+        time.end('streamify::endArray');
     }
 
     function beforeScopeEnd () {
+        time.begin('streamify::beforeScopeEnd');
         if (space) {
             indentation = indentation.substr(space.length);
 
             indent();
         }
+        time.end('streamify::beforeScopeEnd');
     }
 
     function endObject () {
+        time.begin('streamify::endObject');
         debug('endObject');
 
         beforeScopeEnd();
@@ -218,14 +248,17 @@ function streamify (data, options) {
         json += '}';
 
         after();
+        time.end('streamify::endObject');
     }
 
     function end () {
+        time.begin('streamify::end');
         debug('end');
 
         after();
 
         stream.push(null);
+        time.end('streamify::end');
     }
 }
 

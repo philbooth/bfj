@@ -10,6 +10,7 @@ modulePath = '../../src/streamify';
 
 mockery.registerAllowable(modulePath);
 mockery.registerAllowable('./events');
+mockery.registerAllowable('./time');
 
 suite('streamify:', function () {
     var log, results;

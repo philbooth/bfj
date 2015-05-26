@@ -11,6 +11,7 @@ modulePath = '../../src/parse';
 mockery.registerAllowable(modulePath);
 mockery.registerAllowable('check-types');
 mockery.registerAllowable('./events');
+mockery.registerAllowable('./time');
 
 suite('parse:', function () {
     var log, results;

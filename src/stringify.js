@@ -31,8 +31,9 @@ module.exports = stringify;
  * @option debug:     Log debug messages to the console.
  **/
 function stringify (data, options) {
-    var stream, json, resolve;
+    var time, stream, json, resolve;
 
+    time = require('./time')(options || {});
     stream = streamify(data, options);
     json = '';
 
@@ -44,11 +45,15 @@ function stringify (data, options) {
     });
 
     function read (chunk) {
+        time.begin('stringify::read');
         json += chunk;
+        time.end('stringify::read');
     }
 
     function end () {
+        time.begin('stringify::end');
         resolve(json);
+        time.end('stringify::end');
     }
 }
 
