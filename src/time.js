@@ -31,11 +31,11 @@ function begin (functionName) {
         children: []
     };
 
-    if (context.length === 0) {
-        timings.push(datum);
-    } else {
-        context[context.length - 1].children.push(datum);
-    }
+    //if (context.length === 0) {
+    //    timings.push(datum);
+    //} else {
+    //    context[context.length - 1].children.push(datum);
+    //}
 
     if (sums[functionName]) {
         sums[functionName].count += 1;

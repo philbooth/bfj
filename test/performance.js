@@ -33,7 +33,7 @@ function done (totalTime, code) {
     console.log('%d seconds and %d nanoseconds', totalTime[0], totalTime[1]);
 
     report = time.report();
-    write(process.argv[2] + '-timings.json', renderTimings(report.timings));
+    //write(process.argv[2] + '-timings.json', renderTimings(report.timings));
     write(process.argv[2] + '-sums.csv', renderSums(report.sums));
 
     process.exit(code);
