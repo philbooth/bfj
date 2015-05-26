@@ -13,7 +13,7 @@ console.log('parsing json');
 time = process.hrtime();
 
 bfj.parse(
-    fs.createReadStream(path.resolve(__dirname, 'mtg.json'))
+    fs.createReadStream(path.resolve(__dirname, process.argv[2] + '.json'))
 ).then(function () {
     time = process.hrtime(time);
     console.log('parse succeeded');
