@@ -1,6 +1,6 @@
 {
     "name": "bfj",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
     "homepage": "https://github.com/philbooth/bfj",
     "bugs": "https://github.com/philbooth/bfj/issues",
@@ -26,14 +26,14 @@
         "url": "https://github.com/philbooth/bfj.git"
     },
     "dependencies": {
-        "check-types": "3.2.x"
+        "check-types": "~3.2"
     },
     "devDependencies": {
-        "jshint": "2.7.x",
-        "mocha": "2.2.x",
-        "chai": "2.3.x",
-        "mockery": "1.4.x",
-        "spooks": "2.0.x"
+        "jshint": "~2.7",
+        "mocha": "~2.2",
+        "chai": "~2.3",
+        "mockery": "~1.4",
+        "spooks": "~2.0"
     },
     "scripts": {
         "lint": "jshint src",
