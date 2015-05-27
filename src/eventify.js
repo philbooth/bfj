@@ -1,4 +1,4 @@
-/*globals require, module, setImmediate, Promise, Buffer, Map, console */
+/*globals require, module, setImmediate, Promise, Buffer, Map */
 
 'use strict';
 
@@ -205,10 +205,6 @@ function eventify (data, options) {
 
             return proceed(datum[key]);
         });
-    }
-
-    function debug () {
-        console.log.apply(console, arguments);
     }
 }
 

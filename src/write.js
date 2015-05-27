@@ -1,4 +1,4 @@
-/*globals require, module */
+/*globals require, module, Promise */
 
 'use strict';
 
@@ -12,8 +12,9 @@ module.exports = write;
 /**
  * Public function `write`.
  *
- * Asynchronously serialises a data structure to a JSON file on disk.
- * Sanely handles promises, buffers, dates, maps and other iterables.
+ * Returns a promise and asynchronously serialises a data structure to a
+ * JSON file on disk. Sanely handles promises, buffers, dates, maps and
+ * other iterables.
  *
  * @param path:       Path to the JSON file.
  *
@@ -31,8 +32,6 @@ module.exports = write;
  * @option maps:      'object', or 'ignore', default is 'object'.
  *
  * @option iterables: 'array', or 'ignore', default is 'array'.
- *
- * @option debug:     Log debug messages to the console.
  **/
 function write (path, data, options) {
     return new Promise(function (resolve, reject) {

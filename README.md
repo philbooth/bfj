@@ -8,7 +8,7 @@ Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [What functions does it implement?](#what-functions-does-it-implement)
 * [How do I install it?](#how-do-i-install-it)
 * [How do I use it?](#how-do-i-use-it)
-  * [bfj.walk (options)](#bfjwalk-options)
+  * [bfj.walk (stream, options)](#bfjwalk-stream-options)
     * [Example](#example)
   * [bfj.parse (stream, options)](#bfjparse-stream-options)
     * [Example](#example-1)
@@ -84,7 +84,7 @@ to JSON:
   as it encounters items.
   By default
   it coerces
-  promises, buffers, dates, maps and other iterables
+  promises, buffers, dates and iterables
   to JSON-friendly values.
 
 * `streamify`:
@@ -92,8 +92,8 @@ to JSON:
   to a stream of JSON.
 
 * `stringify`:
-  Asynchronously serialises
-  a JSON string.
+  Asynchronously serialises data
+  to a JSON string.
 
 * `write`:
   Asynchronously serialises data
@@ -133,24 +133,37 @@ are exported:
 `stringify` and
 `write`.
 
-### bfj.walk (options)
+### bfj.walk (stream, options)
 
-`walk` initialises and returns
-an asynchronous walker object
-`{ stream, emitter }`,
-where `stream`
-is a [Writable] instance
-that receives JSON
-and `emitter`
-is an [EventEmitter] instance
-that emits events
-when JSON tokens
-are encountered.
+`walk` returns an [event emitter][eventemitter]
+and asynchronously walks
+a stream of JSON data,
+emitting events
+as it encounters
+tokens.
 
-The events
+It takes two arguments;
+a [readable stream][readable]
+from which
+the JSON
+will be read
+and an options object
+that supports
+the following property:
+
+* `options.discard`:
+  The number of characters
+  to process before
+  discarding them
+  to save memory.
+  The default value
+  is `16384`.
+
+The emitted events
 are defined
-in a public property,
-`events`:
+as public properties
+of an object,
+`bfj.events`:
 
 * `bfj.events.array`:
   Indicates that
@@ -188,6 +201,7 @@ in a public property,
   The listener
   will be passed
   the name of the property
+  as its argument
   and the next event
   to be emitted
   will represent
@@ -199,7 +213,8 @@ in a public property,
   has been encountered.
   The listener
   will be passed
-  the string.
+  the value
+  as its argument.
 
 * `bfj.events.number`:
   Indicates that
@@ -207,22 +222,18 @@ in a public property,
   has been encountered.
   The listener
   will be passed
-  the number.
+  the value
+  as its argument.
 
 * `bfj.events.literal`:
   Indicates that
-  a literal
+  a JSON literal
   (either `true`, `false` or `null`)
   has been encountered.
   The listener
   will be passed
-  the literal.
-
-* `bfj.events.end`:
-  Indicates that
-  the end of the input
-  has been reached
-  and the stream is closed.
+  the value
+  as its argument.
 
 * `bfj.events.error`:
   Indicates that
@@ -230,13 +241,55 @@ in a public property,
   has occurred.
   The listener
   will be passed
-  the `Error` instance.
+  the `Error` instance
+  as its argument.
 
-`walk` takes
-one argument,
-an options object
+* `bfj.events.end`:
+  Indicates that
+  the end of the input
+  has been reached
+  and the stream is closed.
+
+#### Example
+
+```js
+var emitter = bfj.walk(fs.createReadStream(path));
+
+emitter.on(bfj.events.array, array);
+emitter.on(bfj.events.object, object);
+emitter.on(bfj.events.property, property);
+emitter.on(bfj.events.string, value);
+emitter.on(bfj.events.number, value);
+emitter.on(bfj.events.literal, value);
+emitter.on(bfj.events.endArray, endScope);
+emitter.on(bfj.events.endObject, endScope);
+emitter.on(bfj.events.error, error);
+emitter.on(bfj.events.end, end);
+```
+
+### bfj.parse (stream, options)
+
+`parse` returns a [promise]
+and asynchronously parses
+a stream of JSON data.
+
+It takes two arguments;
+a readable stream
+from which
+the JSON
+will be parsed
+and an options object
 that supports
 the following properties:
+
+* `options.reviver`:
+  Transformation function,
+  invoked depth-first
+  against the parsed
+  data structure.
+  This option
+  is analagous to the
+  [reviver parameter for JSON.parse][reviver].
 
 * `options.discard`:
   The number of characters
@@ -246,37 +299,9 @@ the following properties:
   The default value
   is `16384`.
 
-* `options.debug`:
-  Log debug messages
-  to the console.
-
-#### Example
-
-```js
-var walker = bfj.walk();
-
-fs.createReadStream(path).pipe(walker.stream);
-
-walker.emitter.on(bfj.events.array, array);
-walker.emitter.on(bfj.events.object, object);
-walker.emitter.on(bfj.events.property, property);
-walker.emitter.on(bfj.events.string, value);
-walker.emitter.on(bfj.events.number, value);
-walker.emitter.on(bfj.events.literal, value);
-walker.emitter.on(bfj.events.endArray, endScope);
-walker.emitter.on(bfj.events.endObject, endScope);
-walker.emitter.on(bfj.events.end, end);
-walker.emitter.on(bfj.events.error, error);
-```
-
-### bfj.parse (stream, options)
-
-`parse` returns a promise and
-asynchronously parses
-a [Readable] stream of JSON data.
 If there are
 no syntax errors,
-the promise is resolved
+the returned promise is resolved
 with the parsed data.
 If syntax errors occur,
 the promise is rejected
@@ -285,11 +310,11 @@ with the first error.
 #### Example
 
 ```js
-bfj.parse(fs.createReadStream(path))
-    .then(function (data) {
+bfj.parse(fs.createReadStream(path)).
+    then(function (data) {
         // :)
-    })
-    .catch(function (error) {
+    }).
+    catch(function (error) {
         // :(
     });
 ```
@@ -298,10 +323,35 @@ bfj.parse(fs.createReadStream(path))
 
 `read` returns a promise and
 asynchronously parses
-a JSON file read from disk.
+a JSON file
+read from disk.
+
+It takes two arguments;
+the path to the JSON file
+and an options object
+that supports
+the following properties:
+
+* `options.reviver`:
+  Transformation function,
+  invoked depth-first
+  against the parsed
+  data structure.
+  This option
+  is analagous to the
+  [reviver parameter for JSON.parse][reviver].
+
+* `options.discard`:
+  The number of characters
+  to process before
+  discarding them
+  to save memory.
+  The default value
+  is `16384`.
+
 If there are
 no syntax errors,
-the promise is resolved
+the returned promise is resolved
 with the parsed data.
 If syntax errors occur,
 the promise is rejected
@@ -310,11 +360,11 @@ with the first error.
 #### Example
 
 ```js
-bfj.read(path)
-    .then(function (data) {
+bfj.read(path).
+    then(function (data) {
         // :)
-    })
-    .catch(function (error) {
+    }).
+    catch(function (error) {
         // :(
     });
 ```
@@ -322,93 +372,17 @@ bfj.read(path)
 ### bfj.eventify (data, options)
 
 `eventify` returns an event emitter
-and asynchronously performs
-depth-first traversal,
+and asynchronously traverses
+a data structure depth-first,
 emitting events as it
-encounters data.
-By default
-it coerces
-promises,
-buffers,
-dates,
-maps and
-other iterables
+encounters items.
+By default it coerces
+promises, buffers, dates and iterables
 to JSON-friendly values.
 
-The emitted events
-are defined
-in a public property,
-`events`:
-
-* `bfj.events.array`:
-  Indicates that
-  an array
-  has been encountered.
-
-* `bfj.events.endArray`:
-  Indicates that
-  the end of an array
-  has been encountered.
-
-* `bfj.events.object`:
-  Indicates that
-  an object
-  has been encountered.
-
-* `bfj.events.endObject`:
-  Indicates that
-  the end of an object
-  has been encountered.
-
-* `bfj.events.property`:
-  Indicates that
-  a property
-  has been encountered
-  in an object.
-  The listener
-  will be passed
-  the name of the property
-  and the next event
-  to be emitted
-  will represent
-  the property's value.
-
-* `bfj.events.string`:
-  Indicates that
-  a string
-  has been encountered.
-  The listener
-  will be passed
-  the string.
-
-* `bfj.events.number`:
-  Indicates that
-  a number
-  has been encountered.
-  The listener
-  will be passed
-  the number.
-
-* `bfj.events.literal`:
-  Indicates that
-  a literal
-  (either `true`, `false` or `null`)
-  has been encountered.
-  The listener
-  will be passed
-  the literal.
-
-* `bfj.events.end`:
-  Indicates that
-  the end of the input
-  has been reached and
-  no further events
-  will be emitted.
-
-`eventify` takes
-two arguments,
-the data to traverse and
-an options object
+It takes two arguments;
+the data structure to traverse
+and an options object
 that supports
 the following properties:
 
@@ -464,9 +438,80 @@ the following properties:
   to ignore other iterables
   in the data.
 
-* `options.debug`:
-  Log debug messages
-  to the console.
+The emitted events
+are defined
+as public properties
+of an object,
+`bfj.events`:
+
+* `bfj.events.array`:
+  Indicates that
+  an array
+  has been encountered.
+
+* `bfj.events.endArray`:
+  Indicates that
+  the end of an array
+  has been encountered.
+
+* `bfj.events.object`:
+  Indicates that
+  an object
+  has been encountered.
+
+* `bfj.events.endObject`:
+  Indicates that
+  the end of an object
+  has been encountered.
+
+* `bfj.events.property`:
+  Indicates that
+  a property
+  has been encountered
+  in an object.
+  The listener
+  will be passed
+  the name of the property
+  as its argument
+  and the next event
+  to be emitted
+  will represent
+  the property's value.
+
+* `bfj.events.string`:
+  Indicates that
+  a string
+  has been encountered.
+  The listener
+  will be passed
+  the value
+  as its argument.
+
+* `bfj.events.number`:
+  Indicates that
+  a number
+  has been encountered.
+  The listener
+  will be passed
+  the value
+  as its argument.
+
+* `bfj.events.literal`:
+  Indicates that
+  a JSON literal
+  (either `true`, `false` or `null`)
+  has been encountered.
+  The listener
+  will be passed
+  the value
+  as its argument.
+
+* `bfj.events.end`:
+  Indicates that
+  the end of the data
+  has been reached and
+  no further events
+  will be emitted.
 
 #### Example
 
@@ -486,8 +531,78 @@ emitter.on(bfj.events.end, end);
 
 ### bfj.streamify (data, options)
 
-`streamify` asynchronously serialises a data structure
-to a readable stream of JSON data.
+`streamify` returns a readable stream
+and asynchronously serialises
+a data structure to JSON,
+pushing the result
+to the returned stream.
+
+It takes two arguments;
+the data structure to serialise
+and an options object
+that supports
+the following properties:
+
+* `options.space`:
+  Indentation string
+  or the number of spaces
+  to indent
+  each nested level by.
+  This option
+  is analagous to the
+  [space parameter for JSON.stringify][space].
+
+* `options.promises`:
+  By default,
+  promises are coerced
+  to their resolved value.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore promises
+  in the data.
+
+* `options.buffers`:
+  By default,
+  buffers are coerced
+  using their `toString` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore buffers
+  in the data.
+
+* `options.dates`:
+  By default,
+  dates are coerced
+  using their `toJSON` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore dates
+  in the data.
+
+* `options.maps`:
+  By default,
+  maps are coerced
+  to plain objects.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore maps
+  in the data.
+
+* `options.iterables`:
+  By default,
+  other iterables
+  (i.e. not arrays, strings or maps)
+  are coerced
+  to arrays.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore other iterables
+  in the data.
 
 #### Example
 
@@ -507,28 +622,170 @@ The promise is resolved
 to the JSON string
 when serialisation is complete.
 
+It takes two arguments;
+the data structure to serialise
+and an options object
+that supports
+the following properties:
+
+* `options.space`:
+  Indentation string
+  or the number of spaces
+  to indent
+  each nested level by.
+  This option
+  is analagous to the
+  [space parameter for JSON.stringify][space].
+
+* `options.promises`:
+  By default,
+  promises are coerced
+  to their resolved value.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore promises
+  in the data.
+
+* `options.buffers`:
+  By default,
+  buffers are coerced
+  using their `toString` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore buffers
+  in the data.
+
+* `options.dates`:
+  By default,
+  dates are coerced
+  using their `toJSON` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore dates
+  in the data.
+
+* `options.maps`:
+  By default,
+  maps are coerced
+  to plain objects.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore maps
+  in the data.
+
+* `options.iterables`:
+  By default,
+  other iterables
+  (i.e. not arrays, strings or maps)
+  are coerced
+  to arrays.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore other iterables
+  in the data.
+
 #### Example
 
 ```js
-bfj.stringify(data)
-    .then(function (json) {
-	    // :)
-	});
+bfj.stringify(data).
+    then(function (json) {
+        // :)
+    });
 ```
 
 ### bfj.write (path, data, options)
 
-`write` asynchronously serialises a data structure
-to a JSON file on disk,
-returning the target file stream.
+`write` returns a promise
+and asynchronously serialises a data structure
+to a JSON file on disk.
+The promise is resolved
+when the file has been written,
+or rejected with the error
+if writing failed.
+
+It takes three arguments;
+the path to the JSON file,
+the data structure to serialise
+and an options object
+that supports
+the following properties:
+
+* `options.space`:
+  Indentation string
+  or the number of spaces
+  to indent
+  each nested level by.
+  This option
+  is analagous to the
+  [space parameter for JSON.stringify][space].
+
+* `options.promises`:
+  By default,
+  promises are coerced
+  to their resolved value.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore promises
+  in the data.
+
+* `options.buffers`:
+  By default,
+  buffers are coerced
+  using their `toString` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore buffers
+  in the data.
+
+* `options.dates`:
+  By default,
+  dates are coerced
+  using their `toJSON` method.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore dates
+  in the data.
+
+* `options.maps`:
+  By default,
+  maps are coerced
+  to plain objects.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore maps
+  in the data.
+
+* `options.iterables`:
+  By default,
+  other iterables
+  (i.e. not arrays, strings or maps)
+  are coerced
+  to arrays.
+  Set this property
+  to `ignore`
+  if you'd prefer
+  to ignore other iterables
+  in the data.
 
 #### Example
 
 ```js
-bfj.write(path, data)
-    .on('finish', function () {
-	    // :)
-	});
+bfj.write(path, data).
+    then(function () {
+        // :)
+    }).
+    catch(function (error) {
+        // :(
+    });
 ```
 
 ## Is there a change log?
@@ -576,9 +833,11 @@ with the command
 [ci-image]: https://secure.travis-ci.org/philbooth/bfj.png?branch=master
 [ci-status]: http://travis-ci.org/#!/philbooth/bfj
 [sax]: http://en.wikipedia.org/wiki/Simple_API_for_XML
-[writable]: https://nodejs.org/api/stream.html#stream_class_stream_writable
 [eventemitter]: https://nodejs.org/api/events.html#events_class_events_eventemitter
 [readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
+[promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example:_Using_the_reviver_parameter
+[space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#space_argument
 [history]: HISTORY.md
 [jshint]: https://github.com/jshint/node-jshint
 [mocha]: https://github.com/mochajs/mocha

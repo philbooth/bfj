@@ -1,4 +1,4 @@
-/*globals require, module, Promise, setImmediate, console */
+/*globals require, module, Promise, setImmediate */
 
 'use strict';
 
