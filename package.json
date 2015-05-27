@@ -39,7 +39,9 @@
         "lint": "jshint src",
         "test": "npm run unit && npm run integration",
         "unit": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/unit",
-        "integration": "mocha --ui tdd --reporter spec --colors test/integration"
+        "integration": "mocha --ui tdd --reporter spec --colors test/integration",
+        "perfbig": "wget -O test/mtg.json http://mtgjson.com/json/AllSets-x.json && node test/performance mtg",
+        "perfsmall": "wget -O test/wpt.json https://raw.githubusercontent.com/nature/webpagetest-mapper/master/examples/dump.json && node test/performance wpt"
     }
 }
 
