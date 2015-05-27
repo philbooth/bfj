@@ -53,8 +53,8 @@ parsing, or
 turning JSON strings
 into JavaScript data:
 
-* `walk`:
-  Asynchronously walks
+* `walk`
+  asynchronously walks
   a stream,
   emitting events
   as it encounters
@@ -62,12 +62,12 @@ into JavaScript data:
   Analagous to a
   [SAX parser][sax].
 
-* `parse`:
-  Asynchronously parses
+* `parse`
+  asynchronously parses
   a stream of JSON.
 
-* `read`:
-  Asynchronously parses
+* `read`
+  asynchronously parses
   a JSON file from disk.
 
 The four remaining functions
@@ -76,8 +76,8 @@ serialising
 JavaScript data
 to JSON:
 
-* `eventify`:
-  Asynchronously traverses
+* `eventify`
+  asynchronously traverses
   a data structure
   depth-first,
   emitting events
@@ -87,16 +87,16 @@ to JSON:
   promises, buffers, dates and iterables
   to JSON-friendly values.
 
-* `streamify`:
-  Asynchronously serialises data
+* `streamify`
+  asynchronously serialises data
   to a stream of JSON.
 
-* `stringify`:
-  Asynchronously serialises data
+* `stringify`
+  asynchronously serialises data
   to a JSON string.
 
-* `write`:
-  Asynchronously serialises data
+* `write`
+  asynchronously serialises data
   to a JSON file on disk.
 
 ## How do I install it?
