@@ -149,7 +149,7 @@ the JSON
 will be read
 and an options object
 that supports
-the following property:
+the following property.
 
 * `options.discard`:
   The number of characters
@@ -165,36 +165,36 @@ as public properties
 of an object,
 `bfj.events`:
 
-* `bfj.events.array`:
-  Indicates that
+* `bfj.events.array`
+  indicates that
   an array context
   has been entered
   by encountering
   the `[` character.
 
-* `bfj.events.endArray`:
-  Indicates that
+* `bfj.events.endArray`
+  indicates that
   an array context
   has been left
   by encountering
   the `]` character.
 
-* `bfj.events.object`:
-  Indicates that
+* `bfj.events.object`
+  indicates that
   an object context
   has been entered
   by encountering
   the `{` character.
 
-* `bfj.events.endObject`:
-  Indicates that
+* `bfj.events.endObject`
+  indicates that
   an object context
   has been left
   by encountering
   the `}` character.
 
-* `bfj.events.property`:
-  Indicates that
+* `bfj.events.property`
+  indicates that
   a property
   has been encountered
   in an object.
@@ -207,8 +207,8 @@ of an object,
   will represent
   the property's value.
 
-* `bfj.events.string`:
-  Indicates that
+* `bfj.events.string`
+  indicates that
   a string
   has been encountered.
   The listener
@@ -216,8 +216,8 @@ of an object,
   the value
   as its argument.
 
-* `bfj.events.number`:
-  Indicates that
+* `bfj.events.number`
+  indicates that
   a number
   has been encountered.
   The listener
@@ -225,8 +225,8 @@ of an object,
   the value
   as its argument.
 
-* `bfj.events.literal`:
-  Indicates that
+* `bfj.events.literal`
+  indicates that
   a JSON literal
   (either `true`, `false` or `null`)
   has been encountered.
@@ -235,8 +235,8 @@ of an object,
   the value
   as its argument.
 
-* `bfj.events.error`:
-  Indicates that
+* `bfj.events.error`
+  indicates that
   a syntax error
   has occurred.
   The listener
@@ -244,8 +244,8 @@ of an object,
   the `Error` instance
   as its argument.
 
-* `bfj.events.end`:
-  Indicates that
+* `bfj.events.end`
+  indicates that
   the end of the input
   has been reached
   and the stream is closed.
@@ -280,7 +280,7 @@ the JSON
 will be parsed
 and an options object
 that supports
-the following properties:
+the following properties.
 
 * `options.reviver`:
   Transformation function,
@@ -330,7 +330,7 @@ It takes two arguments;
 the path to the JSON file
 and an options object
 that supports
-the following properties:
+the following properties.
 
 * `options.reviver`:
   Transformation function,
@@ -384,7 +384,7 @@ It takes two arguments;
 the data structure to traverse
 and an options object
 that supports
-the following properties:
+the following properties.
 
 * `options.promises`:
   By default,
@@ -444,28 +444,28 @@ as public properties
 of an object,
 `bfj.events`:
 
-* `bfj.events.array`:
-  Indicates that
+* `bfj.events.array`
+  indicates that
   an array
   has been encountered.
 
-* `bfj.events.endArray`:
-  Indicates that
+* `bfj.events.endArray`
+  indicates that
   the end of an array
   has been encountered.
 
-* `bfj.events.object`:
-  Indicates that
+* `bfj.events.object`
+  indicates that
   an object
   has been encountered.
 
-* `bfj.events.endObject`:
-  Indicates that
+* `bfj.events.endObject`
+  indicates that
   the end of an object
   has been encountered.
 
-* `bfj.events.property`:
-  Indicates that
+* `bfj.events.property`
+  indicates that
   a property
   has been encountered
   in an object.
@@ -478,8 +478,8 @@ of an object,
   will represent
   the property's value.
 
-* `bfj.events.string`:
-  Indicates that
+* `bfj.events.string`
+  indicates that
   a string
   has been encountered.
   The listener
@@ -487,8 +487,8 @@ of an object,
   the value
   as its argument.
 
-* `bfj.events.number`:
-  Indicates that
+* `bfj.events.number`
+  indicates that
   a number
   has been encountered.
   The listener
@@ -496,8 +496,8 @@ of an object,
   the value
   as its argument.
 
-* `bfj.events.literal`:
-  Indicates that
+* `bfj.events.literal`
+  indicates that
   a JSON literal
   (either `true`, `false` or `null`)
   has been encountered.
@@ -506,8 +506,8 @@ of an object,
   the value
   as its argument.
 
-* `bfj.events.end`:
-  Indicates that
+* `bfj.events.end`
+  indicates that
   the end of the data
   has been reached and
   no further events
@@ -541,7 +541,7 @@ It takes two arguments;
 the data structure to serialise
 and an options object
 that supports
-the following properties:
+the following properties.
 
 * `options.space`:
   Indentation string
@@ -626,7 +626,7 @@ It takes two arguments;
 the data structure to serialise
 and an options object
 that supports
-the following properties:
+the following properties.
 
 * `options.space`:
   Indentation string
@@ -713,7 +713,7 @@ the path to the JSON file,
 the data structure to serialise
 and an options object
 that supports
-the following properties:
+the following properties.
 
 * `options.space`:
   Indentation string
