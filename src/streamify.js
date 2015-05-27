@@ -86,11 +86,14 @@ function streamify (data, options) {
 
             if (isEnded) {
                 after();
-
-                if (!awaitPush) {
-                    stream.push(null);
-                }
+                endStream();
             }
+        }
+    }
+
+    function endStream () {
+        if (!awaitPush) {
+            stream.push(null);
         }
     }
 
@@ -234,9 +237,7 @@ function streamify (data, options) {
         after();
 
         isEnded = true;
-        if (!awaitPush) {
-            stream.push(null);
-        }
+        endStream();
     }
 }
 
