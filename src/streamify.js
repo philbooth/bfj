@@ -37,7 +37,7 @@ module.exports = streamify;
  **/
 function streamify (data, options) {
     var space, stream, emitter, json, indentation,
-        awaitPush, isProperty, needsComma;
+        awaitPush, isProperty, needsComma, isEnded;
 
     normaliseOptions(options || {});
 
@@ -79,10 +79,18 @@ function streamify (data, options) {
     }
 
     function read () {
-        debug('read: awaitPush=%s', awaitPush);
+        debug('read: awaitPush=%s, isEnded=%s', awaitPush, isEnded);
 
         if (awaitPush) {
             awaitPush = false;
+
+            if (isEnded) {
+                after();
+
+                if (!awaitPush) {
+                    stream.push(null);
+                }
+            }
         }
     }
 
@@ -225,7 +233,10 @@ function streamify (data, options) {
 
         after();
 
-        stream.push(null);
+        isEnded = true;
+        if (!awaitPush) {
+            stream.push(null);
+        }
     }
 }
 

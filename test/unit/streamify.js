@@ -238,14 +238,31 @@ suite('streamify:', function () {
                         log.args.on[8][1]();
                     });
 
-                    test('stream.push was called once', function () {
-                        assert.strictEqual(log.counts.push, 1);
-                        assert.strictEqual(log.these.push[0], require('./jsonstream')());
+                    test('stream.push was not called', function () {
+                        assert.strictEqual(log.counts.push, 0);
                     });
 
-                    test('stream.push was called correctly', function () {
-                        assert.lengthOf(log.args.push[0], 1);
-                        assert.isNull(log.args.push[0][0]);
+                    suite('read stream:', function () {
+                        setup(function () {
+                            log.args.JsonStream[0][0]();
+                        });
+
+                        test('stream.push was called twice', function () {
+                            assert.strictEqual(log.counts.push, 2);
+                            assert.strictEqual(log.these.push[0], require('./jsonstream')());
+                            assert.strictEqual(log.these.push[1], require('./jsonstream')());
+                        });
+
+                        test('stream.push was called correctly first time', function () {
+                            assert.lengthOf(log.args.push[0], 2);
+                            assert.strictEqual(log.args.push[0][0], '[');
+                            assert.strictEqual(log.args.push[0][1], 'utf8');
+                        });
+
+                        test('stream.push was called correctly second time', function () {
+                            assert.lengthOf(log.args.push[1], 1);
+                            assert.isNull(log.args.push[1][0]);
+                        });
                     });
                 });
 
@@ -265,18 +282,13 @@ suite('streamify:', function () {
 
                         test('stream.push was called twice', function () {
                             assert.strictEqual(log.counts.push, 2);
-                            assert.strictEqual(log.these.push[0], require('./jsonstream')());
-                            assert.strictEqual(log.these.push[1], require('./jsonstream')());
                         });
 
                         test('stream.push was called correctly first time', function () {
-                            assert.lengthOf(log.args.push[0], 2);
                             assert.strictEqual(log.args.push[0][0], '[');
-                            assert.strictEqual(log.args.push[0][1], 'utf8');
                         });
 
                         test('stream.push was called correctly second time', function () {
-                            assert.lengthOf(log.args.push[1], 1);
                             assert.isNull(log.args.push[1][0]);
                         });
                     });
@@ -516,6 +528,63 @@ suite('streamify:', function () {
 
                                 test('stream.push was called correctly', function () {
                                     assert.strictEqual(log.args.push[1][0], ',"bar"]');
+                                });
+                            });
+
+                            suite('end event:', function () {
+                                setup(function () {
+                                    log.args.on[8][1]();
+                                });
+
+                                test('stream.push was not called', function () {
+                                    assert.strictEqual(log.counts.push, 1);
+                                });
+
+                                suite('read stream:', function () {
+                                    setup(function () {
+                                        log.args.JsonStream[0][0]();
+                                    });
+
+                                    test('stream.push was called once', function () {
+                                        assert.strictEqual(log.counts.push, 2);
+                                    });
+
+                                    test('stream.push was called correctly', function () {
+                                        assert.strictEqual(log.args.push[1][0], ',"bar"');
+                                    });
+
+                                    suite('read stream:', function () {
+                                        setup(function () {
+                                            log.args.JsonStream[0][0]();
+                                        });
+
+                                        test('stream.push was called once', function () {
+                                            assert.strictEqual(log.counts.push, 3);
+                                        });
+
+                                        test('stream.push was called correctly', function () {
+                                            assert.isNull(log.args.push[2][0]);
+                                        });
+                                    })
+                                });
+
+                                suite('read stream, push returns true:', function () {
+                                    setup(function () {
+                                        results.push[0] = true;
+                                        log.args.JsonStream[0][0]();
+                                    });
+
+                                    test('stream.push was called twice', function () {
+                                        assert.strictEqual(log.counts.push, 3);
+                                    });
+
+                                    test('stream.push was called correctly first time', function () {
+                                        assert.strictEqual(log.args.push[1][0], ',"bar"');
+                                    });
+
+                                    test('stream.push was called correctly second time', function () {
+                                        assert.isNull(log.args.push[2][0]);
+                                    });
                                 });
                             });
                         });
