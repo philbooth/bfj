@@ -210,7 +210,7 @@ function streamify (data, options) {
 
         json += ']';
 
-        after();
+        afterScopeEnd();
     }
 
     function beforeScopeEnd () {
@@ -221,6 +221,11 @@ function streamify (data, options) {
         }
     }
 
+    function afterScopeEnd () {
+        needsComma = true;
+        after();
+    }
+
     function endObject () {
         debug('endObject');
 
@@ -228,7 +233,7 @@ function streamify (data, options) {
 
         json += '}';
 
-        after();
+        afterScopeEnd();
     }
 
     function end () {
