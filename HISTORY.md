@@ -6,6 +6,7 @@
 * Add `reviver` option for `parse` and `read`.
 * Add `space` option for `streamify`, `stringify` and `write`.
 * Return a promise from `write`, instead of the underlying stream.
+* Fix stream termination bug in `streamify`.
 
 ## 0.2.0
 
