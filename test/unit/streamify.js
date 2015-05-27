@@ -476,6 +476,50 @@ suite('streamify:', function () {
                             });
                         });
                     });
+
+                    suite('string event, push returns false:', function () {
+                        setup(function () {
+                            results.push[0] = false;
+                            log.args.on[3][1]('foo');
+                        });
+
+                        teardown(function () {
+                            results.push[0] = true;
+                        });
+
+                        test('stream.push was called once', function () {
+                            assert.strictEqual(log.counts.push, 1);
+                        });
+
+                        test('stream.push was called correctly', function () {
+                            assert.strictEqual(log.args.push[0][0], '["foo"');
+                        });
+
+                        suite('string event:', function () {
+                            setup(function () {
+                                log.args.on[3][1]('bar');
+                            });
+
+                            test('stream.push was not called', function () {
+                                assert.strictEqual(log.counts.push, 1);
+                            });
+
+                            suite('read stream, endArrayEvent:', function () {
+                                setup(function () {
+                                    log.args.JsonStream[0][0]();
+                                    log.args.on[6][1]();
+                                });
+
+                                test('stream.push was called once', function () {
+                                    assert.strictEqual(log.counts.push, 2);
+                                });
+
+                                test('stream.push was called correctly', function () {
+                                    assert.strictEqual(log.args.push[1][0], ',"bar"]');
+                                });
+                            });
+                        });
+                    });
                 });
 
                 suite('object event:', function () {
