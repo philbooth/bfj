@@ -16,11 +16,8 @@ suite('write:', function () {
     setup(function () {
         log = {};
         results = {
-            streamify: [ {} ],
-            createWriteStream: [ {} ],
-            pipe: [ {} ]
+            createWriteStream: [ {} ]
         };
-        results.streamify[0].pipe = spooks.fn({ name: 'pipe', log: log, results: results.pipe });
 
         mockery.enable({ useCleanCache: true });
         mockery.registerMock('fs', {
@@ -33,7 +30,12 @@ suite('write:', function () {
         mockery.registerMock('./streamify', spooks.fn({
             name: 'streamify',
             log: log,
-            results: results.streamify
+            results: [
+                {
+                    pipe: spooks.fn({ name: 'pipe', log: log, chain: true }),
+                    on: spooks.fn({ name: 'on', log: log, chain: true })
+                }
+            ]
         }));
     });
 
@@ -88,6 +90,10 @@ suite('write:', function () {
             assert.strictEqual(log.counts.pipe, 0);
         });
 
+        test('stream.on was not called', function () {
+            assert.strictEqual(log.counts.on, 0);
+        });
+
         suite('write:', function () {
             var path, data, options, result;
 
@@ -130,7 +136,7 @@ suite('write:', function () {
 
             test('stream.pipe was called once', function () {
                 assert.strictEqual(log.counts.pipe, 1);
-                assert.strictEqual(log.these.pipe[0], results.streamify[0]);
+                assert.strictEqual(log.these.pipe[0], require('./streamify')());
             });
 
             test('stream.pipe was called correctly', function () {
@@ -139,9 +145,84 @@ suite('write:', function () {
                 assert.lengthOf(Object.keys(log.args.pipe[0][0]), 0);
             });
 
-            test('stream.pipe result was returned', function () {
-                assert.strictEqual(result, results.pipe[0]);
-                assert.lengthOf(Object.keys(result), 0);
+            test('stream.on was called twice', function () {
+                assert.strictEqual(log.counts.on, 2);
+                assert.strictEqual(log.these.on[0], require('./streamify')());
+            });
+
+            test('stream.on was called correctly first time', function () {
+                assert.lengthOf(log.args.on[0], 2);
+                assert.strictEqual(log.args.on[0][0], 'finish');
+                assert.isFunction(log.args.on[0][1]);
+            });
+
+            test('stream.on was called correctly second time', function () {
+                assert.lengthOf(log.args.on[1], 2);
+                assert.strictEqual(log.args.on[1][0], 'error');
+                assert.isFunction(log.args.on[1][1]);
+                assert.notStrictEqual(log.args.on[1][1], log.args.on[0][1]);
+            });
+
+            test('promise was returned', function () {
+                assert.instanceOf(result, Promise);
+            });
+
+            suite('dispatch finish event:', function () {
+                var resolved, error, passed, failed;
+
+                setup(function (done) {
+                    passed = failed = false;
+
+                    result.then(function (r) {
+                        resolved = r;
+                        passed = true;
+                        done();
+                    }).catch(function (e) {
+                        error = e;
+                        failed = true;
+                        done();
+                    });
+                    log.args.on[0][1]('foo');
+                });
+
+                teardown(function () {
+                    resolved = error = passed = failed = undefined;
+                });
+
+                test('promise was resolved', function () {
+                    assert.isTrue(passed);
+                    assert.isFalse(failed);
+                    assert.isUndefined(resolved);
+                });
+            });
+
+            suite('dispatch error event:', function () {
+                var resolved, error, passed, failed;
+
+                setup(function (done) {
+                    passed = failed = false;
+
+                    result.then(function (r) {
+                        resolved = r;
+                        passed = true;
+                        done();
+                    }).catch(function (e) {
+                        error = e;
+                        failed = true;
+                        done();
+                    });
+                    log.args.on[1][1]('foo');
+                });
+
+                teardown(function () {
+                    resolved = error = passed = failed = undefined;
+                });
+
+                test('promise was rejected', function () {
+                    assert.isTrue(failed);
+                    assert.isFalse(passed);
+                    assert.strictEqual(error, 'foo');
+                });
             });
         });
     });

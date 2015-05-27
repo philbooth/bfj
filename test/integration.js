@@ -235,8 +235,12 @@ suite('integration:', function () {
                 bfj.write(
                     file,
                     { foo: [ 'b', 'a', 'r' ], baz: null, qux: 3.14159265359e42 }
-                ).on('finish', function () {
+                ).then(function () {
                     result = fs.readFileSync(file, { encoding: 'utf8' });
+                    done();
+                }).catch(function (error) {
+                    failed = true;
+                    result = error;
                     done();
                 });
             });
@@ -244,6 +248,10 @@ suite('integration:', function () {
             teardown(function () {
                 fs.unlinkSync(file);
                 failed = file = result = undefined;
+            });
+
+            test('did not fail', function () {
+                assert.isFalse(failed);
             });
 
             test('result was correct', function () {

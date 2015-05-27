@@ -35,6 +35,14 @@ module.exports = write;
  * @option debug:     Log debug messages to the console.
  **/
 function write (path, data, options) {
-    return streamify(data, options).pipe(fs.createWriteStream(path, options));
+    return new Promise(function (resolve, reject) {
+        streamify(data, options)
+            .pipe(fs.createWriteStream(path, options))
+            .on('finish', function () {
+                resolve();
+            }).on('error', function (error) {
+                reject(error);
+            });
+    });
 }
 

@@ -5,6 +5,7 @@
 * Breaking change: take `stream` parameter in `walk`.
 * Add `reviver` option for `parse` and `read`.
 * Add `space` option for `streamify`, `stringify` and `write`.
+* Return a promise from `write`, instead of the underlying stream.
 
 ## 0.2.0
 
