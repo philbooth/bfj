@@ -4,10 +4,10 @@
 
 * Breaking changes:
   * Take `Readable` parameter in `walk`.
-  * Return `EventEmitter` parameter from `walk`.
-  * Return `Promise` parameter from `write`.
+  * Return `EventEmitter` from `walk`.
+  * Return `Promise` from `write`.
 * Fix stream termination bug in `streamify`.
-* Fix missing comma after empty objects and arrays.
+* Fix missing comma after empty objects and arrays in `streamify`.
 * Improve tests.
 * Add `reviver` option for `parse` and `read`.
 * Add `space` option for `streamify`, `stringify` and `write`.
