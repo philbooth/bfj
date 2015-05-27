@@ -30,10 +30,6 @@
   if the change is one that you think
   needs some discussion.
 
-* Please include
-  the monospaced debug output
-  when raising bugs.
-
 [readme]: https://github.com/philbooth/bfj/blob/master/README.md
 [authors]: https://github.com/philbooth/bfj/blob/master/AUTHORS
 [newissue]: https://github.com/philbooth/bfj/issues/new

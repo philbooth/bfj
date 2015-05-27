@@ -27,8 +27,6 @@ module.exports = stringify;
  * @option maps:      'object', or 'ignore', default is 'object'.
  *
  * @option iterables: 'array', or 'ignore', default is 'array'.
- *
- * @option debug:     Log debug messages to the console.
  **/
 function stringify (data, options) {
     var stream, json, resolve;

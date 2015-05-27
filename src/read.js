@@ -20,8 +20,6 @@ module.exports = read;
  *
  * @option discard: The number of characters to process before discarding them
  *                  to save memory. The default value is `16384`.
- *
- * @option debug:   Log debug messages to the console.
  **/
 function read (path, options) {
     return parse(fs.createReadStream(path), options);

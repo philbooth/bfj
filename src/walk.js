@@ -37,8 +37,6 @@ module.exports = initialise;
  *
  * @option discard: The number of characters to process before discarding
  *                  them to save memory. The default value is `16384`.
- *
- * @option debug:   Log debug messages to the console.
  **/
 function initialise (stream, options) {
     var json, index, currentPosition, previousPosition,
@@ -65,9 +63,6 @@ function initialise (stream, options) {
     emitter = new EventEmitter();
 
     discardThreshold = options.discard || 16384;
-    if (!options.debug) {
-        debug = function () {};
-    }
 
     stream.setEncoding('utf8');
     stream.on('data', readStream);
@@ -76,8 +71,6 @@ function initialise (stream, options) {
     return emitter;
 
     function readStream (chunk) {
-        debug('readStream');
-
         json += chunk;
 
         if (!isWalkBegun) {
@@ -89,46 +82,7 @@ function initialise (stream, options) {
         resume();
     }
 
-    function debug (caller) {
-        console.log(caller + ': ' + debugPosition() + debugFlags());
-    }
-
-    function debugPosition () {
-        var result;
-
-        if (index === json.length) {
-            result = 'EOF';
-        } else {
-            result = character();
-        }
-
-        return result + '[' + index + ']';
-    }
-
-    function character () {
-        return json[index];
-    }
-
-    function debugFlags () {
-        var result = '';
-
-        debugFlag(isStreamEnded, 'sx');
-        debugFlag(isWalkBegun, 'wb');
-        debugFlag(isWalkingString, 'ws');
-        debugFlag(isWalkEnded, 'wx');
-
-        return result;
-
-        function debugFlag (flag, abbreviation) {
-            if (flag) {
-                result += ' ' + abbreviation;
-            }
-        }
-    }
-
     function value () {
-        debug('value');
-
         awaitNonWhitespace()
             .then(next)
             .then(handleValue);
@@ -136,8 +90,6 @@ function initialise (stream, options) {
 
     function awaitNonWhitespace () {
         var resolve, reject;
-
-        debug('awaitNonWhitespace');
 
         wait();
 
@@ -147,14 +99,10 @@ function initialise (stream, options) {
         });
 
         function wait () {
-            debug('awaitNonWhitespace::wait');
-
             awaitCharacter().then(step).catch(reject);
         }
 
         function step () {
-            debug('awaitNonWhitespace::step');
-
             if (!isWhitespace(character())) {
                 return resolve();
             }
@@ -165,8 +113,6 @@ function initialise (stream, options) {
 
     function awaitCharacter () {
         var resolve, reject;
-
-        debug('awaitCharacter');
 
         if (index < json.length) {
             return Promise.resolve();
@@ -185,8 +131,6 @@ function initialise (stream, options) {
         });
 
         function after () {
-            debug('awaitCharacter::after');
-
             if (index < json.length) {
                 return resolve();
             }
@@ -199,10 +143,12 @@ function initialise (stream, options) {
         }
     }
 
+    function character () {
+        return json[index];
+    }
+
     function next () {
         var resolve;
-
-        debug('next');
 
         awaitCharacter().then(after);
 
@@ -212,8 +158,6 @@ function initialise (stream, options) {
 
         function after () {
             var result;
-
-            debug('next::after');
 
             result = character();
 
@@ -238,8 +182,6 @@ function initialise (stream, options) {
     }
 
     function handleValue (character) {
-        debug('handleValue');
-
         switch (character) {
             case '[':
                 return array();
@@ -273,14 +215,10 @@ function initialise (stream, options) {
     }
 
     function array () {
-        debug('array');
-
         scope(events.array, value);
     }
 
     function scope (event, contentHandler) {
-        debug('scope');
-
         emitter.emit(event);
         scopes.push(event);
         endScope(event).then(contentHandler);
@@ -289,8 +227,6 @@ function initialise (stream, options) {
     function endScope (scope) {
         var resolve;
 
-        debug('endScope');
-
         awaitNonWhitespace().then(after).catch(endWalk);
 
         return new Promise(function (r) {
@@ -298,8 +234,6 @@ function initialise (stream, options) {
         });
 
         function after () {
-            debug('endScope::after');
-
             if (character() !== terminators[scope]) {
                 return resolve();
             }
@@ -312,8 +246,6 @@ function initialise (stream, options) {
     }
 
     function endValue () {
-        debug('endValue');
-
         awaitNonWhitespace().then(after).catch(endWalk);
 
         function after () {
@@ -328,13 +260,9 @@ function initialise (stream, options) {
         function checkScope () {
             var scope;
 
-            debug('endValue::checkScope');
-
             scope = scopes[scopes.length - 1];
 
             endScope(scope).then(function () {
-                debug('endValue::checkScope::endScope');
-
                 var handler = handlers[scope];
 
                 if (checkCharacter(character(), ',', currentPosition)) {
@@ -347,8 +275,6 @@ function initialise (stream, options) {
     }
 
     function fail (actual, expected, position) {
-        debug('fail');
-
         emitter.emit(
             events.error,
             error.create(
@@ -361,8 +287,6 @@ function initialise (stream, options) {
     }
 
     function checkCharacter (character, expected, position) {
-        debug('checkCharacter');
-
         if (character !== expected) {
             fail(character, expected, position);
             return false;
@@ -372,22 +296,16 @@ function initialise (stream, options) {
     }
 
     function object () {
-        debug('object');
-
         scope(events.object, property);
     }
 
     function property () {
-        debug('property');
-
         awaitNonWhitespace()
             .then(next)
             .then(propertyName);
     }
 
     function propertyName (character) {
-        debug('propertyName');
-
         checkCharacter(character, '"', previousPosition);
 
         walkString(events.property)
@@ -397,16 +315,12 @@ function initialise (stream, options) {
     }
 
     function propertyValue (character) {
-        debug('propertyValue');
-
         checkCharacter(character, ':', previousPosition);
         value();
     }
 
     function walkString (event) {
         var isEscaping, string, resolve;
-
-        debug('walkString');
 
         isWalkingString = true;
         isEscaping = false;
@@ -419,8 +333,6 @@ function initialise (stream, options) {
         });
 
         function step (character) {
-            debug('walkString::step');
-
             if (isEscaping) {
                 isEscaping = false;
 
@@ -449,8 +361,6 @@ function initialise (stream, options) {
     function escape (character) {
         var promise, resolve;
 
-        debug('escape');
-
         promise = new Promise(function (r) {
             resolve = r;
         });
@@ -470,8 +380,6 @@ function initialise (stream, options) {
     function escapeHex () {
         var hexits, resolve;
 
-        debug('escapeHex');
-
         hexits = '';
 
         next().then(step.bind(null, 0));
@@ -481,8 +389,6 @@ function initialise (stream, options) {
         });
 
         function step (index, character) {
-            debug('escapeHex::step');
-
             if (isHexit(character)) {
                 hexits += character;
             }
@@ -502,23 +408,17 @@ function initialise (stream, options) {
     }
 
     function string () {
-        debug('string');
-
         walkString(events.string).then(endValue);
     }
 
     function number (firstCharacter) {
         var digits;
 
-        debug('number');
-
         digits = firstCharacter;
 
         walkDigits().then(addDigits.bind(null, checkDecimalPlace));
 
         function addDigits (step, result) {
-            debug('number::addDigits');
-
             digits += result.digits;
 
             if (result.atEnd) {
@@ -529,8 +429,6 @@ function initialise (stream, options) {
         }
 
         function checkDecimalPlace () {
-            debug('number::checkDecimalPlace');
-
             if (character() === '.') {
                 return next().then(function (character) {
                     digits += character;
@@ -542,8 +440,6 @@ function initialise (stream, options) {
         }
 
         function checkExponent () {
-            debug('number::checkExponent');
-
             if (character() === 'e' || character() === 'E') {
                 return next().then(function (character) {
                     digits += character;
@@ -557,8 +453,6 @@ function initialise (stream, options) {
         }
 
         function checkSign () {
-            debug('number::checkExponent');
-
             if (character() === '+' || character() === '-') {
                 return next().then(function (character) {
                     digits += character;
@@ -570,14 +464,10 @@ function initialise (stream, options) {
         }
 
         function readExponent () {
-            debug('number::readExponent');
-
             walkDigits().then(addDigits.bind(null, endNumber));
         }
 
         function endNumber () {
-            debug('number::endNumber');
-
             emitter.emit(events.number, parseFloat(digits));
             endValue();
         }
@@ -585,8 +475,6 @@ function initialise (stream, options) {
 
     function walkDigits () {
         var digits, resolve;
-
-        debug('walkDigits');
 
         digits = '';
 
@@ -597,18 +485,12 @@ function initialise (stream, options) {
         });
 
         function wait () {
-            debug('walkDigits::wait');
-
             awaitCharacter().then(step).catch(atEnd);
         }
 
         function step () {
-            debug('walkDigits::step');
-
             if (isDigit(character())) {
                 return next().then(function (character) {
-                    debug('walkDigits::step::next');
-
                     digits += character;
                     wait();
                 });
@@ -621,8 +503,6 @@ function initialise (stream, options) {
         }
 
         function atEnd () {
-            debug('walkDigits::atEnd');
-
             resolve({
                 digits: digits,
                 atEnd: true
@@ -631,27 +511,19 @@ function initialise (stream, options) {
     }
 
     function literalFalse () {
-        debug('literalFalse');
-
         literal([ 'a', 'l', 's', 'e' ], false);
     }
 
     function literal (expectedCharacters, value) {
         var actual, expected, invalid;
 
-        debug('literal');
-
         wait();
 
         function wait () {
-            debug('literal::wait');
-
             awaitCharacter().then(step).catch(atEnd);
         }
 
         function step () {
-            debug('literal::step');
-
             if (invalid || expectedCharacters.length === 0) {
                 return atEnd();
             }
@@ -660,8 +532,6 @@ function initialise (stream, options) {
         }
 
         function atEnd () {
-            debug('literal::atEnd');
-
             if (invalid) {
                 fail(actual, expected, previousPosition);
             } else if (expectedCharacters.length > 0) {
@@ -674,8 +544,6 @@ function initialise (stream, options) {
         }
 
         function afterNext (character) {
-            debug('literal::afterNext');
-
             actual = character;
             expected = expectedCharacters.shift();
 
@@ -687,27 +555,19 @@ function initialise (stream, options) {
         }
 
         function done () {
-            debug('literal::done');
-
             emitter.emit(events.literal, value);
         }
     }
 
     function literalNull () {
-        debug('literalNull');
-
         literal([ 'u', 'l', 'l' ], null);
     }
 
     function literalTrue () {
-        debug('literalTrue');
-
         literal([ 'r', 'u', 'e' ], true);
     }
 
     function endStream () {
-        debug('endStream');
-
         isStreamEnded = true;
 
         if (!isWalkBegun) {
@@ -719,8 +579,6 @@ function initialise (stream, options) {
     }
 
     function endWalk () {
-        debug('endWalk');
-
         if (isWalkEnded) {
             return;
         }

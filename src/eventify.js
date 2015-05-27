@@ -29,8 +29,6 @@ module.exports = eventify;
  * @option maps:      'object', or 'ignore', default is 'object'.
  *
  * @option iterables: 'array', or 'ignore', default is 'array'.
- *
- * @option debug:     Log debug messages to the console.
  **/
 function eventify (data, options) {
     var coercions, emitter;
@@ -51,10 +49,6 @@ function eventify (data, options) {
         normaliseOption('dates');
         normaliseOption('maps');
         normaliseOption('iterables');
-
-        if (!options.debug) {
-            debug = function () {};
-        }
     }
 
     function normaliseOption (key) {
@@ -64,25 +58,18 @@ function eventify (data, options) {
     }
 
     function begin () {
-        debug('begin');
-
         proceed(data).then(after);
 
         function after () {
-            debug('begin::after: emitting end');
             emitter.emit(events.end);
         }
     }
 
     function proceed (datum) {
-        var type;
-
-        debug('proceed:', datum);
-
         return coerce(datum).then(after);
 
         function after (coerced) {
-            debug('proceed::after:', coerced);
+            var type;
 
             if (coerced === undefined) {
                 return;
@@ -139,35 +126,21 @@ function eventify (data, options) {
             return fn(datum);
         }
 
-        debug('coerceThing(%s): resolving to undefined', thing);
-
         return Promise.resolve();
     }
 
     function coercePromise (promise) {
         return promise.then(function (result) {
-            debug('coercePromise: resolved to `%s`', result);
             return result;
-        }).catch(function () {
-            debug('coercePromise: rejected');
-            return;
         });
     }
 
     function coerceBuffer (buffer) {
-        var result = buffer.toString();
-
-        debug('coerceBuffer: resolving to `%s`', result);
-
-        return Promise.resolve(result);
+        return Promise.resolve(buffer.toString());
     }
 
     function coerceDate (date) {
-        var result = date.toJSON();
-
-        debug('coerceDate: resolving to `%s`', result);
-
-        return Promise.resolve(result);
+        return Promise.resolve(date.toJSON());
     }
 
     function coerceMap (map) {
@@ -180,8 +153,6 @@ function eventify (data, options) {
 
     function coerceCollection (collection, target, push) {
         collection.forEach(push);
-
-        debug('coerceCollection: resolving %s[%d]', collection.constructor.name, target.length);
 
         return Promise.resolve(target);
     }
@@ -199,7 +170,6 @@ function eventify (data, options) {
     }
 
     function value (datum, type) {
-        debug('value: emitting %s `%s`', type, datum);
         emitter.emit(events[type], datum);
     }
 
@@ -210,7 +180,6 @@ function eventify (data, options) {
     function collection (c, type, action) {
         var resolve;
 
-        debug('proceed: emitting %s[%d]', type, c.length);
         emitter.emit(events[type]);
 
         setImmediate(item.bind(null, 0));
@@ -221,7 +190,6 @@ function eventify (data, options) {
 
         function item (index) {
             if (index >= c.length) {
-                debug('proceed::item: emitting end-%s[%d]', type, c.length);
                 emitter.emit(events.endPrefix + events[type]);
 
                 return resolve();
@@ -233,7 +201,6 @@ function eventify (data, options) {
 
     function object (datum) {
         return collection(Object.keys(datum), 'object', function (key) {
-            debug('proceed: emitting property `%s`', key);
             emitter.emit(events.property, key);
 
             return proceed(datum[key]);

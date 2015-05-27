@@ -32,8 +32,6 @@ module.exports = streamify;
  * @option maps:      'object', or 'ignore', default is 'object'.
  *
  * @option iterables: 'array', or 'ignore', default is 'array'.
- *
- * @option debug:     Log debug messages to the console.
  **/
 function streamify (data, options) {
     var space, stream, emitter, json, indentation,
@@ -68,19 +66,9 @@ function streamify (data, options) {
         } else {
             space = rawOptions.space;
         }
-
-        if (!rawOptions.debug) {
-            debug = function () {};
-        }
-    }
-
-    function debug () {
-        console.log.apply(console, arguments);
     }
 
     function read () {
-        debug('read: awaitPush=%s, isEnded=%s', awaitPush, isEnded);
-
         if (awaitPush) {
             awaitPush = false;
 
@@ -98,8 +86,6 @@ function streamify (data, options) {
     }
 
     function array () {
-        debug('array');
-
         beforeScope();
 
         json += '[';
@@ -112,11 +98,6 @@ function streamify (data, options) {
     }
 
     function before (isScope) {
-        debug(
-            'before: isProperty=%s, needsComma=%s, isScope=%s, indentation=%d',
-            isProperty, needsComma, isScope, indentation.length
-        );
-
         if (isProperty) {
             isProperty = false;
 
@@ -155,8 +136,6 @@ function streamify (data, options) {
     }
 
     function after () {
-        debug('after: awaitPush=%s, json=`%s`', awaitPush, json);
-
         if (awaitPush || json === '') {
             return;
         }
@@ -169,8 +148,6 @@ function streamify (data, options) {
     }
 
     function object () {
-        debug('object');
-
         beforeScope();
 
         json += '{';
@@ -179,8 +156,6 @@ function streamify (data, options) {
     }
 
     function property (name) {
-        debug('property: name="%s"', name);
-
         before();
 
         json += '"' + name + '":';
@@ -194,8 +169,6 @@ function streamify (data, options) {
     }
 
     function value (v) {
-        debug('value: v=`%s`', v);
-
         before();
 
         json += v;
@@ -204,8 +177,6 @@ function streamify (data, options) {
     }
 
     function endArray () {
-        debug('endArray');
-
         beforeScopeEnd();
 
         json += ']';
@@ -227,8 +198,6 @@ function streamify (data, options) {
     }
 
     function endObject () {
-        debug('endObject');
-
         beforeScopeEnd();
 
         json += '}';
@@ -237,8 +206,6 @@ function streamify (data, options) {
     }
 
     function end () {
-        debug('end');
-
         after();
 
         isEnded = true;

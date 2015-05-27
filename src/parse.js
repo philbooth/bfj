@@ -23,17 +23,12 @@ module.exports = parse;
  *
  * @option discard: The number of characters to process before discarding
  *                  them to save memory. The default value is `16384`.
- *
- * @option debug:   Log debug messages to the console.
  **/
 function parse (stream, options) {
     var reviver, emitter, scopes, errors, resolve, reject, key;
 
     options = options || {};
     reviver = options.reviver;
-    if (!options.debug) {
-        debug = function () {};
-    }
 
     check.assert.maybe.function(reviver);
 
@@ -58,16 +53,10 @@ function parse (stream, options) {
         reject = rej;
     });
 
-    function debug () {
-        console.log.apply(console, arguments);
-    }
-
     function array () {
         if (errors.length > 0) {
             return;
         }
-
-        debug('array');
 
         beginScope([]);
     }
@@ -76,8 +65,6 @@ function parse (stream, options) {
         if (errors.length > 0) {
             return;
         }
-
-        debug('beginScope: parsed=%s', parsed);
 
         if (scopes.length > 0) {
             value(parsed);
@@ -92,8 +79,6 @@ function parse (stream, options) {
         if (errors.length > 0) {
             return;
         }
-
-        debug('value: v=`%s`', v);
 
         if (scopes.length === 0) {
             return scopes.push(v);
@@ -114,8 +99,6 @@ function parse (stream, options) {
             return;
         }
 
-        debug('object');
-
         beginScope({});
     }
 
@@ -123,8 +106,6 @@ function parse (stream, options) {
         if (errors.length > 0) {
             return;
         }
-
-        debug('property: name="%s"', name);
 
         key = name;
     }
@@ -134,16 +115,12 @@ function parse (stream, options) {
             return;
         }
 
-        debug('endScope');
-
         if (scopes.length > 1) {
             scopes.pop();
         }
     }
 
     function end () {
-        debug('end: errors.length=%d', errors.length);
-
         if (errors.length > 0) {
             return reject(errors[0]);
         }
@@ -166,8 +143,6 @@ function parse (stream, options) {
     }
 
     function error (e) {
-        debug('error: e={%s}', e.message);
-
         errors.push(e);
     }
 }
