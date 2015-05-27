@@ -1,16 +1,17 @@
 # History
 
-## 1.0.0 (coming soon)
+## 1.0.0
 
 * Breaking changes:
   * Take `Readable` parameter in `walk`.
   * Return `EventEmitter` parameter from `walk`.
   * Return `Promise` parameter from `write`.
+* Fix stream termination bug in `streamify`.
+* Fix missing comma after empty objects and arrays.
 * Improve tests.
 * Add `reviver` option for `parse` and `read`.
 * Add `space` option for `streamify`, `stringify` and `write`.
-* Fix stream termination bug in `streamify`.
-* Fix missing comma after empty objects and arrays.
+* Remove the `debug` option from all functions.
 
 ## 0.2.0
 
