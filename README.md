@@ -391,7 +391,7 @@ the following properties.
   promises are coerced
   to their resolved value.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore promises
   in the data.
@@ -401,7 +401,7 @@ the following properties.
   buffers are coerced
   using their `toString` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore buffers
   in the data.
@@ -411,7 +411,7 @@ the following properties.
   dates are coerced
   using their `toJSON` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore dates
   in the data.
@@ -421,7 +421,7 @@ the following properties.
   maps are coerced
   to plain objects.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore maps
   in the data.
@@ -433,7 +433,7 @@ the following properties.
   are coerced
   to arrays.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore other iterables
   in the data.
@@ -557,7 +557,7 @@ the following properties.
   promises are coerced
   to their resolved value.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore promises
   in the data.
@@ -567,7 +567,7 @@ the following properties.
   buffers are coerced
   using their `toString` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore buffers
   in the data.
@@ -577,7 +577,7 @@ the following properties.
   dates are coerced
   using their `toJSON` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore dates
   in the data.
@@ -587,7 +587,7 @@ the following properties.
   maps are coerced
   to plain objects.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore maps
   in the data.
@@ -599,7 +599,7 @@ the following properties.
   are coerced
   to arrays.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore other iterables
   in the data.
@@ -642,7 +642,7 @@ the following properties.
   promises are coerced
   to their resolved value.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore promises
   in the data.
@@ -652,7 +652,7 @@ the following properties.
   buffers are coerced
   using their `toString` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore buffers
   in the data.
@@ -662,7 +662,7 @@ the following properties.
   dates are coerced
   using their `toJSON` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore dates
   in the data.
@@ -672,7 +672,7 @@ the following properties.
   maps are coerced
   to plain objects.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore maps
   in the data.
@@ -684,7 +684,7 @@ the following properties.
   are coerced
   to arrays.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore other iterables
   in the data.
@@ -729,7 +729,7 @@ the following properties.
   promises are coerced
   to their resolved value.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore promises
   in the data.
@@ -739,7 +739,7 @@ the following properties.
   buffers are coerced
   using their `toString` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore buffers
   in the data.
@@ -749,7 +749,7 @@ the following properties.
   dates are coerced
   using their `toJSON` method.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore dates
   in the data.
@@ -759,7 +759,7 @@ the following properties.
   maps are coerced
   to plain objects.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore maps
   in the data.
@@ -771,7 +771,7 @@ the following properties.
   are coerced
   to arrays.
   Set this property
-  to `ignore`
+  to `'ignore'`
   if you'd prefer
   to ignore other iterables
   in the data.
