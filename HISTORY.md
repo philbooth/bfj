@@ -1,5 +1,10 @@
 # History
 
+## 1.1.0
+
+* Pass `options` to `fs.createReadStream` inside `read`.
+* Fix truncated output bug in `write`.
+
 ## 1.0.0
 
 * Breaking changes:
