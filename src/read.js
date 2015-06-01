@@ -24,6 +24,6 @@ module.exports = read;
  *                  to save memory. The default value is `16384`.
  **/
 function read (path, options) {
-    return parse(fs.createReadStream(path), options);
+    return parse(fs.createReadStream(path, options), options);
 }
 

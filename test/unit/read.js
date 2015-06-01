@@ -101,9 +101,11 @@ suite('read:', function () {
 
             test('fs.createReadStream was called correctly', function () {
                 assert.strictEqual(log.these.createReadStream[0], require('fs'));
-                assert.lengthOf(log.args.createReadStream[0], 1);
+                assert.lengthOf(log.args.createReadStream[0], 2);
                 assert.strictEqual(log.args.createReadStream[0][0], path);
                 assert.lengthOf(Object.keys(log.args.createReadStream[0][0]), 0);
+                assert.strictEqual(log.args.createReadStream[0][1], options);
+                assert.lengthOf(Object.keys(log.args.createReadStream[0][1]), 0);
             });
 
             test('parse was called once', function () {
