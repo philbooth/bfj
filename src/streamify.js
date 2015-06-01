@@ -73,7 +73,10 @@ function streamify (data, options) {
             awaitPush = false;
 
             if (isEnded) {
-                after();
+                if (json !== '') {
+                    after();
+                }
+
                 endStream();
             }
         }
@@ -136,7 +139,7 @@ function streamify (data, options) {
     }
 
     function after () {
-        if (awaitPush || json === '') {
+        if (awaitPush) {
             return;
         }
 

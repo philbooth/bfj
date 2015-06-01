@@ -890,6 +890,25 @@ suite('streamify:', function () {
                     });
                 });
             });
+
+            suite('read stream, end event:', function () {
+                setup(function () {
+                    log.args.JsonStream[0][0]();
+                    log.args.on[8][1]();
+                });
+
+                test('stream.push was called twice', function () {
+                    assert.strictEqual(log.counts.push, 2);
+                });
+
+                test('stream.push was called correctly first time', function () {
+                    assert.strictEqual(log.args.push[0][0], '');
+                });
+
+                test('stream.push was called correctly second time', function () {
+                    assert.isNull(log.args.push[1][0]);
+                });
+            });
         });
     });
 });
