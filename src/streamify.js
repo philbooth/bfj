@@ -29,9 +29,11 @@ module.exports = streamify;
  *
  * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:      'object', or 'ignore', default is 'object'.
+ * @option maps:      'object' or 'ignore', default is 'object'.
  *
- * @option iterables: 'array', or 'ignore', default is 'array'.
+ * @option iterables: 'array' or 'ignore', default is 'array'.
+ *
+ * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function streamify (data, options) {
     var space, stream, emitter, json, indentation,
@@ -57,6 +59,7 @@ function streamify (data, options) {
     emitter.on(events.endArray, endArray);
     emitter.on(events.endObject, endObject);
     emitter.on(events.end, end);
+    emitter.on(events.error, error);
 
     return stream;
 
@@ -213,6 +216,10 @@ function streamify (data, options) {
 
         isEnded = true;
         endStream();
+    }
+
+    function error (error) {
+        stream.emit('dataError', error);
     }
 }
 

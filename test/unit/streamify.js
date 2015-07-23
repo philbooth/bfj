@@ -33,7 +33,7 @@ suite('streamify:', function () {
         mockery.registerMock('./jsonstream', spooks.ctor({
             name: 'JsonStream',
             log: log,
-            archetype: { instance: { push: function () {} } },
+            archetype: { instance: { push: function () {}, emit: function () {} } },
             results: results
         }));
     });
@@ -129,8 +129,8 @@ suite('streamify:', function () {
                 assert.lengthOf(Object.keys(log.args.eventify[0][1]), 0);
             });
 
-            test('EventEmitter.on was called nine times', function () {
-                assert.strictEqual(log.counts.on, 9);
+            test('EventEmitter.on was called ten times', function () {
+                assert.strictEqual(log.counts.on, 10);
                 assert.strictEqual(log.these.on[0], results.eventify[0]);
                 assert.strictEqual(log.these.on[1], results.eventify[0]);
                 assert.strictEqual(log.these.on[2], results.eventify[0]);
@@ -140,6 +140,7 @@ suite('streamify:', function () {
                 assert.strictEqual(log.these.on[6], results.eventify[0]);
                 assert.strictEqual(log.these.on[7], results.eventify[0]);
                 assert.strictEqual(log.these.on[8], results.eventify[0]);
+                assert.strictEqual(log.these.on[9], results.eventify[0]);
             });
 
             test('EventEmitter.on was called correctly first time', function () {
@@ -225,6 +226,20 @@ suite('streamify:', function () {
                 assert.notStrictEqual(log.args.on[8][1], log.args.on[7][1]);
             });
 
+            test('EventEmitter.on was called correctly tenth time', function () {
+                assert.lengthOf(log.args.on[9], 2);
+                assert.strictEqual(log.args.on[9][0], 'err');
+                assert.isFunction(log.args.on[9][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[0][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[1][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[2][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[3][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[4][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[6][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[7][1]);
+                assert.notStrictEqual(log.args.on[9][1], log.args.on[8][1]);
+            });
+
             suite('array event:', function () {
                 setup(function () {
                     log.args.on[0][1]();
@@ -264,6 +279,10 @@ suite('streamify:', function () {
                             assert.lengthOf(log.args.push[1], 1);
                             assert.isNull(log.args.push[1][0]);
                         });
+
+                        test('stream.emit was not called', function () {
+                            assert.strictEqual(log.counts.emit, 0);
+                        });
                     });
                 });
 
@@ -291,6 +310,10 @@ suite('streamify:', function () {
 
                         test('stream.push was called correctly second time', function () {
                             assert.isNull(log.args.push[1][0]);
+                        });
+
+                        test('stream.emit was not called', function () {
+                            assert.strictEqual(log.counts.emit, 0);
                         });
                     });
 
@@ -411,6 +434,10 @@ suite('streamify:', function () {
 
                                                 test('stream.push was called correctly', function () {
                                                     assert.strictEqual(log.args.push[6][0], ',"baz"');
+                                                });
+
+                                                test('stream.emit was not called', function () {
+                                                    assert.strictEqual(log.counts.emit, 0);
                                                 });
                                             });
                                         });
@@ -550,6 +577,10 @@ suite('streamify:', function () {
                                                         test('stream.push was called correctly', function () {
                                                             assert.strictEqual(log.args.push[8][0], ',"wibble"');
                                                         });
+
+                                                        test('stream.emit was not called', function () {
+                                                            assert.strictEqual(log.counts.emit, 0);
+                                                        });
                                                     });
                                                 });
                                             });
@@ -600,6 +631,10 @@ suite('streamify:', function () {
                                 test('stream.push was called correctly', function () {
                                     assert.strictEqual(log.args.push[1][0], ',"bar"]');
                                 });
+
+                                test('stream.emit was not called', function () {
+                                    assert.strictEqual(log.counts.emit, 0);
+                                });
                             });
 
                             suite('end event:', function () {
@@ -636,6 +671,10 @@ suite('streamify:', function () {
                                         test('stream.push was called correctly', function () {
                                             assert.isNull(log.args.push[2][0]);
                                         });
+
+                                        test('stream.emit was not called', function () {
+                                            assert.strictEqual(log.counts.emit, 0);
+                                        });
                                     })
                                 });
 
@@ -656,6 +695,10 @@ suite('streamify:', function () {
                                     test('stream.push was called correctly second time', function () {
                                         assert.isNull(log.args.push[2][0]);
                                     });
+
+                                    test('stream.emit was not called', function () {
+                                        assert.strictEqual(log.counts.emit, 0);
+                                    });
                                 });
                             });
                         });
@@ -674,6 +717,10 @@ suite('streamify:', function () {
 
                     test('stream.push was called correctly', function () {
                         assert.strictEqual(log.args.push[0][0], '[{');
+                    });
+
+                    test('stream.emit was not called', function () {
+                        assert.strictEqual(log.counts.emit, 0);
                     });
                 });
             });
@@ -700,8 +747,8 @@ suite('streamify:', function () {
                 assert.strictEqual(log.counts.eventify, 1);
             });
 
-            test('EventEmitter.on was called nine times', function () {
-                assert.strictEqual(log.counts.on, 9);
+            test('EventEmitter.on was called ten times', function () {
+                assert.strictEqual(log.counts.on, 10);
             });
 
             test('stream.push was not called', function () {
@@ -877,6 +924,10 @@ suite('streamify:', function () {
                                                                 test('stream.push was called correctly', function () {
                                                                     assert.strictEqual(log.args.push[12][0], '\n}');
                                                                 });
+
+                                                                test('stream.emit was not called', function () {
+                                                                    assert.strictEqual(log.counts.emit, 0);
+                                                                });
                                                             });
                                                         });
                                                     });
@@ -907,6 +958,26 @@ suite('streamify:', function () {
 
                 test('stream.push was called correctly second time', function () {
                     assert.isNull(log.args.push[1][0]);
+                });
+
+                test('stream.emit was not called', function () {
+                    assert.strictEqual(log.counts.emit, 0);
+                });
+            });
+
+            suite('error event:', function () {
+                setup(function () {
+                    log.args.on[9][1]('foo');
+                });
+
+                test('stream.emit was called once', function () {
+                    assert.strictEqual(log.counts.emit, 1);
+                });
+
+                test('stream.emit was called correctly', function () {
+                    assert.lengthOf(log.args.emit[0], 2);
+                    assert.strictEqual(log.args.emit[0][0], 'dataError');
+                    assert.strictEqual(log.args.emit[0][1], 'foo');
                 });
             });
         });

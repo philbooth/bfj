@@ -438,6 +438,17 @@ the following properties.
   to ignore other iterables
   in the data.
 
+* `options.circular`:
+  By default,
+  circular references
+  will emit an error.
+  Set this property
+  to `'ignore'`
+  if you'd prefer
+  to silently skip past
+  circular references
+  in the data.
+
 The emitted events
 are defined
 as public properties
@@ -604,6 +615,19 @@ the following properties.
   to ignore other iterables
   in the data.
 
+* `options.circular`:
+  By default,
+  circular references
+  will emit
+  a 'dataError' event
+  on the returned stream.
+  Set this property
+  to `'ignore'`
+  if you'd prefer
+  to silently skip past
+  circular references
+  in the data.
+
 #### Example
 
 ```js
@@ -611,6 +635,7 @@ var stream = bfj.streamify(data);
 
 stream.on('data', read);
 stream.on('end', end);
+stream.on('dataError', error);
 ```
 
 ### bfj.stringify (data, options)
@@ -689,13 +714,28 @@ the following properties.
   to ignore other iterables
   in the data.
 
+* `options.circular`:
+  By default,
+  circular references
+  will reject
+  the returned promise.
+  Set this property
+  to `'ignore'`
+  if you'd prefer
+  to silently skip past
+  circular references
+  in the data.
+
 #### Example
 
 ```js
 bfj.stringify(data).
     then(function (json) {
         // :)
-    });
+    })
+	.catch(function (error) {
+		// :(
+	});
 ```
 
 ### bfj.write (path, data, options)
@@ -774,6 +814,18 @@ the following properties.
   to `'ignore'`
   if you'd prefer
   to ignore other iterables
+  in the data.
+
+* `options.circular`:
+  By default,
+  circular references
+  will cause the write
+  to fail.
+  Set this property
+  to `'ignore'`
+  if you'd prefer
+  to silently skip past
+  circular references
   in the data.
 
 #### Example

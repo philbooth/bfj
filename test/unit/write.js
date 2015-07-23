@@ -145,9 +145,11 @@ suite('write:', function () {
                 assert.lengthOf(Object.keys(log.args.pipe[0][0]), 0);
             });
 
-            test('stream.on was called twice', function () {
-                assert.strictEqual(log.counts.on, 2);
+            test('stream.on was called three times', function () {
+                assert.strictEqual(log.counts.on, 3);
                 assert.strictEqual(log.these.on[0], require('./streamify')());
+                assert.strictEqual(log.these.on[1], require('./streamify')());
+                assert.strictEqual(log.these.on[2], require('./streamify')());
             });
 
             test('stream.on was called correctly first time', function () {
@@ -161,6 +163,14 @@ suite('write:', function () {
                 assert.strictEqual(log.args.on[1][0], 'error');
                 assert.isFunction(log.args.on[1][1]);
                 assert.notStrictEqual(log.args.on[1][1], log.args.on[0][1]);
+            });
+
+            test('stream.on was called correctly third time', function () {
+                assert.lengthOf(log.args.on[2], 2);
+                assert.strictEqual(log.args.on[2][0], 'dataError');
+                assert.isFunction(log.args.on[2][1]);
+                assert.notStrictEqual(log.args.on[2][1], log.args.on[0][1]);
+                assert.strictEqual(log.args.on[2][1], log.args.on[1][1]);
             });
 
             test('promise was returned', function () {
@@ -222,6 +232,35 @@ suite('write:', function () {
                     assert.isTrue(failed);
                     assert.isFalse(passed);
                     assert.strictEqual(error, 'foo');
+                });
+            });
+
+            suite('dispatch dataError event:', function () {
+                var resolved, error, passed, failed;
+
+                setup(function (done) {
+                    passed = failed = false;
+
+                    result.then(function (r) {
+                        resolved = r;
+                        passed = true;
+                        done();
+                    }).catch(function (e) {
+                        error = e;
+                        failed = true;
+                        done();
+                    });
+                    log.args.on[2][1]('wibble');
+                });
+
+                teardown(function () {
+                    resolved = error = passed = failed = undefined;
+                });
+
+                test('promise was rejected', function () {
+                    assert.isTrue(failed);
+                    assert.isFalse(passed);
+                    assert.strictEqual(error, 'wibble');
                 });
             });
         });

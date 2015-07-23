@@ -24,21 +24,25 @@ module.exports = stringify;
  *
  * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:      'object', or 'ignore', default is 'object'.
+ * @option maps:      'object' or 'ignore', default is 'object'.
  *
- * @option iterables: 'array', or 'ignore', default is 'array'.
+ * @option iterables: 'array' or 'ignore', default is 'array'.
+ *
+ * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function stringify (data, options) {
-    var stream, json, resolve;
+    var stream, json, resolve, reject;
 
     stream = streamify(data, options);
     json = '';
 
     stream.on('data', read);
     stream.on('end', end);
+    stream.on('dataError', error);
 
-    return new Promise(function (res) {
+    return new Promise(function (res, rej) {
         resolve = res;
+        reject = rej;
     });
 
     function read (chunk) {
@@ -47,6 +51,10 @@ function stringify (data, options) {
 
     function end () {
         resolve(json);
+    }
+
+    function error (e) {
+        reject(e);
     }
 }
 

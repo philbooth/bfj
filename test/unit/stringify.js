@@ -102,10 +102,11 @@ suite('stringify:', function () {
                 assert.lengthOf(Object.keys(log.args.streamify[0][1]), 0);
             });
 
-            test('stream.on was called twice', function () {
-                assert.strictEqual(log.counts.on, 2);
+            test('stream.on was called three times', function () {
+                assert.strictEqual(log.counts.on, 3);
                 assert.strictEqual(log.these.on[0], require('./streamify')());
                 assert.strictEqual(log.these.on[1], require('./streamify')());
+                assert.strictEqual(log.these.on[2], require('./streamify')());
             });
 
             test('stream.on was called correctly first time', function () {
@@ -118,6 +119,13 @@ suite('stringify:', function () {
                 assert.strictEqual(log.args.on[1][0], 'end');
                 assert.isFunction(log.args.on[1][1]);
                 assert.notStrictEqual(log.args.on[1][1], log.args.on[0][1]);
+            });
+
+            test('stream.on was called correctly third time', function () {
+                assert.strictEqual(log.args.on[2][0], 'dataError');
+                assert.isFunction(log.args.on[2][1]);
+                assert.notStrictEqual(log.args.on[2][1], log.args.on[0][1]);
+                assert.notStrictEqual(log.args.on[2][1], log.args.on[1][1]);
             });
 
             test('promise is unfulfilled', function () {
@@ -168,6 +176,17 @@ suite('stringify:', function () {
 
                         test('promise is resolved', function () {
                             assert.strictEqual(resolved, 'foobar');
+                        });
+                    });
+
+                    suite('dataError event:', function () {
+                        setup(function (d) {
+                            done = d;
+                            log.args.on[2][1]('wibble');
+                        });
+
+                        test('promise is rejected', function () {
+                            assert.strictEqual(rejected, 'wibble');
                         });
                     });
                 });
