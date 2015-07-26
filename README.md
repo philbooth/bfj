@@ -517,6 +517,16 @@ of an object,
   the value
   as its argument.
 
+* `bfj.events.error`
+  indicates that
+  a circular reference
+  was encountered
+  in the data.
+  The listener
+  will be passed
+  the `Error` instance
+  as its argument.
+
 * `bfj.events.end`
   indicates that
   the end of the data
