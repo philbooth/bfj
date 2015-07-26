@@ -733,9 +733,9 @@ bfj.stringify(data).
     then(function (json) {
         // :)
     })
-	.catch(function (error) {
-		// :(
-	});
+    .catch(function (error) {
+        // :(
+    });
 ```
 
 ### bfj.write (path, data, options)
