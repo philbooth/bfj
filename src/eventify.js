@@ -2,11 +2,10 @@
 
 'use strict';
 
-var check, EventEmitter, error, events;
+var check, EventEmitter, events;
 
 check = require('check-types');
 EventEmitter = require('events').EventEmitter;
-error = require('./error');
 events = require('./events');
 
 module.exports = eventify;
@@ -26,13 +25,16 @@ module.exports = eventify;
  *
  * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:      'object', or 'ignore', default is 'object'.
+ * @option maps:      'object' or 'ignore', default is 'object'.
  *
- * @option iterables: 'array', or 'ignore', default is 'array'.
+ * @option iterables: 'array' or 'ignore', default is 'array'.
+ *
+ * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function eventify (data, options) {
-    var coercions, emitter;
+    var references, coercions, emitter, ignoreCircularReferences, ignoreItems;
 
+    references = [];
     coercions = {};
     emitter = new EventEmitter();
 
@@ -49,6 +51,10 @@ function eventify (data, options) {
         normaliseOption('dates');
         normaliseOption('maps');
         normaliseOption('iterables');
+
+        if (options.circular === 'ignore') {
+            ignoreCircularReferences = true;
+        }
     }
 
     function normaliseOption (key) {
@@ -174,11 +180,22 @@ function eventify (data, options) {
     }
 
     function array (datum) {
-        return collection(datum, 'array', proceed);
+        // For an array, collection:object and collection:array are the same.
+        return collection(datum, datum, 'array', proceed);
     }
 
-    function collection (c, type, action) {
-        var resolve;
+    function collection (object, array, type, action) {
+        var ignoreThisItem, resolve;
+
+        if (references.indexOf(object) >= 0) {
+            ignoreThisItem = ignoreItems = true;
+
+            if (! ignoreCircularReferences) {
+                emitter.emit(events.error, new Error('Circular reference.'));
+            }
+        } else {
+            references.push(object);
+        }
 
         emitter.emit(events[type]);
 
@@ -189,18 +206,31 @@ function eventify (data, options) {
         });
 
         function item (index) {
-            if (index >= c.length) {
+            if (index >= array.length) {
+                if (ignoreThisItem) {
+                    ignoreItems = false;
+                }
+
+                if (ignoreItems) {
+                    return;
+                }
+
                 emitter.emit(events.endPrefix + events[type]);
 
                 return resolve();
             }
 
-            action(c[index]).then(item.bind(null, index + 1));
+            if (ignoreItems) {
+                return item(index + 1);
+            }
+
+            action(array[index]).then(item.bind(null, index + 1));
         }
     }
 
     function object (datum) {
-        return collection(Object.keys(datum), 'object', function (key) {
+        // For an object, collection:object and collection:array are different.
+        return collection(datum, Object.keys(datum), 'object', function (key) {
             emitter.emit(events.property, key);
 
             return proceed(datum[key]);

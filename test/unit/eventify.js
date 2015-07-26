@@ -1466,6 +1466,184 @@ suite('eventify:', function () {
                 assert.strictEqual(log.counts.endPrefix, 0);
             });
         });
+
+        suite('array circular reference:', function () {
+            setup(function (done) {
+                var array, emitter;
+
+                array = [ 'foo' ];
+                array[1] = array;
+                emitter = eventify(array);
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+            });
+
+            test('array event occurred twice', function () {
+                assert.strictEqual(log.counts.array, 2);
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.strictEqual(log.args.string[0][0], 'foo');
+            });
+
+            test('endArray event occurred twice', function () {
+                assert.strictEqual(log.counts.endArray, 2);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event occurred once', function () {
+                assert.strictEqual(log.counts.error, 1);
+            });
+
+            test('error event was dispatched correctly', function () {
+                assert.lengthOf(log.args.error[0], 1);
+                assert.instanceOf(log.args.error[0][0], Error);
+                assert.strictEqual(log.args.error[0][0].message, 'Circular reference.');
+            });
+        });
+
+        suite('object circular reference:', function () {
+            setup(function (done) {
+                var object, emitter;
+
+                object = { foo: 'bar' };
+                object.self = object;
+                emitter = eventify(object);
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+            });
+
+            test('object event occurred twice', function () {
+                assert.strictEqual(log.counts.object, 2);
+            });
+
+            test('property event occurred twice', function () {
+                assert.strictEqual(log.counts.property, 2);
+            });
+
+            test('property event was dispatched correctly first time', function () {
+                assert.strictEqual(log.args.property[0][0], 'foo');
+            });
+
+            test('property event was dispatched correctly second time', function () {
+                assert.strictEqual(log.args.property[1][0], 'self');
+            });
+
+            test('endObject event occurred twice', function () {
+                assert.strictEqual(log.counts.endObject, 2);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event occurred once', function () {
+                assert.strictEqual(log.counts.error, 1);
+            });
+
+            test('error event was dispatched correctly', function () {
+                assert.strictEqual(log.args.error[0][0].message, 'Circular reference.');
+            });
+        });
+
+        suite('array circular reference with ignore set:', function () {
+            setup(function (done) {
+                var array, emitter;
+
+                array = [ 'foo' ];
+                array[1] = array;
+                emitter = eventify(array, { circular: 'ignore' });
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+            });
+
+            test('array event occurred twice', function () {
+                assert.strictEqual(log.counts.array, 2);
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('endArray event occurred twice', function () {
+                assert.strictEqual(log.counts.endArray, 2);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
+        suite('object circular reference with ignore set:', function () {
+            setup(function (done) {
+                var object, emitter;
+
+                object = { foo: 'bar' };
+                object.self = object;
+                emitter = eventify(object, { circular: 'ignore' });
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+            });
+
+            test('object event occurred twice', function () {
+                assert.strictEqual(log.counts.object, 2);
+            });
+
+            test('property event occurred twice', function () {
+                assert.strictEqual(log.counts.property, 2);
+            });
+
+            test('endObject event occurred twice', function () {
+                assert.strictEqual(log.counts.endObject, 2);
+            });
+
+            test('end event occurred once', function () {
+                assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
     });
 });
 

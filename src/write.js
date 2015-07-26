@@ -29,9 +29,11 @@ module.exports = write;
  *
  * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:      'object', or 'ignore', default is 'object'.
+ * @option maps:      'object' or 'ignore', default is 'object'.
  *
- * @option iterables: 'array', or 'ignore', default is 'array'.
+ * @option iterables: 'array' or 'ignore', default is 'array'.
+ *
+ * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function write (path, data, options) {
     return new Promise(function (resolve, reject) {
@@ -39,9 +41,9 @@ function write (path, data, options) {
             .pipe(fs.createWriteStream(path, options))
             .on('finish', function () {
                 resolve();
-            }).on('error', function (error) {
-                reject(error);
-            });
+            })
+            .on('error', reject)
+            .on('dataError', reject);
     });
 }
 
