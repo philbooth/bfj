@@ -1,5 +1,9 @@
 # History
 
+## 1.2.0
+
+* Sanely handle circular references in the data when serialising.
+
 ## 1.1.0
 
 * Pass `options` to `fs.createReadStream` inside `read`.
