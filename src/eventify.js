@@ -77,7 +77,7 @@ function eventify (data, options) {
         function after (coerced) {
             var type;
 
-            if (coerced === undefined) {
+            if (coerced === undefined || typeof coerced === 'function') {
                 return;
             }
 
