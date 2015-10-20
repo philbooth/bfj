@@ -1,5 +1,9 @@
 # History
 
+## 1.2.1
+
+* Sanely handle `undefined`, functions and symbols.
+
 ## 1.2.0
 
 * Sanely handle circular references in the data when serialising.
