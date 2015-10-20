@@ -566,7 +566,7 @@ suite('eventify:', function () {
 
         suite('array with items:', function () {
             setup(function (done) {
-                var emitter = eventify([ 'foo', 'bar' ]);
+                var emitter = eventify([ undefined, 'foo', function () {}, 'bar', Symbol('baz') ]);
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -580,6 +580,22 @@ suite('eventify:', function () {
 
             test('array event occurred once', function () {
                 assert.strictEqual(log.counts.array, 1);
+            });
+
+            test('literal event occurred three times', function () {
+                assert.strictEqual(log.counts.literal, 3);
+            });
+
+            test('literal event was dispatched correctly first time', function () {
+                assert.isNull(log.args.literal[0][0]);
+            });
+
+            test('literal event was dispatched correctly second time', function () {
+                assert.isNull(log.args.literal[1][0]);
+            });
+
+            test('literal event was dispatched correctly third time', function () {
+                assert.isNull(log.args.literal[2][0]);
             });
 
             test('string event occurred twice', function () {
@@ -609,7 +625,11 @@ suite('eventify:', function () {
 
         suite('object with properties:', function () {
             setup(function (done) {
-                var emitter = eventify({ foo: 42, bar: 3.14159265359 });
+                var emitter = eventify({ foo: 42,
+                    bar: undefined,
+                    baz: 3.14159265359,
+                    qux: Symbol('qux')
+                });
 
                 Object.keys(events).forEach(function (key) {
                     emitter.on(events[key], spooks.fn({
@@ -634,7 +654,7 @@ suite('eventify:', function () {
             });
 
             test('property event was dispatched correctly second time', function () {
-                assert.strictEqual(log.args.property[1][0], 'bar');
+                assert.strictEqual(log.args.property[1][0], 'baz');
             });
 
             test('number event occurred twice', function () {
@@ -655,6 +675,10 @@ suite('eventify:', function () {
 
             test('end event occurred once', function () {
                 assert.strictEqual(log.counts.end, 1);
+            });
+
+            test('literal event did not occur', function () {
+                assert.strictEqual(log.counts.literal, 0);
             });
 
             test('error event did not occur', function () {

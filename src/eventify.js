@@ -2,11 +2,17 @@
 
 'use strict';
 
-var check, EventEmitter, events;
+var check, EventEmitter, events, invalidTypes;
 
 check = require('check-types');
 EventEmitter = require('events').EventEmitter;
 events = require('./events');
+
+invalidTypes = {
+    'undefined': true,
+    'function': true,
+    'symbol': true
+};
 
 module.exports = eventify;
 
@@ -181,7 +187,13 @@ function eventify (data, options) {
 
     function array (datum) {
         // For an array, collection:object and collection:array are the same.
-        return collection(datum, datum, 'array', proceed);
+        return collection(datum, datum, 'array', function (item) {
+            if (isInvalidType(item)) {
+                return proceed(null);
+            }
+
+            return proceed(item);
+        });
     }
 
     function collection (object, array, type, action) {
@@ -228,12 +240,22 @@ function eventify (data, options) {
         }
     }
 
+    function isInvalidType (datum) {
+        return !! invalidTypes[typeof datum];
+    }
+
     function object (datum) {
         // For an object, collection:object and collection:array are different.
         return collection(datum, Object.keys(datum), 'object', function (key) {
+            var item = datum[key];
+
+            if (isInvalidType(item)) {
+                return Promise.resolve();
+            }
+
             emitter.emit(events.property, key);
 
-            return proceed(datum[key]);
+            return proceed(item);
         });
     }
 }
