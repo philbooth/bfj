@@ -83,7 +83,7 @@ function eventify (data, options) {
         function after (coerced) {
             var type;
 
-            if (coerced === undefined || typeof coerced === 'function') {
+            if (isInvalidType(coerced)) {
                 return;
             }
 
@@ -177,6 +177,10 @@ function eventify (data, options) {
         });
     }
 
+    function isInvalidType (datum) {
+        return !! invalidTypes[typeof datum];
+    }
+
     function literal (datum) {
         value(datum, 'literal');
     }
@@ -238,10 +242,6 @@ function eventify (data, options) {
 
             action(array[index]).then(item.bind(null, index + 1));
         }
-    }
-
-    function isInvalidType (datum) {
-        return !! invalidTypes[typeof datum];
     }
 
     function object (datum) {
