@@ -1,5 +1,9 @@
 # History
 
+## 1.2.2
+
+* Sanely escape strings when serialising (thanks [@rowanmanning](https://github.com/rowanmanning)).
+
 ## 1.2.1
 
 * Sanely handle `undefined`, functions and symbols.
