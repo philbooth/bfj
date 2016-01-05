@@ -437,6 +437,34 @@ suite('eventify:', function () {
             });
         });
 
+        suite('string with special characters:', function () {
+            setup(function (done) {
+                var emitter = eventify('foo\nbar\t"baz"');
+
+                Object.keys(events).forEach(function (key) {
+                    emitter.on(events[key], spooks.fn({
+                        name: key,
+                        log: log
+                    }));
+                });
+
+                emitter.on(events.end, done);
+            });
+
+            test('string event occurred once', function () {
+                assert.strictEqual(log.counts.string, 1);
+            });
+
+            test('string event was dispatched correctly', function () {
+                assert.lengthOf(log.args.string[0], 1);
+                assert.strictEqual(log.args.string[0][0], 'foo\\nbar\\t\\"baz\\"');
+            });
+
+            test('error event did not occur', function () {
+                assert.strictEqual(log.counts.error, 0);
+            });
+        });
+
         suite('number:', function () {
             setup(function (done) {
                 var emitter = eventify(42);
