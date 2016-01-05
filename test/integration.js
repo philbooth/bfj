@@ -210,7 +210,7 @@ suite('integration:', function () {
 
             setup(function (done) {
                 bfj.stringify(new Promise(function (resolve) {
-                    setTimeout(resolve.bind(null, 'foo\tbar'), 20);
+                    setTimeout(resolve.bind(null, 'foo\t"\nbar'), 20);
                 })).then(function (r) {
                     result = r;
                     done();
@@ -222,7 +222,7 @@ suite('integration:', function () {
             });
 
             test('result was correct', function () {
-                assert.strictEqual(result, '"foo\tbar"');
+                assert.strictEqual(result, '"foo\\t\\"\\nbar"');
             });
         });
 

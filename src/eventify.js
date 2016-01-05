@@ -93,8 +93,12 @@ function eventify (data, options) {
 
             type = typeof coerced;
 
-            if (type === 'string' || type === 'number') {
+            if (type === 'number') {
                 return value(coerced, type);
+            }
+
+            if (type === 'string') {
+                return value(escapeString(coerced), type);
             }
 
             if (Array.isArray(coerced)) {
@@ -257,6 +261,11 @@ function eventify (data, options) {
 
             return proceed(item);
         });
+    }
+
+    function escapeString (string) {
+        string = JSON.stringify(string);
+        return string.substring(1, string.length - 1);
     }
 }
 
