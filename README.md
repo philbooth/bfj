@@ -886,7 +886,7 @@ with the command
 
 ## What versions of node.js does it support?
 
-0.12 and the latest stable io.js.
+0.12 and later.
 
 ## What license is it released under?
 
