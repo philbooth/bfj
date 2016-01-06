@@ -898,8 +898,8 @@ with the command
 [eventemitter]: https://nodejs.org/api/events.html#events_class_events_eventemitter
 [readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
 [promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example:_Using_the_reviver_parameter
-[space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#space_argument
+[reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter
+[space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
 [history]: HISTORY.md
 [jshint]: https://github.com/jshint/node-jshint
 [mocha]: https://github.com/mochajs/mocha
