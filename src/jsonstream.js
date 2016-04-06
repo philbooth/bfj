@@ -1,28 +1,24 @@
-/*globals require, module */
+'use strict'
 
-'use strict';
+const util = require('util')
+const Readable = require('stream').Readable
+const check = require('check-types')
 
-var util, Readable, check;
+util.inherits(JsonStream, Readable)
 
-util = require('util');
-Readable = require('stream').Readable;
-check = require('check-types');
-
-util.inherits(JsonStream, Readable);
-
-module.exports = JsonStream;
+module.exports = JsonStream
 
 function JsonStream (read) {
-    if (check.not.instance(this, JsonStream)) {
-        return new JsonStream(read);
-    }
+  if (check.not.instance(this, JsonStream)) {
+    return new JsonStream(read)
+  }
 
-    check.assert.function(read, 'Invalid read implementation');
+  check.assert.function(read, 'Invalid read implementation')
 
-    this._read = function (/*size*/) {
-        read();
-    };
+  this._read = function () { // eslint-disable-line no-underscore-dangle
+    read()
+  }
 
-    return Readable.call(this, { encoding: 'utf8' });
+  return Readable.call(this, { encoding: 'utf8' })
 }
 

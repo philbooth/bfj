@@ -1,110 +1,108 @@
-'use strict';
+'use strict'
 
-var assert, spooks, modulePath;
+const assert = require('chai').assert
+const spooks = require('spooks')
 
-assert = require('chai').assert;
-spooks = require('spooks');
+const modulePath = '../../src/jsonstream'
 
-modulePath = '../../src/jsonstream';
+suite('jsonstream:', () => {
+  let log
 
-suite('jsonstream:', function () {
-    var log;
+  setup(() => {
+    log = {}
+  })
 
-    setup(function () {
-        log = {};
-    });
+  teardown(() => {
+    log = undefined
+  })
 
-    teardown(function () {
-        log = undefined;
-    });
+  test('require does not throw', () => {
+    assert.doesNotThrow(() => {
+      require(modulePath)
+    })
+  })
 
-    test('require does not throw', function () {
-        assert.doesNotThrow(function () {
-            require(modulePath);
-        });
-    });
+  test('require returns function', () => {
+    assert.isFunction(require(modulePath))
+  })
 
-    test('require returns function', function () {
-        assert.isFunction(require(modulePath));
-    });
+  suite('require:', () => {
+    let Stream
 
-    suite('require:', function () {
-        var Stream;
+    setup(() => {
+      Stream = require(modulePath)
+    })
 
-        setup(function () {
-            Stream = require(modulePath);
-        });
+    teardown(() => {
+      Stream = undefined
+    })
 
-        teardown(function () {
-            Stream = undefined;
-        });
+    test('Stream expects one argument', () => {
+      assert.lengthOf(Stream, 1)
+    })
 
-        test('Stream expects one argument', function () {
-            assert.lengthOf(Stream, 1);
-        });
+    test('calling Stream with function argument doesNotThrow', () => {
+      assert.doesNotThrow(() => {
+        Stream(() => {})
+      })
+    })
 
-        test('calling Stream with function argument doesNotThrow', function () {
-            assert.doesNotThrow(function () {
-                Stream(function () {});
-            });
-        });
+    test('calling Stream with object argument throws', () => {
+      assert.throws(() => {
+        Stream({ read: () => {} })
+      })
+    })
 
-        test('calling Stream with object argument throws', function () {
-            assert.throws(function () {
-                Stream({ read: function () {} });
-            });
-        });
+    test('calling Stream with new returns Stream instance', () => {
+      assert.instanceOf(new Stream(() => {}), Stream)
+    })
 
-        test('calling Stream with new returns Stream instance', function () {
-            assert.instanceOf(new Stream(function () {}), Stream);
-        });
+    test('calling Stream with new returns Readable instance', () => {
+      assert.instanceOf(new Stream(() => {}), require('stream').Readable)
+    })
 
-        test('calling Stream with new returns Readable instance', function () {
-            assert.instanceOf(new Stream(function () {}), require('stream').Readable);
-        });
+    test('calling Stream without new returns Stream instance', () => {
+      assert.instanceOf(Stream(() => {}), Stream)
+    })
 
-        test('calling Stream without new returns Stream instance', function () {
-            assert.instanceOf(Stream(function () {}), Stream);
-        });
+    suite('instantiate:', () => {
+      let jsonstream
 
-        suite('instantiate:', function () {
-            var jsonstream;
+      setup(() => {
+        jsonstream = new Stream(spooks.fn({ name: 'read', log: log }))
+      })
 
-            setup(function () {
-                jsonstream = new Stream(spooks.fn({ name: 'read', log: log }));
-            });
+      teardown(() => {
+        jsonstream = undefined
+      })
 
-            teardown(function () {
-                jsonstream = undefined;
-            });
+      test('jsonstream has _read method', () => {
+        assert.isFunction(jsonstream._read)
+      })
 
-            test('jsonstream has _read method', function () {
-                assert.isFunction(jsonstream._read);
-            });
+      test('_read expects no arguments', () => {
+        assert.lengthOf(jsonstream._read, 0)
+      })
 
-            test('_read expects no arguments', function () {
-                assert.lengthOf(jsonstream._read, 0);
-            });
+      test('read was not called', () => {
+        assert.strictEqual(log.counts.read, 0)
+      })
 
-            test('read was not called', function () {
-                assert.strictEqual(log.counts.read, 0);
-            });
+      suite('jsonstream._read:', () => {
+        setup(() => {
+          jsonstream._read()
+        })
 
-            suite('jsonstream._read:', function () {
-                setup(function () {
-                    jsonstream._read();
-                });
+        test('read was called once', () => {
+          assert.strictEqual(log.counts.read, 1)
+          assert.isUndefined(log.these.read[0])
+        })
 
-                test('read was called once', function () {
-                    assert.strictEqual(log.counts.read, 1);
-                    assert.isUndefined(log.these.read[0]);
-                });
-
-                test('read was called correctly', function () {
-                    assert.lengthOf(log.args.read[0], 0);
-                });
-            });
-        });
-    });
-});
+        test('read was called correctly', () => {
+          assert.lengthOf(log.args.read[0], 0)
+        })
+      })
+    })
+  })
+})
 

@@ -1,47 +1,48 @@
 {
-    "name": "bfj",
-    "version": "1.2.2",
-    "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
-    "homepage": "https://github.com/philbooth/bfj",
-    "bugs": "https://github.com/philbooth/bfj/issues",
-    "license": "MIT",
-    "author": "Phil Booth (https://github.com/philbooth)",
-    "main": "./src",
-    "keywords": [
-        "json",
-        "streamify",
-        "stringify",
-        "walk",
-        "parse",
-        "parser",
-        "serialise",
-        "serialize",
-        "read",
-        "write",
-        "async",
-        "asynchronous"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/philbooth/bfj.git"
-    },
-    "dependencies": {
-        "check-types": "~3.2"
-    },
-    "devDependencies": {
-        "jshint": "~2.7",
-        "mocha": "~2.2",
-        "chai": "~2.3",
-        "mockery": "~1.4",
-        "spooks": "~2.0"
-    },
-    "scripts": {
-        "lint": "jshint src",
-        "test": "npm run unit && npm run integration",
-        "unit": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/unit",
-        "integration": "mocha --ui tdd --reporter spec --colors test/integration",
-        "perfbig": "wget -O test/mtg.json http://mtgjson.com/json/AllSets-x.json && node test/performance mtg",
-        "perfsmall": "wget -O test/wpt.json https://raw.githubusercontent.com/nature/webpagetest-mapper/master/examples/dump.json && node test/performance wpt"
-    }
+  "name": "bfj",
+  "version": "1.2.2",
+  "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
+  "homepage": "https://github.com/philbooth/bfj",
+  "bugs": "https://github.com/philbooth/bfj/issues",
+  "license": "MIT",
+  "author": "Phil Booth (https://github.com/philbooth)",
+  "main": "./src",
+  "keywords": [
+    "json",
+    "streamify",
+    "stringify",
+    "walk",
+    "parse",
+    "parser",
+    "serialise",
+    "serialize",
+    "read",
+    "write",
+    "async",
+    "asynchronous"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/philbooth/bfj.git"
+  },
+  "dependencies": {
+    "check-types": "3.2.x"
+  },
+  "devDependencies": {
+    "eslint": "2.7.x",
+    "esprima": "2.7.x",
+    "mocha": "2.2.x",
+    "chai": "2.3.x",
+    "mockery": "1.4.x",
+    "spooks": "2.0.x"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "test": "npm run unit && npm run integration",
+    "unit": "mocha --ui tdd --reporter spec --recursive --colors --slow 120 test/unit",
+    "integration": "mocha --ui tdd --reporter spec --colors test/integration",
+    "perfbig": "wget -O test/mtg.json http://mtgjson.com/json/AllSets-x.json && node test/performance mtg",
+    "perfsmall": "wget -O test/wpt.json https://raw.githubusercontent.com/springernature/webpagetest-mapper/master/examples/dump.json && node test/performance wpt"
+  }
 }
 

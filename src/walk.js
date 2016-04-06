@@ -1,31 +1,29 @@
-/*globals require, module, Promise, setImmediate */
+'use strict'
 
-'use strict';
+const EventEmitter = require('events').EventEmitter
+const check = require('check-types')
+const error = require('./error')
+const events = require('./events')
 
-var EventEmitter, check, error, events, terminators, escapes;
+const terminators = {
+  obj: '}',
+  arr: ']'
+}
 
-EventEmitter = require('events').EventEmitter;
-check = require('check-types');
-error = require('./error');
-events = require('./events');
+const escapes = {
+  /* eslint-disable quote-props */
+  '"': '"',
+  '\\': '\\',
+  '/': '/',
+  'b': '\b',
+  'f': '\f',
+  'n': '\n',
+  'r': '\r',
+  't': '\t'
+  /* eslint-enable quote-props */
+}
 
-terminators = {
-    obj: '}',
-    arr: ']'
-};
-
-escapes = {
-    '"': '"',
-    '\\': '\\',
-    '/': '/',
-    'b': '\b',
-    'f': '\f',
-    'n': '\n',
-    'r': '\r',
-    't': '\t'
-};
-
-module.exports = initialise;
+module.exports = initialise
 
 /**
  * Public function `walk`.
@@ -36,599 +34,585 @@ module.exports = initialise;
  * @param stream:   Readable instance representing the incoming JSON.
  *
  * @option discard: The number of characters to process before discarding
- *                  them to save memory. The default value is `16384`.
+ *          them to save memory. The default value is `16384`.
  **/
 function initialise (stream, options) {
-    var json, index, currentPosition, previousPosition,
-        isStreamEnded, isWalkBegun, isWalkEnded, isWalkingString,
-        scopes, handlers, resumeFn, emitter, discardThreshold;
+  check.assert.instance(stream, require('stream').Readable)
 
-    check.assert.instance(stream, require('stream').Readable);
+  options = options || {}
 
-    options = options || {};
-    json = '';
-    index = 0;
-    currentPosition = {
-        line: 1,
-        column: 1
-    };
-    previousPosition = {};
-    isStreamEnded = isWalkBegun = isWalkEnded = isWalkingString = false;
-    scopes = [];
-    handlers = {
-        arr: value,
-        obj: property
-    };
+  let json = ''
+  let index = 0
+  let isStreamEnded = false
+  let isWalkBegun = false
+  let isWalkEnded = false
+  let isWalkingString = false
+  let resumeFn
 
-    emitter = new EventEmitter();
+  const currentPosition = {
+    line: 1,
+    column: 1
+  }
+  const previousPosition = {}
+  const scopes = []
+  const handlers = {
+    arr: value,
+    obj: property
+  }
+  const emitter = new EventEmitter()
+  const discardThreshold = options.discard || 16384
 
-    discardThreshold = options.discard || 16384;
+  stream.setEncoding('utf8')
+  stream.on('data', readStream)
+  stream.on('end', endStream)
 
-    stream.setEncoding('utf8');
-    stream.on('data', readStream);
-    stream.on('end', endStream);
+  return emitter
 
-    return emitter;
+  function readStream (chunk) {
+    json += chunk
 
-    function readStream (chunk) {
-        json += chunk;
-
-        if (!isWalkBegun) {
-            isWalkBegun = true;
-            value();
-            return;
-        }
-
-        resume();
+    if (!isWalkBegun) {
+      isWalkBegun = true
+      value()
+      return
     }
 
-    function value () {
-        awaitNonWhitespace()
-            .then(next)
-            .then(handleValue);
+    resume()
+  }
+
+  function value () {
+    awaitNonWhitespace()
+      .then(next)
+      .then(handleValue)
+  }
+
+  function awaitNonWhitespace () {
+    let resolve, reject
+
+    wait()
+
+    return new Promise((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+
+    function wait () {
+      awaitCharacter()
+        .then(step)
+        .catch(reject)
     }
 
-    function awaitNonWhitespace () {
-        var resolve, reject;
+    function step () {
+      if (!isWhitespace(character())) {
+        return resolve()
+      }
 
-        wait();
+      next()
+        .then(wait)
+    }
+  }
 
-        return new Promise(function (res, rej) {
-            resolve = res;
-            reject = rej;
-        });
+  function awaitCharacter () {
+    let resolve, reject
 
-        function wait () {
-            awaitCharacter().then(step).catch(reject);
-        }
-
-        function step () {
-            if (!isWhitespace(character())) {
-                return resolve();
-            }
-
-            next().then(wait);
-        }
+    if (index < json.length) {
+      return Promise.resolve()
     }
 
-    function awaitCharacter () {
-        var resolve, reject;
-
-        if (index < json.length) {
-            return Promise.resolve();
-        }
-
-        if (isStreamEnded) {
-            setImmediate(endWalk);
-            return Promise.reject();
-        }
-
-        resumeFn = after;
-
-        return new Promise(function (res, rej) {
-            resolve = res;
-            reject = rej;
-        });
-
-        function after () {
-            if (index < json.length) {
-                return resolve();
-            }
-
-            reject();
-
-            if (isStreamEnded) {
-                setImmediate(endWalk);
-            }
-        }
+    if (isStreamEnded) {
+      setImmediate(endWalk)
+      return Promise.reject()
     }
 
-    function character () {
-        return json[index];
+    resumeFn = after
+
+    return new Promise((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+
+    function after () {
+      if (index < json.length) {
+        return resolve()
+      }
+
+      reject()
+
+      if (isStreamEnded) {
+        setImmediate(endWalk)
+      }
+    }
+  }
+
+  function character () {
+    return json[index]
+  }
+
+  function next () {
+    let resolve
+
+    awaitCharacter().then(after)
+
+    return new Promise(res => resolve = res)
+
+    function after () {
+      const result = character()
+
+      index += 1
+      previousPosition.line = currentPosition.line
+      previousPosition.column = currentPosition.column
+
+      if (result === '\n') {
+        currentPosition.line += 1
+        currentPosition.column = 1
+      } else {
+        currentPosition.column += 1
+      }
+
+      if (index === discardThreshold) {
+        json = json.substring(index)
+        index = 0
+      }
+
+      resolve(result)
+    }
+  }
+
+  function handleValue (char) {
+    switch (char) {
+      case '[':
+        return array()
+      case '{':
+        return object()
+      case '"':
+        return string()
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case '-':
+      case '.':
+        return number(char)
+      case 'f':
+        return literalFalse()
+      case 'n':
+        return literalNull()
+      case 't':
+        return literalTrue()
+      default:
+        fail(char, 'value', previousPosition)
+        value()
+    }
+  }
+
+  function array () {
+    scope(events.array, value)
+  }
+
+  function scope (event, contentHandler) {
+    emitter.emit(event)
+    scopes.push(event)
+    endScope(event).then(contentHandler)
+  }
+
+  function endScope (scp) {
+    let resolve
+
+    awaitNonWhitespace()
+      .then(after)
+      .catch(endWalk)
+
+    return new Promise(res => resolve = res)
+
+    function after () {
+      if (character() !== terminators[scp]) {
+        return resolve()
+      }
+
+      emitter.emit(events.endPrefix + scp)
+      scopes.pop()
+
+      next().then(endValue)
+    }
+  }
+
+  function endValue () {
+    awaitNonWhitespace()
+      .then(after)
+      .catch(endWalk)
+
+    function after () {
+      if (scopes.length === 0) {
+        fail(character(), 'EOF', currentPosition)
+        return setImmediate(value)
+      }
+
+      checkScope()
     }
 
-    function next () {
-        var resolve;
+    function checkScope () {
+      const scp = scopes[scopes.length - 1]
 
-        awaitCharacter().then(after);
+      endScope(scp).then(() => {
+        const handler = handlers[scp]
 
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function after () {
-            var result;
-
-            result = character();
-
-            index += 1;
-            previousPosition.line = currentPosition.line;
-            previousPosition.column = currentPosition.column;
-
-            if (result === '\n') {
-                currentPosition.line += 1;
-                currentPosition.column = 1;
-            } else {
-                currentPosition.column += 1;
-            }
-
-            if (index === discardThreshold) {
-                json = json.substring(index);
-                index = 0;
-            }
-
-            resolve(result);
-        }
-    }
-
-    function handleValue (character) {
-        switch (character) {
-            case '[':
-                return array();
-            case '{':
-                return object();
-            case '"':
-                return string();
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-            case '-':
-            case '.':
-                return number(character);
-            case 'f':
-                return literalFalse();
-            case 'n':
-                return literalNull();
-            case 't':
-                return literalTrue();
-            default:
-                fail(character, 'value', previousPosition);
-                value();
-        }
-    }
-
-    function array () {
-        scope(events.array, value);
-    }
-
-    function scope (event, contentHandler) {
-        emitter.emit(event);
-        scopes.push(event);
-        endScope(event).then(contentHandler);
-    }
-
-    function endScope (scope) {
-        var resolve;
-
-        awaitNonWhitespace().then(after).catch(endWalk);
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function after () {
-            if (character() !== terminators[scope]) {
-                return resolve();
-            }
-
-            emitter.emit(events.endPrefix + scope);
-            scopes.pop();
-
-            next().then(endValue);
-        }
-    }
-
-    function endValue () {
-        awaitNonWhitespace().then(after).catch(endWalk);
-
-        function after () {
-            if (scopes.length === 0) {
-                fail(character(), 'EOF', currentPosition);
-                return setImmediate(value);
-            }
-
-            checkScope();
-        }
-
-        function checkScope () {
-            var scope;
-
-            scope = scopes[scopes.length - 1];
-
-            endScope(scope).then(function () {
-                var handler = handlers[scope];
-
-                if (checkCharacter(character(), ',', currentPosition)) {
-                    next().then(handler);
-                } else {
-                    handler();
-                }
-            });
-        }
-    }
-
-    function fail (actual, expected, position) {
-        emitter.emit(
-            events.error,
-            error.create(
-                actual,
-                expected,
-                position.line,
-                position.column
-            )
-        );
-    }
-
-    function checkCharacter (character, expected, position) {
-        if (character !== expected) {
-            fail(character, expected, position);
-            return false;
-        }
-
-        return true;
-    }
-
-    function object () {
-        scope(events.object, property);
-    }
-
-    function property () {
-        awaitNonWhitespace()
-            .then(next)
-            .then(propertyName);
-    }
-
-    function propertyName (character) {
-        checkCharacter(character, '"', previousPosition);
-
-        walkString(events.property)
-            .then(awaitNonWhitespace)
-            .then(next)
-            .then(propertyValue);
-    }
-
-    function propertyValue (character) {
-        checkCharacter(character, ':', previousPosition);
-        value();
-    }
-
-    function walkString (event) {
-        var isEscaping, string, resolve;
-
-        isWalkingString = true;
-        isEscaping = false;
-        string = '';
-
-        next().then(step);
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function step (character) {
-            if (isEscaping) {
-                isEscaping = false;
-
-                return escape(character).then(function (escaped) {
-                    string += escaped;
-                    next().then(step);
-                });
-            }
-
-            if (character === '\\') {
-                isEscaping = true;
-                return next().then(step);
-            }
-
-            if (character !== '"') {
-                string += character;
-                return next().then(step);
-            }
-
-            isWalkingString = false;
-            emitter.emit(event, string);
-            resolve();
-        }
-    }
-
-    function escape (character) {
-        var promise, resolve;
-
-        promise = new Promise(function (r) {
-            resolve = r;
-        });
-
-        if (escapes[character]) {
-            resolve(escapes[character]);
-        } else if (character === 'u') {
-            escapeHex().then(resolve);
+        if (checkCharacter(character(), ',', currentPosition)) {
+          next().then(handler)
         } else {
-            fail(character, 'escape character', previousPosition);
-            resolve('\\' + character);
+          handler()
         }
+      })
+    }
+  }
 
-        return promise;
+  function fail (actual, expected, position) {
+    emitter.emit(
+      events.error,
+      error.create(
+        actual,
+        expected,
+        position.line,
+        position.column
+      )
+    )
+  }
+
+  function checkCharacter (char, expected, position) {
+    if (char !== expected) {
+      fail(char, expected, position)
+      return false
     }
 
-    function escapeHex () {
-        var hexits, resolve;
+    return true
+  }
 
-        hexits = '';
+  function object () {
+    scope(events.object, property)
+  }
 
-        next().then(step.bind(null, 0));
+  function property () {
+    awaitNonWhitespace()
+      .then(next)
+      .then(propertyName)
+  }
 
-        return new Promise(function (r) {
-            resolve = r;
-        });
+  function propertyName (char) {
+    checkCharacter(char, '"', previousPosition)
 
-        function step (index, character) {
-            if (isHexit(character)) {
-                hexits += character;
-            }
+    walkString(events.property)
+      .then(awaitNonWhitespace)
+      .then(next)
+      .then(propertyValue)
+  }
 
-            if (index < 3) {
-                return next().then(step.bind(null, index + 1));
-            }
+  function propertyValue (char) {
+    checkCharacter(char, ':', previousPosition)
+    value()
+  }
 
-            if (hexits.length === 4) {
-                return resolve(String.fromCharCode(parseInt(hexits, 16)));
-            }
+  function walkString (event) {
+    let isEscaping = false
+    let str = ''
+    let resolve
 
-            fail(character, 'hex digit', previousPosition);
+    isWalkingString = true
 
-            resolve('\\u' + hexits + character);
-        }
+    next().then(step)
+
+    return new Promise(res => resolve = res)
+
+    function step (char) {
+      if (isEscaping) {
+        isEscaping = false
+
+        return escape(char).then(escaped => {
+          str += escaped
+          next().then(step)
+        })
+      }
+
+      if (char === '\\') {
+        isEscaping = true
+        return next().then(step)
+      }
+
+      if (char !== '"') {
+        str += char
+        return next().then(step)
+      }
+
+      isWalkingString = false
+      emitter.emit(event, str)
+      resolve()
+    }
+  }
+
+  function escape (char) {
+    let resolve
+
+    const promise = new Promise(res => resolve = res)
+
+    if (escapes[char]) {
+      resolve(escapes[char])
+    } else if (char === 'u') {
+      escapeHex().then(resolve)
+    } else {
+      fail(char, 'escape character', previousPosition)
+      resolve(`\\${char}`)
     }
 
-    function string () {
-        walkString(events.string).then(endValue);
+    return promise
+  }
+
+  function escapeHex () {
+    let resolve
+
+    let hexits = ''
+
+    next().then(step.bind(null, 0))
+
+    return new Promise(res => resolve = res)
+
+    function step (idx, char) {
+      if (isHexit(char)) {
+        hexits += char
+      }
+
+      if (idx < 3) {
+        return next().then(step.bind(null, idx + 1))
+      }
+
+      if (hexits.length === 4) {
+        return resolve(String.fromCharCode(parseInt(hexits, 16)))
+      }
+
+      fail(char, 'hex digit', previousPosition)
+
+      resolve(`\\u${hexits}${char}`)
+    }
+  }
+
+  function string () {
+    walkString(events.string).then(endValue)
+  }
+
+  function number (firstCharacter) {
+    let digits = firstCharacter
+
+    walkDigits().then(addDigits.bind(null, checkDecimalPlace))
+
+    function addDigits (step, result) {
+      digits += result.digits
+
+      if (result.atEnd) {
+        return endNumber()
+      }
+
+      step()
     }
 
-    function number (firstCharacter) {
-        var digits;
+    function checkDecimalPlace () {
+      if (character() === '.') {
+        return next().then(char => {
+          digits += char
+          walkDigits().then(addDigits.bind(null, checkExponent))
+        })
+      }
 
-        digits = firstCharacter;
-
-        walkDigits().then(addDigits.bind(null, checkDecimalPlace));
-
-        function addDigits (step, result) {
-            digits += result.digits;
-
-            if (result.atEnd) {
-                return endNumber();
-            }
-
-            step();
-        }
-
-        function checkDecimalPlace () {
-            if (character() === '.') {
-                return next().then(function (character) {
-                    digits += character;
-                    walkDigits().then(addDigits.bind(null, checkExponent));
-                });
-            }
-
-            checkExponent();
-        }
-
-        function checkExponent () {
-            if (character() === 'e' || character() === 'E') {
-                return next().then(function (character) {
-                    digits += character;
-                    awaitCharacter()
-                        .then(checkSign)
-                        .catch(fail.bind(null, 'EOF', 'exponent', currentPosition));
-                });
-            }
-
-            endNumber();
-        }
-
-        function checkSign () {
-            if (character() === '+' || character() === '-') {
-                return next().then(function (character) {
-                    digits += character;
-                    readExponent();
-                });
-            }
-
-            readExponent();
-        }
-
-        function readExponent () {
-            walkDigits().then(addDigits.bind(null, endNumber));
-        }
-
-        function endNumber () {
-            emitter.emit(events.number, parseFloat(digits));
-            endValue();
-        }
+      checkExponent()
     }
 
-    function walkDigits () {
-        var digits, resolve;
+    function checkExponent () {
+      if (character() === 'e' || character() === 'E') {
+        return next().then(char => {
+          digits += char
+          awaitCharacter()
+            .then(checkSign)
+            .catch(fail.bind(null, 'EOF', 'exponent', currentPosition))
+        })
+      }
 
-        digits = '';
-
-        wait();
-
-        return new Promise(function (r) {
-            resolve = r;
-        });
-
-        function wait () {
-            awaitCharacter().then(step).catch(atEnd);
-        }
-
-        function step () {
-            if (isDigit(character())) {
-                return next().then(function (character) {
-                    digits += character;
-                    wait();
-                });
-            }
-
-            resolve({
-                digits: digits,
-                atEnd: false
-            });
-        }
-
-        function atEnd () {
-            resolve({
-                digits: digits,
-                atEnd: true
-            });
-        }
+      endNumber()
     }
 
-    function literalFalse () {
-        literal([ 'a', 'l', 's', 'e' ], false);
+    function checkSign () {
+      if (character() === '+' || character() === '-') {
+        return next().then(char => {
+          digits += char
+          readExponent()
+        })
+      }
+
+      readExponent()
     }
 
-    function literal (expectedCharacters, value) {
-        var actual, expected, invalid;
-
-        wait();
-
-        function wait () {
-            awaitCharacter().then(step).catch(atEnd);
-        }
-
-        function step () {
-            if (invalid || expectedCharacters.length === 0) {
-                return atEnd();
-            }
-
-            next().then(afterNext);
-        }
-
-        function atEnd () {
-            if (invalid) {
-                fail(actual, expected, previousPosition);
-            } else if (expectedCharacters.length > 0) {
-                fail('EOF', expectedCharacters.shift(), currentPosition);
-            } else {
-                done();
-            }
-
-            endValue();
-        }
-
-        function afterNext (character) {
-            actual = character;
-            expected = expectedCharacters.shift();
-
-            if (actual !== expected) {
-                invalid = true;
-            }
-
-            wait();
-        }
-
-        function done () {
-            emitter.emit(events.literal, value);
-        }
+    function readExponent () {
+      walkDigits().then(addDigits.bind(null, endNumber))
     }
 
-    function literalNull () {
-        literal([ 'u', 'l', 'l' ], null);
+    function endNumber () {
+      emitter.emit(events.number, parseFloat(digits))
+      endValue()
+    }
+  }
+
+  function walkDigits () {
+    let resolve
+    let digits = ''
+
+    wait()
+
+    return new Promise(res => resolve = res)
+
+    function wait () {
+      awaitCharacter()
+        .then(step)
+        .catch(atEnd)
     }
 
-    function literalTrue () {
-        literal([ 'r', 'u', 'e' ], true);
+    function step () {
+      if (isDigit(character())) {
+        return next().then(char => {
+          digits += char
+          wait()
+        })
+      }
+
+      resolve({ digits, atEnd: false })
     }
 
-    function endStream () {
-        isStreamEnded = true;
+    function atEnd () {
+      resolve({ digits, atEnd: true })
+    }
+  }
 
-        if (!isWalkBegun) {
-            endWalk();
-            return;
-        }
+  function literalFalse () {
+    literal([ 'a', 'l', 's', 'e' ], false)
+  }
 
-        resume();
+  function literal (expectedCharacters, val) {
+    let actual, expected, invalid
+
+    wait()
+
+    function wait () {
+      awaitCharacter()
+        .then(step)
+        .catch(atEnd)
     }
 
-    function endWalk () {
-        if (isWalkEnded) {
-            return;
-        }
+    function step () {
+      if (invalid || expectedCharacters.length === 0) {
+        return atEnd()
+      }
 
-        isWalkEnded = true;
-
-        if (isWalkingString) {
-            fail('EOF', '"', currentPosition);
-        }
-
-        while (scopes.length > 0) {
-            fail('EOF', terminators[scopes.pop()], currentPosition);
-        }
-
-        emitter.emit(events.end);
+      next().then(afterNext)
     }
 
-    function resume () {
-        if (resumeFn) {
-            resumeFn();
-            resumeFn = undefined;
-        }
+    function atEnd () {
+      if (invalid) {
+        fail(actual, expected, previousPosition)
+      } else if (expectedCharacters.length > 0) {
+        fail('EOF', expectedCharacters.shift(), currentPosition)
+      } else {
+        done()
+      }
+
+      endValue()
     }
+
+    function afterNext (char) {
+      actual = char
+      expected = expectedCharacters.shift()
+
+      if (actual !== expected) {
+        invalid = true
+      }
+
+      wait()
+    }
+
+    function done () {
+      emitter.emit(events.literal, val)
+    }
+  }
+
+  function literalNull () {
+    literal([ 'u', 'l', 'l' ], null)
+  }
+
+  function literalTrue () {
+    literal([ 'r', 'u', 'e' ], true)
+  }
+
+  function endStream () {
+    isStreamEnded = true
+
+    if (!isWalkBegun) {
+      endWalk()
+      return
+    }
+
+    resume()
+  }
+
+  function endWalk () {
+    if (isWalkEnded) {
+      return
+    }
+
+    isWalkEnded = true
+
+    if (isWalkingString) {
+      fail('EOF', '"', currentPosition)
+    }
+
+    while (scopes.length > 0) {
+      fail('EOF', terminators[scopes.pop()], currentPosition)
+    }
+
+    emitter.emit(events.end)
+  }
+
+  function resume () {
+    if (resumeFn) {
+      resumeFn()
+      resumeFn = null
+    }
+  }
 }
 
 function isWhitespace (character) {
-    switch (character) {
-        case ' ':
-        case '\t':
-        case '\r':
-        case '\n':
-            return true;
-    }
+  switch (character) {
+    case ' ':
+    case '\t':
+    case '\r':
+    case '\n':
+      return true
+  }
 
-    return false;
+  return false
 }
 
 function isHexit (character) {
-    return isDigit(character) ||
-           isInRange(character, 'A', 'F') ||
-           isInRange(character, 'a', 'f');
+  return isDigit(character) ||
+    isInRange(character, 'A', 'F') ||
+    isInRange(character, 'a', 'f')
 }
 
 function isDigit (character) {
-    return isInRange(character, '0', '9');
+  return isInRange(character, '0', '9')
 }
 
 function isInRange (character, lower, upper) {
-    var code = character.charCodeAt(0);
+  const code = character.charCodeAt(0)
 
-    return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0);
+  return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0)
 }
 

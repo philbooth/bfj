@@ -1,13 +1,9 @@
-/*globals require, module, Promise */
+'use strict'
 
-'use strict';
+const fs = require('fs')
+const streamify = require('./streamify')
 
-var fs, streamify;
-
-fs = require('fs');
-streamify = require('./streamify');
-
-module.exports = write;
+module.exports = write
 
 /**
  * Public function `write`.
@@ -16,34 +12,34 @@ module.exports = write;
  * JSON file on disk. Sanely handles promises, buffers, dates, maps and
  * other iterables.
  *
- * @param path:       Path to the JSON file.
+ * @param path:     Path to the JSON file.
  *
- * @param data:       The data to transform.
+ * @param data:     The data to transform.
  *
- * @option space:     Indentation string, or the number of spaces
- *                    to indent each nested level by.
+ * @option space:   Indentation string, or the number of spaces
+ *          to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
  * @option buffers:   'toString' or 'ignore', default is 'toString'.
  *
- * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
+ * @option dates:   'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:      'object' or 'ignore', default is 'object'.
+ * @option maps:    'object' or 'ignore', default is 'object'.
  *
  * @option iterables: 'array' or 'ignore', default is 'array'.
  *
  * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function write (path, data, options) {
-    return new Promise(function (resolve, reject) {
-        streamify(data, options)
-            .pipe(fs.createWriteStream(path, options))
-            .on('finish', function () {
-                resolve();
-            })
-            .on('error', reject)
-            .on('dataError', reject);
-    });
+  return new Promise((resolve, reject) => {
+    streamify(data, options)
+      .pipe(fs.createWriteStream(path, options))
+      .on('finish', () => {
+        resolve()
+      })
+      .on('error', reject)
+      .on('dataError', reject)
+  })
 }
 

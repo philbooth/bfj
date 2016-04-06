@@ -120,7 +120,7 @@ Import the library
 using `require`:
 
 ```js
-var bfj = require('bfj');
+var bfj = require('bfj')
 ```
 
 Seven functions
@@ -253,18 +253,38 @@ of an object,
 #### Example
 
 ```js
-var emitter = bfj.walk(fs.createReadStream(path));
+var emitter = bfj.walk(fs.createReadStream(path))
 
-emitter.on(bfj.events.array, array);
-emitter.on(bfj.events.object, object);
-emitter.on(bfj.events.property, property);
-emitter.on(bfj.events.string, value);
-emitter.on(bfj.events.number, value);
-emitter.on(bfj.events.literal, value);
-emitter.on(bfj.events.endArray, endScope);
-emitter.on(bfj.events.endObject, endScope);
-emitter.on(bfj.events.error, error);
-emitter.on(bfj.events.end, end);
+emitter.on(bfj.events.array, () => {
+  // ...
+})
+emitter.on(bfj.events.object, () => {
+  // ...
+})
+emitter.on(bfj.events.property, name => {
+  // ...
+})
+emitter.on(bfj.events.string, value => {
+  // ...
+})
+emitter.on(bfj.events.number, value => {
+  // ...
+})
+emitter.on(bfj.events.literal, value => {
+  // ...
+})
+emitter.on(bfj.events.endArray, () => {
+  // ...
+})
+emitter.on(bfj.events.endObject, () => {
+  // ...
+})
+emitter.on(bfj.events.error, error => {
+  // ...
+})
+emitter.on(bfj.events.end, () => {
+  // ...
+})
 ```
 
 ### bfj.parse (stream, options)
@@ -310,13 +330,13 @@ with the first error.
 #### Example
 
 ```js
-bfj.parse(fs.createReadStream(path)).
-    then(function (data) {
-        // :)
-    }).
-    catch(function (error) {
-        // :(
-    });
+bfj.parse(fs.createReadStream(path))
+  .then(data => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
 ```
 
 ### bfj.read (path, options)
@@ -360,13 +380,13 @@ with the first error.
 #### Example
 
 ```js
-bfj.read(path).
-    then(function (data) {
-        // :)
-    }).
-    catch(function (error) {
-        // :(
-    });
+bfj.read(path)
+  .then(data => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
 ```
 
 ### bfj.eventify (data, options)
@@ -537,17 +557,35 @@ of an object,
 #### Example
 
 ```js
-var emitter = bfj.eventify(data);
+var emitter = bfj.eventify(data)
 
-emitter.on(bfj.events.array, array);
-emitter.on(bfj.events.object, object);
-emitter.on(bfj.events.property, property);
-emitter.on(bfj.events.string, string);
-emitter.on(bfj.events.number, value);
-emitter.on(bfj.events.literal, value);
-emitter.on(bfj.events.endArray, endArray);
-emitter.on(bfj.events.endObject, endObject);
-emitter.on(bfj.events.end, end);
+emitter.on(bfj.events.array, () => {
+  // ...
+})
+emitter.on(bfj.events.object, () => {
+  // ...
+})
+emitter.on(bfj.events.property, name => {
+  // ...
+})
+emitter.on(bfj.events.string, value => {
+  // ...
+})
+emitter.on(bfj.events.number, value => {
+  // ...
+})
+emitter.on(bfj.events.literal, value => {
+  // ...
+})
+emitter.on(bfj.events.endArray, () => {
+  // ...
+})
+emitter.on(bfj.events.endObject, () => {
+  // ...
+})
+emitter.on(bfj.events.end, () => {
+  // ...
+})
 ```
 
 ### bfj.streamify (data, options)
@@ -641,11 +679,11 @@ the following properties.
 #### Example
 
 ```js
-var stream = bfj.streamify(data);
+var stream = bfj.streamify(data)
 
-stream.on('data', read);
-stream.on('end', end);
-stream.on('dataError', error);
+stream.on('data', read)
+stream.on('end', end)
+stream.on('dataError', error)
 ```
 
 ### bfj.stringify (data, options)
@@ -739,13 +777,13 @@ the following properties.
 #### Example
 
 ```js
-bfj.stringify(data).
-    then(function (json) {
-        // :)
-    })
-    .catch(function (error) {
-        // :(
-    });
+bfj.stringify(data)
+  .then(json => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
 ```
 
 ### bfj.write (path, data, options)
@@ -841,13 +879,13 @@ the following properties.
 #### Example
 
 ```js
-bfj.write(path, data).
-    then(function () {
-        // :)
-    }).
-    catch(function (error) {
-        // :(
-    });
+bfj.write(path, data)
+  .then(() => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
 ```
 
 ## Is there a change log?
@@ -886,7 +924,7 @@ with the command
 
 ## What versions of node.js does it support?
 
-0.12 and later.
+4 and later.
 
 ## What license is it released under?
 

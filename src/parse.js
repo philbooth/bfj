@@ -1,14 +1,10 @@
-/*globals require, module, Promise */
+'use strict'
 
-'use strict';
+const check = require('check-types')
+const walk = require('./walk')
+const events = require('./events')
 
-var check, walk, events;
-
-check = require('check-types');
-walk = require('./walk');
-events = require('./events');
-
-module.exports = parse;
+module.exports = parse
 
 /**
  * Public function `parse`.
@@ -22,128 +18,126 @@ module.exports = parse;
  * @option reviver: Transformation function, invoked depth-first.
  *
  * @option discard: The number of characters to process before discarding
- *                  them to save memory. The default value is `16384`.
+ *          them to save memory. The default value is `16384`.
  **/
 function parse (stream, options) {
-    var reviver, emitter, scopes, errors, resolve, reject, key;
+  let resolve, reject, scopeKey
 
-    options = options || {};
-    reviver = options.reviver;
+  options = options || {}
+  const reviver = options.reviver
 
-    check.assert.maybe.function(reviver);
+  check.assert.maybe.function(reviver)
 
-    emitter = walk(stream, options);
+  const emitter = walk(stream, options)
 
-    scopes = [];
-    errors = [];
+  const scopes = []
+  const errors = []
 
-    emitter.on(events.array, array);
-    emitter.on(events.object, object);
-    emitter.on(events.property, property);
-    emitter.on(events.string, value);
-    emitter.on(events.number, value);
-    emitter.on(events.literal, value);
-    emitter.on(events.endArray, endScope);
-    emitter.on(events.endObject, endScope);
-    emitter.on(events.end, end);
-    emitter.on(events.error, error);
+  emitter.on(events.array, array)
+  emitter.on(events.object, object)
+  emitter.on(events.property, property)
+  emitter.on(events.string, value)
+  emitter.on(events.number, value)
+  emitter.on(events.literal, value)
+  emitter.on(events.endArray, endScope)
+  emitter.on(events.endObject, endScope)
+  emitter.on(events.end, end)
+  emitter.on(events.error, error)
 
-    return new Promise(function (res, rej) {
-        resolve = res;
-        reject = rej;
-    });
+  return new Promise((res, rej) => {
+    resolve = res
+    reject = rej
+  })
 
-    function array () {
-        if (errors.length > 0) {
-            return;
-        }
-
-        beginScope([]);
+  function array () {
+    if (errors.length > 0) {
+      return
     }
 
-    function beginScope (parsed) {
-        if (errors.length > 0) {
-            return;
-        }
+    beginScope([])
+  }
 
-        if (scopes.length > 0) {
-            value(parsed);
-        }
-
-        scopes.push(parsed);
+  function beginScope (parsed) {
+    if (errors.length > 0) {
+      return
     }
 
-    function value (v) {
-        var scope;
-
-        if (errors.length > 0) {
-            return;
-        }
-
-        if (scopes.length === 0) {
-            return scopes.push(v);
-        }
-
-        scope = scopes[scopes.length - 1];
-
-        if (key) {
-            scope[key] = v;
-            key = undefined;
-        } else {
-            scope.push(v);
-        }
+    if (scopes.length > 0) {
+      value(parsed)
     }
 
-    function object () {
-        if (errors.length > 0) {
-            return;
-        }
+    scopes.push(parsed)
+  }
 
-        beginScope({});
+  function value (v) {
+    if (errors.length > 0) {
+      return
     }
 
-    function property (name) {
-        if (errors.length > 0) {
-            return;
-        }
-
-        key = name;
+    if (scopes.length === 0) {
+      return scopes.push(v)
     }
 
-    function endScope () {
-        if (errors.length > 0) {
-            return;
-        }
+    const scope = scopes[scopes.length - 1]
 
-        if (scopes.length > 1) {
-            scopes.pop();
-        }
+    if (scopeKey) {
+      scope[scopeKey] = v
+      scopeKey = null
+    } else {
+      scope.push(v)
+    }
+  }
+
+  function object () {
+    if (errors.length > 0) {
+      return
     }
 
-    function end () {
-        if (errors.length > 0) {
-            return reject(errors[0]);
-        }
+    beginScope({})
+  }
 
-        if (reviver) {
-            scopes[0] = transform(scopes[0], '');
-        }
-
-        resolve(scopes[0]);
+  function property (name) {
+    if (errors.length > 0) {
+      return
     }
 
-    function transform (object, key) {
-        if (object && typeof object === 'object') {
-            Object.keys(object).forEach(function (childKey) {
-                object[childKey] = transform(object[childKey], childKey);
-            });
-        }
+    scopeKey = name
+  }
 
-        return reviver(key, object);
+  function endScope () {
+    if (errors.length > 0) {
+      return
     }
 
-    function error (e) {
-        errors.push(e);
+    if (scopes.length > 1) {
+      scopes.pop()
     }
+  }
+
+  function end () {
+    if (errors.length > 0) {
+      return reject(errors[0])
+    }
+
+    if (reviver) {
+      scopes[0] = transform(scopes[0], '')
+    }
+
+    resolve(scopes[0])
+  }
+
+  function transform (obj, key) {
+    if (obj && typeof obj === 'object') {
+      Object.keys(obj).forEach(childKey => {
+        obj[childKey] = transform(obj[childKey], childKey)
+      })
+    }
+
+    return reviver(key, obj)
+  }
+
+  function error (e) {
+    errors.push(e)
+  }
 }
 

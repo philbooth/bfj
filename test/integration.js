@@ -1,263 +1,251 @@
-'use strict';
+'use strict'
 
-var assert, path, fs, modulePath;
+const assert = require('chai').assert
+const path = require('path')
+const fs = require('fs')
 
-assert = require('chai').assert;
-path = require('path');
-fs = require('fs');
+const modulePath = '../src'
 
-modulePath = '../src';
+suite('integration:', () => {
+  let log
 
-suite('integration:', function () {
-    var log;
+  setup(() => {
+    log = {}
+  })
 
-    setup(function () {
-        log = {};
-    });
+  teardown(() => {
+    log = undefined
+  })
 
-    teardown(function () {
-        log = undefined;
-    });
+  test('require does not throw', () => {
+    assert.doesNotThrow(() => {
+      require(modulePath)
+    })
+  })
 
-    test('require does not throw', function () {
-        assert.doesNotThrow(function () {
-            require(modulePath);
-        });
-    });
+  test('require returns object', () => {
+    assert.isObject(require(modulePath))
+  })
 
-    test('require returns object', function () {
-        assert.isObject(require(modulePath));
-    });
+  suite('require:', () => {
+    let bfj
 
-    suite('require:', function () {
-        var bfj;
+    setup(() => {
+      bfj = require(modulePath)
+    })
 
-        setup(function () {
-            bfj = require(modulePath);
-        });
+    teardown(() => {
+      bfj = undefined
+    })
 
-        teardown(function () {
-            bfj = undefined;
-        });
+    test('walk function is exported', () => {
+      assert.isFunction(bfj.walk)
+    })
 
-        test('walk function is exported', function () {
-            assert.isFunction(bfj.walk);
-        });
+    test('walk expects one argument', () => {
+      assert.lengthOf(bfj.walk, 2)
+    })
 
-        test('walk expects one argument', function () {
-            assert.lengthOf(bfj.walk, 2);
-        });
+    test('parse function is exported', () => {
+      assert.isFunction(bfj.parse)
+    })
 
-        test('parse function is exported', function () {
-            assert.isFunction(bfj.parse);
-        });
+    test('parse expects two arguments', () => {
+      assert.lengthOf(bfj.parse, 2)
+    })
 
-        test('parse expects two arguments', function () {
-            assert.lengthOf(bfj.parse, 2);
-        });
+    test('read function is exported', () => {
+      assert.isFunction(bfj.read)
+    })
 
-        test('read function is exported', function () {
-            assert.isFunction(bfj.read);
-        });
+    test('read expects two arguments', () => {
+      assert.lengthOf(bfj.read, 2)
+    })
 
-        test('read expects two arguments', function () {
-            assert.lengthOf(bfj.read, 2);
-        });
+    test('eventify function is exported', () => {
+      assert.isFunction(bfj.eventify)
+    })
 
-        test('eventify function is exported', function () {
-            assert.isFunction(bfj.eventify);
-        });
+    test('eventify expects two arguments', () => {
+      assert.lengthOf(bfj.eventify, 2)
+    })
 
-        test('eventify expects two arguments', function () {
-            assert.lengthOf(bfj.eventify, 2);
-        });
+    test('streamify function is exported', () => {
+      assert.isFunction(bfj.streamify)
+    })
 
-        test('streamify function is exported', function () {
-            assert.isFunction(bfj.streamify);
-        });
+    test('streamify expects two arguments', () => {
+      assert.lengthOf(bfj.streamify, 2)
+    })
 
-        test('streamify expects two arguments', function () {
-            assert.lengthOf(bfj.streamify, 2);
-        });
+    test('stringify function is exported', () => {
+      assert.isFunction(bfj.stringify)
+    })
 
-        test('stringify function is exported', function () {
-            assert.isFunction(bfj.stringify);
-        });
+    test('stringify expects two arguments', () => {
+      assert.lengthOf(bfj.stringify, 2)
+    })
 
-        test('stringify expects two arguments', function () {
-            assert.lengthOf(bfj.stringify, 2);
-        });
+    test('write function is exported', () => {
+      assert.isFunction(bfj.write)
+    })
 
-        test('write function is exported', function () {
-            assert.isFunction(bfj.write);
-        });
+    test('write expects two arguments', () => {
+      assert.lengthOf(bfj.write, 3)
+    })
 
-        test('write expects two arguments', function () {
-            assert.lengthOf(bfj.write, 3);
-        });
+    test('events are exported', () => {
+      assert.deepEqual(bfj.events, require('../src/events'))
+    })
 
-        test('events are exported', function () {
-            assert.deepEqual(bfj.events, require('../src/events'));
-        });
+    suite('read object:', () => {
+      let failed, file, result, error
 
-        suite('read object:', function () {
-            var failed, file, result, error;
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'data.json')
+        fs.writeFileSync(file, JSON.stringify({
+          foo: [ 'b', 'a', 'r' ],
+          baz: null,
+          qux: 3.14159265359e42
+        }, null, '\t'))
+        return bfj.read(file)
+          .then(res => {
+            result = res
+          })
+          .catch(err => {
+            failed = true
+            error = err
+          })
+      })
 
-            setup(function (done) {
-                failed = false;
-                file = path.join(__dirname, 'data.json');
-                fs.writeFileSync(file, JSON.stringify({
-                    foo: [ 'b', 'a', 'r' ],
-                    baz: null,
-                    qux: 3.14159265359e42
-                }, null, '\t'));
-                bfj.read(file)
-                    .then(function (r) {
-                        result = r;
-                        done();
-                    })
-                    .catch(function (e) {
-                        failed = true;
-                        error = e;
-                        done();
-                    });
-            });
+      teardown(() => {
+        fs.unlinkSync(file)
+        failed = file = result = error = undefined
+      })
 
-            teardown(function () {
-                fs.unlinkSync(file);
-                failed = file = result = error = undefined;
-            });
+      test('result was correct', () => {
+        assert.isFalse(failed)
+        assert.isUndefined(error)
+        assert.isObject(result)
+        assert.lengthOf(Object.keys(result), 3)
+        assert.isArray(result.foo)
+        assert.lengthOf(result.foo, 3)
+        assert.strictEqual(result.foo[0], 'b')
+        assert.strictEqual(result.foo[1], 'a')
+        assert.strictEqual(result.foo[2], 'r')
+        assert.isNull(result.baz)
+        assert.strictEqual(result.qux, 3.14159265359e42)
+      })
+    })
 
-            test('result was correct', function () {
-                assert.isFalse(failed);
-                assert.isUndefined(error);
-                assert.isObject(result);
-                assert.lengthOf(Object.keys(result), 3);
-                assert.isArray(result.foo);
-                assert.lengthOf(result.foo, 3);
-                assert.strictEqual(result.foo[0], 'b');
-                assert.strictEqual(result.foo[1], 'a');
-                assert.strictEqual(result.foo[2], 'r');
-                assert.isNull(result.baz);
-                assert.strictEqual(result.qux, 3.14159265359e42);
-            });
-        });
+    suite('read value:', () => {
+      let failed, file, result, error
 
-        suite('read value:', function () {
-            var failed, file, result, error;
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'data.json')
+        fs.writeFileSync(file, '"foo"')
+        return bfj.read(file)
+          .then(res => {
+            result = res
+          })
+          .catch(err => {
+            failed = true
+            error = err
+          })
+      })
 
-            setup(function (done) {
-                failed = false;
-                file = path.join(__dirname, 'data.json');
-                fs.writeFileSync(file, '"foo"');
-                bfj.read(file)
-                    .then(function (r) {
-                        result = r;
-                        done();
-                    })
-                    .catch(function (e) {
-                        failed = true;
-                        error = e;
-                        done();
-                    });
-            });
+      teardown(() => {
+        fs.unlinkSync(file)
+        failed = file = result = error = undefined
+      })
 
-            teardown(function () {
-                fs.unlinkSync(file);
-                failed = file = result = error = undefined;
-            });
+      test('result was correct', () => {
+        assert.isFalse(failed)
+        assert.isUndefined(error)
+        assert.strictEqual(result, 'foo')
+      })
+    })
 
-            test('result was correct', function () {
-                assert.isFalse(failed);
-                assert.isUndefined(error);
-                assert.strictEqual(result, 'foo');
-            });
-        });
+    suite('read error:', () => {
+      let failed, file, result, error
 
-        suite('read error:', function () {
-            var failed, file, result, error;
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'data.json')
+        fs.writeFileSync(file, '"foo" "bar"')
+        return bfj.read(file)
+          .then(res => result = res)
+          .catch(err => {
+            failed = true
+            error = err
+          })
+      })
 
-            setup(function (done) {
-                failed = false;
-                file = path.join(__dirname, 'data.json');
-                fs.writeFileSync(file, '"foo" "bar"');
-                bfj.read(file)
-                    .then(function (r) {
-                        result = r;
-                        done();
-                    })
-                    .catch(function (e) {
-                        failed = true;
-                        error = e;
-                        done();
-                    });
-            });
+      teardown(() => {
+        fs.unlinkSync(file)
+        failed = file = result = error = undefined
+      })
 
-            teardown(function () {
-                fs.unlinkSync(file);
-                failed = file = result = error = undefined;
-            });
+      test('result was correct', () => {
+        assert.isTrue(failed)
+        assert.isUndefined(result)
+        assert.instanceOf(error, Error)
+      })
+    })
 
-            test('result was correct', function () {
-                assert.isTrue(failed);
-                assert.isUndefined(result);
-                assert.instanceOf(error, Error);
-            });
-        });
+    suite('stringify value:', () => {
+      let result
 
-        suite('stringify value:', function () {
-            var result;
+      setup(() => {
+        return bfj.stringify(new Promise(resolve => {
+          setTimeout(resolve.bind(null, 'foo\t"\nbar'), 20)
+        }))
+        .then(res => result = res)
+      })
 
-            setup(function (done) {
-                bfj.stringify(new Promise(function (resolve) {
-                    setTimeout(resolve.bind(null, 'foo\t"\nbar'), 20);
-                })).then(function (r) {
-                    result = r;
-                    done();
-                });
-            });
+      teardown(() => {
+        result = undefined
+      })
 
-            teardown(function () {
-                result = undefined;
-            });
+      test('result was correct', () => {
+        assert.strictEqual(result, '"foo\\t\\"\\nbar"')
+      })
+    })
 
-            test('result was correct', function () {
-                assert.strictEqual(result, '"foo\\t\\"\\nbar"');
-            });
-        });
+    suite('write object:', () => {
+      let failed, file, result
 
-        suite('write object:', function () {
-            var failed, file, result;
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'data.json')
+        return bfj.write(
+          file,
+          { foo: [ 'b', 'a', 'r' ], baz: null, qux: 3.14159265359e42 }
+        )
+        .then(() => {
+          result = fs.readFileSync(file, { encoding: 'utf8' })
+        })
+        .catch(error => {
+          failed = true
+          result = error
+        })
+      })
 
-            setup(function (done) {
-                failed = false;
-                file = path.join(__dirname, 'data.json');
-                bfj.write(
-                    file,
-                    { foo: [ 'b', 'a', 'r' ], baz: null, qux: 3.14159265359e42 }
-                ).then(function () {
-                    result = fs.readFileSync(file, { encoding: 'utf8' });
-                    done();
-                }).catch(function (error) {
-                    failed = true;
-                    result = error;
-                    done();
-                });
-            });
+      teardown(() => {
+        fs.unlinkSync(file)
+        failed = file = result = undefined
+      })
 
-            teardown(function () {
-                fs.unlinkSync(file);
-                failed = file = result = undefined;
-            });
+      test('did not fail', () => {
+        assert.isFalse(failed)
+      })
 
-            test('did not fail', function () {
-                assert.isFalse(failed);
-            });
-
-            test('result was correct', function () {
-                assert.strictEqual(result, '{"foo":["b","a","r"],"baz":null,"qux":3.14159265359e+42}');
-            });
-        });
-    });
-});
+      test('result was correct', () => {
+        assert.strictEqual(result, '{"foo":["b","a","r"],"baz":null,"qux":3.14159265359e+42}')
+      })
+    })
+  })
+})
 

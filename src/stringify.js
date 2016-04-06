@@ -1,10 +1,8 @@
-/*globals require, module, Promise */
+'use strict'
 
-'use strict';
+const streamify = require('./streamify')
 
-var streamify = require('./streamify');
-
-module.exports = stringify;
+module.exports = stringify
 
 /**
  * Public function `stringify`.
@@ -13,48 +11,48 @@ module.exports = stringify;
  * JSON string. Sanely handles promises, buffers, dates, maps and other
  * iterables.
  *
- * @param data:       The data to transform
+ * @param data:     The data to transform
  *
- * @option space:     Indentation string, or the number of spaces
- *                    to indent each nested level by.
+ * @option space:   Indentation string, or the number of spaces
+ *          to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
  * @option buffers:   'toString' or 'ignore', default is 'toString'.
  *
- * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
+ * @option dates:   'toJSON' or 'ignore', default is 'toJSON'.
  *
- * @option maps:      'object' or 'ignore', default is 'object'.
+ * @option maps:    'object' or 'ignore', default is 'object'.
  *
  * @option iterables: 'array' or 'ignore', default is 'array'.
  *
  * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function stringify (data, options) {
-    var stream, json, resolve, reject;
+  let resolve, reject
 
-    stream = streamify(data, options);
-    json = '';
+  const stream = streamify(data, options)
+  let json = ''
 
-    stream.on('data', read);
-    stream.on('end', end);
-    stream.on('dataError', error);
+  stream.on('data', read)
+  stream.on('end', end)
+  stream.on('dataError', error)
 
-    return new Promise(function (res, rej) {
-        resolve = res;
-        reject = rej;
-    });
+  return new Promise((res, rej) => {
+    resolve = res
+    reject = rej
+  })
 
-    function read (chunk) {
-        json += chunk;
-    }
+  function read (chunk) {
+    json += chunk
+  }
 
-    function end () {
-        resolve(json);
-    }
+  function end () {
+    resolve(json)
+  }
 
-    function error (e) {
-        reject(e);
-    }
+  function error (e) {
+    reject(e)
+  }
 }
 

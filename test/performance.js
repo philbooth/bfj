@@ -1,48 +1,42 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var fs, path, check, bfj, time;
+const fs = require('fs')
+const path = require('path')
+const check = require('check-types')
+const bfj = require('../src')
 
-fs = require('fs');
-path = require('path');
-check = require('check-types');
-bfj = require('../src');
+console.log('reading json')
 
-console.log('reading json');
+const time = process.hrtime()
 
-time = process.hrtime();
-
-bfj.read(getDataPath('.json')).
-    then(function (data) {
-        var options;
-        reportTime();
-        if (process.argv[2] === 'wpt') {
-            options = { space: 2 };
-        }
-        console.log('writing json');
-        return bfj.write(getDataPath('-result.json'), data, options);
-    }).
-    then(function () {
-        done('succeeded');
-    }).
-    catch(function (error) {
-        done(error.stack, 1);
-    });
+bfj.read(getDataPath('.json'))
+  .then(data => {
+    let options
+    reportTime()
+    if (process.argv[2] === 'wpt') {
+      options = { space: 2 }
+    }
+    console.log('writing json')
+    return bfj.write(getDataPath('-result.json'), data, options)
+  })
+  .then(() => done('succeeded'))
+  .catch(error => done(error.stack, 1))
 
 function getDataPath (suffix) {
-    return path.resolve(__dirname, process.argv[2] + suffix);
+  return path.resolve(__dirname, process.argv[2] + suffix)
 }
 
 function reportTime () {
-    var interimTime = process.hrtime(time);
-    console.log('%d seconds and %d nanoseconds', interimTime[0], interimTime[1]);
-    time = process.hrtime();
+  let interimTime = process.hrtime(time)
+  console.log('%d seconds and %d nanoseconds', interimTime[0], interimTime[1])
+  time = process.hrtime()
 }
 
 function done (message, code) {
-    reportTime();
-    console.log(message);
-    process.exit(code);
+  reportTime()
+  console.log(message)
+  process.exit(code)
 }
 

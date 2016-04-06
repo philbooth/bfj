@@ -1,197 +1,201 @@
-'use strict';
+'use strict'
 
-var assert, mockery, spooks, modulePath;
+const assert = require('chai').assert
+const mockery = require('mockery')
+const spooks = require('spooks')
 
-assert = require('chai').assert;
-mockery = require('mockery');
-spooks = require('spooks');
+const modulePath = '../../src/stringify'
 
-modulePath = '../../src/stringify';
+mockery.registerAllowable(modulePath)
 
-mockery.registerAllowable(modulePath);
+suite('stringify:', () => {
+  let log
 
-suite('stringify:', function () {
-    var log;
+  setup(() => {
+    log = {}
 
-    setup(function () {
-        log = {};
+    mockery.enable({ useCleanCache: true })
+    mockery.registerMock('./streamify', spooks.fn({
+      name: 'streamify',
+      log: log,
+      results: [
+        {
+          on: spooks.fn({ name: 'on', log: log })
+        }
+      ]
+    }))
+  })
 
-        mockery.enable({ useCleanCache: true });
-        mockery.registerMock('./streamify', spooks.fn({
-            name: 'streamify',
-            log: log,
-            results: [
-                {
-                    on: spooks.fn({ name: 'on', log: log })
-                }
-            ]
-        }));
-    });
+  teardown(() => {
+    mockery.deregisterMock('./streamify')
+    mockery.disable()
 
-    teardown(function () {
-        mockery.deregisterMock('./streamify');
-        mockery.disable();
+    log = undefined
+  })
 
-        log = undefined;
-    });
+  test('require does not throw', () => {
+    assert.doesNotThrow(() => {
+      require(modulePath)
+    })
+  })
 
-    test('require does not throw', function () {
-        assert.doesNotThrow(function () {
-            require(modulePath);
-        });
-    });
+  test('require returns function', () => {
+    assert.isFunction(require(modulePath))
+  })
 
-    test('require returns function', function () {
-        assert.isFunction(require(modulePath));
-    });
+  suite('require:', () => {
+    let stringify
 
-    suite('require:', function () {
-        var stringify;
+    setup(() => {
+      stringify = require(modulePath)
+    })
 
-        setup(function () {
-            stringify = require(modulePath);
-        });
+    teardown(() => {
+      stringify = undefined
+    })
 
-        teardown(function () {
-            stringify = undefined;
-        });
+    test('stringify expects two arguments', () => {
+      assert.lengthOf(stringify, 2)
+    })
 
-        test('stringify expects two arguments', function () {
-            assert.lengthOf(stringify, 2);
-        });
+    test('stringify does not throw', () => {
+      assert.doesNotThrow(() => {
+        stringify()
+      })
+    })
 
-        test('stringify does not throw', function () {
-            assert.doesNotThrow(function () {
-                stringify();
-            });
-        });
+    test('stringify returns promise', () => {
+      assert.instanceOf(stringify(), Promise)
+    })
 
-        test('stringify returns promise', function () {
-            assert.instanceOf(stringify(), Promise);
-        });
+    test('streamify was not called', () => {
+      assert.strictEqual(log.counts.streamify, 0)
+    })
 
-        test('streamify was not called', function () {
-            assert.strictEqual(log.counts.streamify, 0);
-        });
+    suite('stringify:', () => {
+      let data, options, resolved, rejected, result, done
 
-        suite('stringify:', function () {
-            var data, options, resolved, rejected, result, done;
+      setup(() => {
+        data = {}
+        options = {}
+        stringify(data, options)
+          .then(res => {
+            resolved = res
+            done()
+          })
+          .catch(rej => {
+            rejected = rej
+            done()
+          })
+      })
 
-            setup(function () {
-                data = {};
-                options = {};
-                result = stringify(data, options);
-                result.then(function (r) { resolved = r; done(); });
-                result.catch(function (r) { rejected = r; done(); });
-            });
+      teardown(() => {
+        data = options = resolved = rejected = result = done = undefined
+      })
 
-            teardown(function () {
-                data = options = resolved = rejected = result = done = undefined;
-            });
+      test('streamify was called once', () => {
+        assert.strictEqual(log.counts.streamify, 1)
+        assert.isUndefined(log.these.streamify[0])
+      })
 
-            test('streamify was called once', function () {
-                assert.strictEqual(log.counts.streamify, 1);
-                assert.isUndefined(log.these.streamify[0]);
-            });
+      test('streamify was called correctly', () => {
+        assert.lengthOf(log.args.streamify[0], 2)
+        assert.strictEqual(log.args.streamify[0][0], data)
+        assert.lengthOf(Object.keys(log.args.streamify[0][0]), 0)
+        assert.strictEqual(log.args.streamify[0][1], options)
+        assert.lengthOf(Object.keys(log.args.streamify[0][1]), 0)
+      })
 
-            test('streamify was called correctly', function () {
-                assert.lengthOf(log.args.streamify[0], 2);
-                assert.strictEqual(log.args.streamify[0][0], data);
-                assert.lengthOf(Object.keys(log.args.streamify[0][0]), 0);
-                assert.strictEqual(log.args.streamify[0][1], options);
-                assert.lengthOf(Object.keys(log.args.streamify[0][1]), 0);
-            });
+      test('stream.on was called three times', () => {
+        assert.strictEqual(log.counts.on, 3)
+        assert.strictEqual(log.these.on[0], require('./streamify')())
+        assert.strictEqual(log.these.on[1], require('./streamify')())
+        assert.strictEqual(log.these.on[2], require('./streamify')())
+      })
 
-            test('stream.on was called three times', function () {
-                assert.strictEqual(log.counts.on, 3);
-                assert.strictEqual(log.these.on[0], require('./streamify')());
-                assert.strictEqual(log.these.on[1], require('./streamify')());
-                assert.strictEqual(log.these.on[2], require('./streamify')());
-            });
+      test('stream.on was called correctly first time', () => {
+        assert.lengthOf(log.args.on[0], 2)
+        assert.strictEqual(log.args.on[0][0], 'data')
+        assert.isFunction(log.args.on[0][1])
+      })
 
-            test('stream.on was called correctly first time', function () {
-                assert.lengthOf(log.args.on[0], 2);
-                assert.strictEqual(log.args.on[0][0], 'data');
-                assert.isFunction(log.args.on[0][1]);
-            });
+      test('stream.on was called correctly second time', () => {
+        assert.strictEqual(log.args.on[1][0], 'end')
+        assert.isFunction(log.args.on[1][1])
+        assert.notStrictEqual(log.args.on[1][1], log.args.on[0][1])
+      })
 
-            test('stream.on was called correctly second time', function () {
-                assert.strictEqual(log.args.on[1][0], 'end');
-                assert.isFunction(log.args.on[1][1]);
-                assert.notStrictEqual(log.args.on[1][1], log.args.on[0][1]);
-            });
+      test('stream.on was called correctly third time', () => {
+        assert.strictEqual(log.args.on[2][0], 'dataError')
+        assert.isFunction(log.args.on[2][1])
+        assert.notStrictEqual(log.args.on[2][1], log.args.on[0][1])
+        assert.notStrictEqual(log.args.on[2][1], log.args.on[1][1])
+      })
 
-            test('stream.on was called correctly third time', function () {
-                assert.strictEqual(log.args.on[2][0], 'dataError');
-                assert.isFunction(log.args.on[2][1]);
-                assert.notStrictEqual(log.args.on[2][1], log.args.on[0][1]);
-                assert.notStrictEqual(log.args.on[2][1], log.args.on[1][1]);
-            });
+      test('promise is unfulfilled', () => {
+        assert.isUndefined(resolved)
+        assert.isUndefined(rejected)
+      })
 
-            test('promise is unfulfilled', function () {
-                assert.isUndefined(resolved);
-                assert.isUndefined(rejected);
-            });
+      suite('data event:', () => {
+        setup(() => {
+          log.args.on[0][1]('foo')
+        })
 
-            suite('data event:', function () {
-                setup(function () {
-                    log.args.on[0][1]('foo');
-                });
+        test('promise is unfulfilled', () => {
+          assert.isUndefined(resolved)
+          assert.isUndefined(rejected)
+        })
 
-                test('promise is unfulfilled', function () {
-                    assert.isUndefined(resolved);
-                    assert.isUndefined(rejected);
-                });
+        suite('end event:', () => {
+          setup(d => {
+            done = d
+            log.args.on[1][1]()
+          })
 
-                suite('end event:', function () {
-                    setup(function (d) {
-                        done = d;
-                        log.args.on[1][1]();
-                    });
+          test('promise is resolved', () => {
+            assert.strictEqual(resolved, 'foo')
+          })
 
-                    test('promise is resolved', function () {
-                        assert.strictEqual(resolved, 'foo');
-                    });
+          test('promise is not rejected', () => {
+            assert.isUndefined(rejected)
+          })
+        })
 
-                    test('promise is not rejected', function () {
-                        assert.isUndefined(rejected);
-                    });
-                });
+        suite('data event:', () => {
+          setup(() => {
+            log.args.on[0][1]('bar')
+          })
 
-                suite('data event:', function () {
-                    setup(function () {
-                        log.args.on[0][1]('bar');
-                    });
+          test('promise is unfulfilled', () => {
+            assert.isUndefined(resolved)
+            assert.isUndefined(rejected)
+          })
 
-                    test('promise is unfulfilled', function () {
-                        assert.isUndefined(resolved);
-                        assert.isUndefined(rejected);
-                    });
+          suite('end event:', () => {
+            setup(d => {
+              done = d
+              log.args.on[1][1]()
+            })
 
-                    suite('end event:', function () {
-                        setup(function (d) {
-                            done = d;
-                            log.args.on[1][1]();
-                        });
+            test('promise is resolved', () => {
+              assert.strictEqual(resolved, 'foobar')
+            })
+          })
 
-                        test('promise is resolved', function () {
-                            assert.strictEqual(resolved, 'foobar');
-                        });
-                    });
+          suite('dataError event:', () => {
+            setup(d => {
+              done = d
+              log.args.on[2][1]('wibble')
+            })
 
-                    suite('dataError event:', function () {
-                        setup(function (d) {
-                            done = d;
-                            log.args.on[2][1]('wibble');
-                        });
-
-                        test('promise is rejected', function () {
-                            assert.strictEqual(rejected, 'wibble');
-                        });
-                    });
-                });
-            });
-        });
-    });
-});
+            test('promise is rejected', () => {
+              assert.strictEqual(rejected, 'wibble')
+            })
+          })
+        })
+      })
+    })
+  })
+})
 
