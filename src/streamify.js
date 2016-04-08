@@ -11,8 +11,7 @@ module.exports = streamify
  * Public function `streamify`.
  *
  * Asynchronously serialises a data structure to a stream of JSON
- * data. Sanely handles promises, buffers, dates, maps and other
- * iterables.
+ * data. Sanely handles promises, buffers, maps and other iterables.
  *
  * @param data:     The data to transform.
  *
@@ -22,8 +21,6 @@ module.exports = streamify
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
  * @option buffers:   'toString' or 'ignore', default is 'toString'.
- *
- * @option dates:   'toJSON' or 'ignore', default is 'toJSON'.
  *
  * @option maps:    'object' or 'ignore', default is 'object'.
  *

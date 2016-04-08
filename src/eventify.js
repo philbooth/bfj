@@ -17,15 +17,13 @@ module.exports = eventify
  *
  * Returns an event emitter and asynchronously traverses a data structure
  * (depth-first), emitting events as it encounters items. Sanely handles
- * promises, buffers, dates, maps and other iterables.
+ * promises, buffers, maps and other iterables.
  *
  * @param data:       The data structure to traverse.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
  * @option buffers:   'toString' or 'ignore', default is 'toString'.
- *
- * @option dates:     'toJSON' or 'ignore', default is 'toJSON'.
  *
  * @option maps:      'object' or 'ignore', default is 'object'.
  *
@@ -50,7 +48,6 @@ function eventify (data, options) {
 
     normaliseOption('promises')
     normaliseOption('buffers')
-    normaliseOption('dates')
     normaliseOption('maps')
     normaliseOption('iterables')
 
@@ -112,10 +109,6 @@ function eventify (data, options) {
       return coerceThing(datum, 'buffers', coerceBuffer)
     }
 
-    if (check.instance(datum, Date)) {
-      return coerceThing(datum, 'dates', coerceDate)
-    }
-
     if (check.instance(datum, Map)) {
       return coerceThing(datum, 'maps', coerceMap)
     }
@@ -126,6 +119,10 @@ function eventify (data, options) {
       check.not.array(datum)
     ) {
       return coerceThing(datum, 'iterables', coerceIterable)
+    }
+
+    if (check.assigned(datum) && check.function(datum.toJSON)) {
+      return Promise.resolve(datum.toJSON())
     }
 
     return Promise.resolve(datum)
@@ -145,10 +142,6 @@ function eventify (data, options) {
 
   function coerceBuffer (buffer) {
     return Promise.resolve(buffer.toString())
-  }
-
-  function coerceDate (date) {
-    return Promise.resolve(date.toJSON())
   }
 
   function coerceMap (map) {

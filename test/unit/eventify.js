@@ -1229,11 +1229,11 @@ suite('eventify:', () => {
       })
     })
 
-    suite('ignore date:', () => {
+    suite('object with toJSON method:', () => {
       setup(done => {
         let resolve
 
-        const emitter = eventify(new Date('1977-06-10T10:30:00.000Z'), { dates: 'ignore' })
+        const emitter = eventify({ toJSON () { return 'foo' } })
 
         Object.keys(events).forEach(key => {
           emitter.on(events[key], spooks.fn({
@@ -1243,6 +1243,15 @@ suite('eventify:', () => {
         })
 
         emitter.on(events.end, done)
+      })
+
+      test('string event occurred once', () => {
+        assert.strictEqual(log.counts.string, 1)
+      })
+
+      test('string event was dispatched correctly', () => {
+        assert.lengthOf(log.args.string[0], 1)
+        assert.strictEqual(log.args.string[0][0], 'foo')
       })
 
       test('end event occurred once', () => {
@@ -1259,10 +1268,6 @@ suite('eventify:', () => {
 
       test('property event did not occur', () => {
         assert.strictEqual(log.counts.property, 0)
-      })
-
-      test('string event did not occur', () => {
-        assert.strictEqual(log.counts.string, 0)
       })
 
       test('number event did not occur', () => {

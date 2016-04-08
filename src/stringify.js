@@ -8,8 +8,7 @@ module.exports = stringify
  * Public function `stringify`.
  *
  * Returns a promise and asynchronously serialises a data structure to a
- * JSON string. Sanely handles promises, buffers, dates, maps and other
- * iterables.
+ * JSON string. Sanely handles promises, buffers, maps and other iterables.
  *
  * @param data:     The data to transform
  *
@@ -19,8 +18,6 @@ module.exports = stringify
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
  * @option buffers:   'toString' or 'ignore', default is 'toString'.
- *
- * @option dates:   'toJSON' or 'ignore', default is 'toJSON'.
  *
  * @option maps:    'object' or 'ignore', default is 'object'.
  *

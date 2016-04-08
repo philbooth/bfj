@@ -84,7 +84,7 @@ to JSON:
   as it encounters items.
   By default
   it coerces
-  promises, buffers, dates and iterables
+  promises, buffers and iterables
   to JSON-friendly values.
 
 * `streamify`
@@ -397,7 +397,7 @@ a data structure depth-first,
 emitting events as it
 encounters items.
 By default it coerces
-promises, buffers, dates and iterables
+promises, buffers and iterables
 to JSON-friendly values.
 
 It takes two arguments;
@@ -424,16 +424,6 @@ the following properties.
   to `'ignore'`
   if you'd prefer
   to ignore buffers
-  in the data.
-
-* `options.dates`:
-  By default,
-  dates are coerced
-  using their `toJSON` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore dates
   in the data.
 
 * `options.maps`:
@@ -631,16 +621,6 @@ the following properties.
   to ignore buffers
   in the data.
 
-* `options.dates`:
-  By default,
-  dates are coerced
-  using their `toJSON` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore dates
-  in the data.
-
 * `options.maps`:
   By default,
   maps are coerced
@@ -728,16 +708,6 @@ the following properties.
   to `'ignore'`
   if you'd prefer
   to ignore buffers
-  in the data.
-
-* `options.dates`:
-  By default,
-  dates are coerced
-  using their `toJSON` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore dates
   in the data.
 
 * `options.maps`:
@@ -830,16 +800,6 @@ the following properties.
   to `'ignore'`
   if you'd prefer
   to ignore buffers
-  in the data.
-
-* `options.dates`:
-  By default,
-  dates are coerced
-  using their `toJSON` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore dates
   in the data.
 
 * `options.maps`:
