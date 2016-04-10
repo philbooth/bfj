@@ -1,5 +1,11 @@
 # History
 
+## 2.0.0
+
+* Honour `toJSON` on all objects.
+* Drop support for Node.js 0.12, switch to ES6.
+* Tidy the readme.
+
 ## 1.2.2
 
 * Sanely escape strings when serialising (thanks [@rowanmanning](https://github.com/rowanmanning)).
