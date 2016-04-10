@@ -26,13 +26,13 @@
     "url": "https://github.com/philbooth/bfj.git"
   },
   "dependencies": {
-    "check-types": "3.2.x"
+    "check-types": "6.0.x"
   },
   "devDependencies": {
     "eslint": "2.7.x",
     "esprima": "2.7.x",
-    "mocha": "2.2.x",
-    "chai": "2.3.x",
+    "mocha": "2.4.x",
+    "chai": "3.5.x",
     "mockery": "1.4.x",
     "spooks": "2.0.x"
   },

@@ -33,7 +33,7 @@ function streamify (data, options) {
 
   normaliseOptions(options || {})
 
-  check.assert.maybe.unemptyString(space)
+  check.assert.maybe.nonEmptyString(space)
 
   const stream = new JsonStream(read)
   const emitter = eventify(data, options)
