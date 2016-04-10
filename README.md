@@ -7,7 +7,7 @@ Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [Why would I want those?](#why-would-i-want-those)
 * [What functions does it implement?](#what-functions-does-it-implement)
 * [How do I install it?](#how-do-i-install-it)
-* [How do I read a JSON file?](#how-do-i-parse-a-json-file)
+* [How do I read a JSON file?](#how-do-i-read-a-json-file)
 * [How do I write a JSON file?](#how-do-i-write-a-json-file)
 * [How do I parse a stream of JSON?](#how-do-i-parse-a-stream-of-json)
 * [How do I create a JSON string?](#how-do-i-create-a-json-string)
@@ -20,7 +20,7 @@ Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
   * [Options for serialisation functions](#options-for-serialisation-functions)
 * [Is there a change log?](#is-there-a-change-log)
 * [How do I set up the dev environment?](#how-do-i-set-up-the-dev-environment)
-* [What versions of node.js does it support?](#what-versions-of-nodejs-does-it-support)
+* [What versions of Node.js does it support?](#what-versions-of-nodejs-does-it-support)
 * [What license is it released under?](#what-license-is-it-released-under)
 
 ## Why would I want those?
@@ -49,7 +49,7 @@ parsing, or
 turning JSON strings
 into JavaScript data:
 
-* [`read`](#how-do-i-parse-a-json-file)
+* [`read`](#how-do-i-read-a-json-file)
   asynchronously parses
   a JSON file from disk.
 
@@ -67,7 +67,7 @@ into JavaScript data:
   [SAX parser][sax].
 
 The other four functions
-handle the reverse transformations;
+handle the reverse transformations,
 serialising
 JavaScript data
 to JSON:
@@ -100,7 +100,7 @@ to JSON:
 If you're using npm:
 
 ```
-npm install bfj --save
+npm i bfj --save
 ```
 
 Or if you just want
@@ -122,10 +122,10 @@ bfj.read(path)
   })
 ```
 
-`read` returns a promise and
+`read` returns a [promise](promise) and
 asynchronously parses
 a JSON file
-read from disk.
+from disk.
 
 It takes two arguments;
 the path to the JSON file
@@ -151,7 +151,7 @@ bfj.write(path, data)
   })
 ```
 
-`write` returns a promise
+`write` returns a [promise](promise)
 and asynchronously serialises a data structure
 to a JSON file on disk.
 The promise is resolved
@@ -176,12 +176,12 @@ bfj.parse(fs.createReadStream(path))
   })
 ```
 
-`parse` returns a [promise]
+`parse` returns a [promise](promise)
 and asynchronously parses
 a stream of JSON data.
 
 It takes two arguments;
-a readable stream
+a [readable stream][readable]
 from which
 the JSON
 will be parsed
@@ -207,7 +207,7 @@ bfj.stringify(data)
   })
 ```
 
-`stringify` returns a promise and
+`stringify` returns a [promise](promise) and
 asynchronously serialises a data structure
 to a JSON string.
 The promise is resolved
@@ -228,7 +228,7 @@ stream.on('end', end)
 stream.on('dataError', error)
 ```
 
-`streamify` returns a readable stream
+`streamify` returns a [readable stream][readable]
 and asynchronously serialises
 a data structure to JSON,
 pushing the result
@@ -245,36 +245,16 @@ and an [options](#options-for-serialisation-functions) object.
 ```js
 var emitter = bfj.walk(fs.createReadStream(path))
 
-emitter.on(bfj.events.array, () => {
-  // ...
-})
-emitter.on(bfj.events.object, () => {
-  // ...
-})
-emitter.on(bfj.events.property, name => {
-  // ...
-})
-emitter.on(bfj.events.string, value => {
-  // ...
-})
-emitter.on(bfj.events.number, value => {
-  // ...
-})
-emitter.on(bfj.events.literal, value => {
-  // ...
-})
-emitter.on(bfj.events.endArray, () => {
-  // ...
-})
-emitter.on(bfj.events.endObject, () => {
-  // ...
-})
-emitter.on(bfj.events.error, error => {
-  // ...
-})
-emitter.on(bfj.events.end, () => {
-  // ...
-})
+emitter.on(bfj.events.array, () => { /* ... */ })
+emitter.on(bfj.events.object, () => { /* ... */ })
+emitter.on(bfj.events.property, name => { /* ... */ })
+emitter.on(bfj.events.string, value => { /* ... */ })
+emitter.on(bfj.events.number, value => { /* ... */ })
+emitter.on(bfj.events.literal, value => { /* ... */ })
+emitter.on(bfj.events.endArray, () => { /* ... */ })
+emitter.on(bfj.events.endObject, () => { /* ... */ })
+emitter.on(bfj.events.error, error => { /* ... */ })
+emitter.on(bfj.events.end, () => { /* ... */ })
 ```
 
 `walk` returns an [event emitter][eventemitter]
@@ -387,36 +367,18 @@ of an object,
 ```js
 var emitter = bfj.eventify(data)
 
-emitter.on(bfj.events.array, () => {
-  // ...
-})
-emitter.on(bfj.events.object, () => {
-  // ...
-})
-emitter.on(bfj.events.property, name => {
-  // ...
-})
-emitter.on(bfj.events.string, value => {
-  // ...
-})
-emitter.on(bfj.events.number, value => {
-  // ...
-})
-emitter.on(bfj.events.literal, value => {
-  // ...
-})
-emitter.on(bfj.events.endArray, () => {
-  // ...
-})
-emitter.on(bfj.events.endObject, () => {
-  // ...
-})
-emitter.on(bfj.events.end, () => {
-  // ...
-})
+emitter.on(bfj.events.array, () => { /* ... */ })
+emitter.on(bfj.events.object, () => { /* ... */ })
+emitter.on(bfj.events.property, name => { /* ... */ })
+emitter.on(bfj.events.string, value => { /* ... */ })
+emitter.on(bfj.events.number, value => { /* ... */ })
+emitter.on(bfj.events.literal, value => { /* ... */ })
+emitter.on(bfj.events.endArray, () => { /* ... */ })
+emitter.on(bfj.events.endObject, () => { /* ... */ })
+emitter.on(bfj.events.end, () => { /* ... */ })
 ```
 
-`eventify` returns an event emitter
+`eventify` returns an [event emitter][eventemitter]
 and asynchronously traverses
 a data structure depth-first,
 emitting events as it
@@ -607,7 +569,7 @@ of an object,
 ## How do I set up the dev environment?
 
 The development environment
-relies on node.js,
+relies on [Node.js][node],
 [ESLint],
 [Mocha],
 [Chai],
@@ -634,7 +596,7 @@ run the tests
 with the command
 `npm test`.
 
-## What versions of node.js does it support?
+## What versions of Node.js does it support?
 
 4 and later.
 
@@ -645,12 +607,13 @@ with the command
 [ci-image]: https://secure.travis-ci.org/philbooth/bfj.png?branch=master
 [ci-status]: http://travis-ci.org/#!/philbooth/bfj
 [sax]: http://en.wikipedia.org/wiki/Simple_API_for_XML
+[promise]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [eventemitter]: https://nodejs.org/api/events.html#events_class_events_eventemitter
 [readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
-[promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter
 [space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
 [history]: HISTORY.md
+[node]: https://nodejs.org/en/
 [eslint]: http://eslint.org/
 [mocha]: https://mochajs.org/
 [chai]: http://chaijs.com/
