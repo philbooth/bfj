@@ -7,21 +7,17 @@ Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [Why would I want those?](#why-would-i-want-those)
 * [What functions does it implement?](#what-functions-does-it-implement)
 * [How do I install it?](#how-do-i-install-it)
-* [How do I use it?](#how-do-i-use-it)
+* [How do I read a JSON file?](#how-do-i-parse-a-json-file)
+* [How do I write a JSON file?](#how-do-i-write-a-json-file)
+* [How do I parse a stream of JSON?](#how-do-i-parse-a-stream-of-json)
+* [How do I create a JSON string?](#how-do-i-create-a-json-string)
+* [How do I create a stream of JSON?](#how-do-i-create-a-stream-of-json)
+* [What other methods are there?](#what-other-methods-are-there)
   * [bfj.walk (stream, options)](#bfjwalk-stream-options)
-    * [Example](#example)
-  * [bfj.parse (stream, options)](#bfjparse-stream-options)
-    * [Example](#example-1)
-  * [bfj.read (path, options)](#bfjread-path-options)
-    * [Example](#example-2)
   * [bfj.eventify (data, options)](#bfjeventify-data-options)
-    * [Example](#example-3)
-  * [bfj.streamify (data, options)](#bfjstreamify-data-options)
-    * [Example](#example-4)
-  * [bfj.stringify (data, options)](#bfjstringify-data-options)
-    * [Example](#example-5)
-  * [bfj.write (path, data, options)](#bfjwrite-path-data-options)
-    * [Example](#example-6)
+* [What options can I specify?](#what-options-can-i-specify)
+  * [Options for parsing functions](#options-for-parsing-functions)
+  * [Options for serialisation functions](#options-for-serialisation-functions)
 * [Is there a change log?](#is-there-a-change-log)
 * [How do I set up the dev environment?](#how-do-i-set-up-the-dev-environment)
 * [What versions of node.js does it support?](#what-versions-of-nodejs-does-it-support)
@@ -53,7 +49,15 @@ parsing, or
 turning JSON strings
 into JavaScript data:
 
-* `walk`
+* [`read`](#how-do-i-parse-a-json-file)
+  asynchronously parses
+  a JSON file from disk.
+
+* [`parse`](#how-do-i-parse-a-stream-of-json)
+  asynchronously parses
+  a stream of JSON.
+
+* [`walk`](#bfjwalk-stream-options)
   asynchronously walks
   a stream,
   emitting events
@@ -62,21 +66,25 @@ into JavaScript data:
   Analagous to a
   [SAX parser][sax].
 
-* `parse`
-  asynchronously parses
-  a stream of JSON.
-
-* `read`
-  asynchronously parses
-  a JSON file from disk.
-
-The four remaining functions
+The other four functions
 handle the reverse transformations;
 serialising
 JavaScript data
 to JSON:
 
-* `eventify`
+* [`write`](#how-do-i-write-a-json-file)
+  asynchronously serialises data
+  to a JSON file on disk.
+
+* [`stringify`](#how-do-i-create-a-json-string)
+  asynchronously serialises data
+  to a JSON string.
+
+* [`streamify`](#how-do-i-create-a-stream-of-json)
+  asynchronously serialises data
+  to a stream of JSON.
+
+* [`eventify`](#bfjeventify-data-options)
   asynchronously traverses
   a data structure
   depth-first,
@@ -86,18 +94,6 @@ to JSON:
   it coerces
   promises, buffers and iterables
   to JSON-friendly values.
-
-* `streamify`
-  asynchronously serialises data
-  to a stream of JSON.
-
-* `stringify`
-  asynchronously serialises data
-  to a JSON string.
-
-* `write`
-  asynchronously serialises data
-  to a JSON file on disk.
 
 ## How do I install it?
 
@@ -114,26 +110,172 @@ the git repo:
 git clone git@github.com:philbooth/bfj.git
 ```
 
-## How do I use it?
-
-Import the library
-using `require`:
+## How do I read a JSON file?
 
 ```js
-var bfj = require('bfj')
+bfj.read(path)
+  .then(data => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
 ```
 
-Seven functions
-are exported:
-`walk`,
-`parse`,
-`read`,
-`eventify`,
-`streamify`,
-`stringify` and
-`write`.
+`read` returns a promise and
+asynchronously parses
+a JSON file
+read from disk.
+
+It takes two arguments;
+the path to the JSON file
+and an [options](#options-for-parsing-functions) object.
+
+If there are
+no syntax errors,
+the returned promise is resolved
+with the parsed data.
+If syntax errors occur,
+the promise is rejected
+with the first error.
+
+## How do I write a JSON file?
+
+```js
+bfj.write(path, data)
+  .then(() => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
+```
+
+`write` returns a promise
+and asynchronously serialises a data structure
+to a JSON file on disk.
+The promise is resolved
+when the file has been written,
+or rejected with the error
+if writing failed.
+
+It takes three arguments;
+the path to the JSON file,
+the data structure to serialise
+and an [options](#options-for-serialisation-functions) object.
+
+## How do I parse a stream of JSON?
+
+```js
+bfj.parse(fs.createReadStream(path))
+  .then(data => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
+```
+
+`parse` returns a [promise]
+and asynchronously parses
+a stream of JSON data.
+
+It takes two arguments;
+a readable stream
+from which
+the JSON
+will be parsed
+and an [options](#options-for-parsing-functions) object.
+
+If there are
+no syntax errors,
+the returned promise is resolved
+with the parsed data.
+If syntax errors occur,
+the promise is rejected
+with the first error.
+
+## How do I create a JSON string?
+
+```js
+bfj.stringify(data)
+  .then(json => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  })
+```
+
+`stringify` returns a promise and
+asynchronously serialises a data structure
+to a JSON string.
+The promise is resolved
+to the JSON string
+when serialisation is complete.
+
+It takes two arguments;
+the data structure to serialise
+and an [options](#options-for-serialisation-functions) object.
+
+## How do I create a stream of JSON?
+
+```js
+var stream = bfj.streamify(data)
+
+stream.on('data', read)
+stream.on('end', end)
+stream.on('dataError', error)
+```
+
+`streamify` returns a readable stream
+and asynchronously serialises
+a data structure to JSON,
+pushing the result
+to the returned stream.
+
+It takes two arguments;
+the data structure to serialise
+and an [options](#options-for-serialisation-functions) object.
+
+## What other methods are there?
 
 ### bfj.walk (stream, options)
+
+```js
+var emitter = bfj.walk(fs.createReadStream(path))
+
+emitter.on(bfj.events.array, () => {
+  // ...
+})
+emitter.on(bfj.events.object, () => {
+  // ...
+})
+emitter.on(bfj.events.property, name => {
+  // ...
+})
+emitter.on(bfj.events.string, value => {
+  // ...
+})
+emitter.on(bfj.events.number, value => {
+  // ...
+})
+emitter.on(bfj.events.literal, value => {
+  // ...
+})
+emitter.on(bfj.events.endArray, () => {
+  // ...
+})
+emitter.on(bfj.events.endObject, () => {
+  // ...
+})
+emitter.on(bfj.events.error, error => {
+  // ...
+})
+emitter.on(bfj.events.end, () => {
+  // ...
+})
+```
 
 `walk` returns an [event emitter][eventemitter]
 and asynchronously walks
@@ -147,17 +289,7 @@ a [readable stream][readable]
 from which
 the JSON
 will be read
-and an options object
-that supports
-the following property.
-
-* `options.discard`:
-  The number of characters
-  to process before
-  discarding them
-  to save memory.
-  The default value
-  is `16384`.
+and an [options](#options-for-parsing-functions) object.
 
 The emitted events
 are defined
@@ -250,10 +382,10 @@ of an object,
   has been reached
   and the stream is closed.
 
-#### Example
+### bfj.eventify (data, options)
 
 ```js
-var emitter = bfj.walk(fs.createReadStream(path))
+var emitter = bfj.eventify(data)
 
 emitter.on(bfj.events.array, () => {
   // ...
@@ -279,117 +411,10 @@ emitter.on(bfj.events.endArray, () => {
 emitter.on(bfj.events.endObject, () => {
   // ...
 })
-emitter.on(bfj.events.error, error => {
-  // ...
-})
 emitter.on(bfj.events.end, () => {
   // ...
 })
 ```
-
-### bfj.parse (stream, options)
-
-`parse` returns a [promise]
-and asynchronously parses
-a stream of JSON data.
-
-It takes two arguments;
-a readable stream
-from which
-the JSON
-will be parsed
-and an options object
-that supports
-the following properties.
-
-* `options.reviver`:
-  Transformation function,
-  invoked depth-first
-  against the parsed
-  data structure.
-  This option
-  is analagous to the
-  [reviver parameter for JSON.parse][reviver].
-
-* `options.discard`:
-  The number of characters
-  to process before
-  discarding them
-  to save memory.
-  The default value
-  is `16384`.
-
-If there are
-no syntax errors,
-the returned promise is resolved
-with the parsed data.
-If syntax errors occur,
-the promise is rejected
-with the first error.
-
-#### Example
-
-```js
-bfj.parse(fs.createReadStream(path))
-  .then(data => {
-    // :)
-  })
-  .catch(error => {
-    // :(
-  })
-```
-
-### bfj.read (path, options)
-
-`read` returns a promise and
-asynchronously parses
-a JSON file
-read from disk.
-
-It takes two arguments;
-the path to the JSON file
-and an options object
-that supports
-the following properties.
-
-* `options.reviver`:
-  Transformation function,
-  invoked depth-first
-  against the parsed
-  data structure.
-  This option
-  is analagous to the
-  [reviver parameter for JSON.parse][reviver].
-
-* `options.discard`:
-  The number of characters
-  to process before
-  discarding them
-  to save memory.
-  The default value
-  is `16384`.
-
-If there are
-no syntax errors,
-the returned promise is resolved
-with the parsed data.
-If syntax errors occur,
-the promise is rejected
-with the first error.
-
-#### Example
-
-```js
-bfj.read(path)
-  .then(data => {
-    // :)
-  })
-  .catch(error => {
-    // :(
-  })
-```
-
-### bfj.eventify (data, options)
 
 `eventify` returns an event emitter
 and asynchronously traverses
@@ -402,62 +427,7 @@ to JSON-friendly values.
 
 It takes two arguments;
 the data structure to traverse
-and an options object
-that supports
-the following properties.
-
-* `options.promises`:
-  By default,
-  promises are coerced
-  to their resolved value.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore promises
-  in the data.
-
-* `options.buffers`:
-  By default,
-  buffers are coerced
-  using their `toString` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore buffers
-  in the data.
-
-* `options.maps`:
-  By default,
-  maps are coerced
-  to plain objects.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore maps
-  in the data.
-
-* `options.iterables`:
-  By default,
-  other iterables
-  (i.e. not arrays, strings or maps)
-  are coerced
-  to arrays.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore other iterables
-  in the data.
-
-* `options.circular`:
-  By default,
-  circular references
-  will emit an error.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to silently skip past
-  circular references
-  in the data.
+and an [options](#options-for-serialisation-functions) object.
 
 The emitted events
 are defined
@@ -544,234 +514,28 @@ of an object,
   no further events
   will be emitted.
 
-#### Example
+## What options can I specify?
 
-```js
-var emitter = bfj.eventify(data)
+### Options for parsing functions
 
-emitter.on(bfj.events.array, () => {
-  // ...
-})
-emitter.on(bfj.events.object, () => {
-  // ...
-})
-emitter.on(bfj.events.property, name => {
-  // ...
-})
-emitter.on(bfj.events.string, value => {
-  // ...
-})
-emitter.on(bfj.events.number, value => {
-  // ...
-})
-emitter.on(bfj.events.literal, value => {
-  // ...
-})
-emitter.on(bfj.events.endArray, () => {
-  // ...
-})
-emitter.on(bfj.events.endObject, () => {
-  // ...
-})
-emitter.on(bfj.events.end, () => {
-  // ...
-})
-```
-
-### bfj.streamify (data, options)
-
-`streamify` returns a readable stream
-and asynchronously serialises
-a data structure to JSON,
-pushing the result
-to the returned stream.
-
-It takes two arguments;
-the data structure to serialise
-and an options object
-that supports
-the following properties.
-
-* `options.space`:
-  Indentation string
-  or the number of spaces
-  to indent
-  each nested level by.
+* `options.reviver`:
+  Transformation function,
+  invoked depth-first
+  against the parsed
+  data structure.
   This option
   is analagous to the
-  [space parameter for JSON.stringify][space].
+  [reviver parameter for JSON.parse][reviver].
 
-* `options.promises`:
-  By default,
-  promises are coerced
-  to their resolved value.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore promises
-  in the data.
+* `options.discard`:
+  The number of characters
+  to process before
+  discarding them
+  to save memory.
+  The default value
+  is `16384`.
 
-* `options.buffers`:
-  By default,
-  buffers are coerced
-  using their `toString` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore buffers
-  in the data.
-
-* `options.maps`:
-  By default,
-  maps are coerced
-  to plain objects.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore maps
-  in the data.
-
-* `options.iterables`:
-  By default,
-  other iterables
-  (i.e. not arrays, strings or maps)
-  are coerced
-  to arrays.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore other iterables
-  in the data.
-
-* `options.circular`:
-  By default,
-  circular references
-  will emit
-  a 'dataError' event
-  on the returned stream.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to silently skip past
-  circular references
-  in the data.
-
-#### Example
-
-```js
-var stream = bfj.streamify(data)
-
-stream.on('data', read)
-stream.on('end', end)
-stream.on('dataError', error)
-```
-
-### bfj.stringify (data, options)
-
-`stringify` returns a promise and
-asynchronously serialises a data structure
-to a JSON string.
-The promise is resolved
-to the JSON string
-when serialisation is complete.
-
-It takes two arguments;
-the data structure to serialise
-and an options object
-that supports
-the following properties.
-
-* `options.space`:
-  Indentation string
-  or the number of spaces
-  to indent
-  each nested level by.
-  This option
-  is analagous to the
-  [space parameter for JSON.stringify][space].
-
-* `options.promises`:
-  By default,
-  promises are coerced
-  to their resolved value.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore promises
-  in the data.
-
-* `options.buffers`:
-  By default,
-  buffers are coerced
-  using their `toString` method.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore buffers
-  in the data.
-
-* `options.maps`:
-  By default,
-  maps are coerced
-  to plain objects.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore maps
-  in the data.
-
-* `options.iterables`:
-  By default,
-  other iterables
-  (i.e. not arrays, strings or maps)
-  are coerced
-  to arrays.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to ignore other iterables
-  in the data.
-
-* `options.circular`:
-  By default,
-  circular references
-  will reject
-  the returned promise.
-  Set this property
-  to `'ignore'`
-  if you'd prefer
-  to silently skip past
-  circular references
-  in the data.
-
-#### Example
-
-```js
-bfj.stringify(data)
-  .then(json => {
-    // :)
-  })
-  .catch(error => {
-    // :(
-  })
-```
-
-### bfj.write (path, data, options)
-
-`write` returns a promise
-and asynchronously serialises a data structure
-to a JSON file on disk.
-The promise is resolved
-when the file has been written,
-or rejected with the error
-if writing failed.
-
-It takes three arguments;
-the path to the JSON file,
-the data structure to serialise
-and an options object
-that supports
-the following properties.
+### Options for serialisation functions
 
 * `options.space`:
   Indentation string
@@ -836,18 +600,6 @@ the following properties.
   circular references
   in the data.
 
-#### Example
-
-```js
-bfj.write(path, data)
-  .then(() => {
-    // :)
-  })
-  .catch(error => {
-    // :(
-  })
-```
-
 ## Is there a change log?
 
 [Yes][history].
@@ -856,7 +608,7 @@ bfj.write(path, data)
 
 The development environment
 relies on node.js,
-[JSHint],
+[ESLint],
 [Mocha],
 [Chai],
 [Mockery] and
@@ -899,9 +651,9 @@ with the command
 [reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter
 [space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
 [history]: HISTORY.md
-[jshint]: https://github.com/jshint/node-jshint
-[mocha]: https://github.com/mochajs/mocha
-[chai]: https://github.com/chaijs
+[eslint]: http://eslint.org/
+[mocha]: https://mochajs.org/
+[chai]: http://chaijs.com/
 [mockery]: https://github.com/mfncooper/mockery
 [spooks]: https://github.com/philbooth/spooks.js
 [license]: COPYING
