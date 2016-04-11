@@ -113,6 +113,8 @@ git clone git@github.com:philbooth/bfj.git
 ## How do I read a JSON file?
 
 ```js
+const bfj = require('bfj')
+
 bfj.read(path)
   .then(data => {
     // :)
@@ -142,6 +144,8 @@ with the first error.
 ## How do I write a JSON file?
 
 ```js
+const bfj = require('bfj')
+
 bfj.write(path, data)
   .then(() => {
     // :)
@@ -167,6 +171,8 @@ and an [options](#options-for-serialisation-functions) object.
 ## How do I parse a stream of JSON?
 
 ```js
+const bfj = require('bfj')
+
 bfj.parse(fs.createReadStream(path))
   .then(data => {
     // :)
@@ -198,6 +204,8 @@ with the first error.
 ## How do I create a JSON string?
 
 ```js
+const bfj = require('bfj')
+
 bfj.stringify(data)
   .then(json => {
     // :)
@@ -221,11 +229,17 @@ and an [options](#options-for-serialisation-functions) object.
 ## How do I create a stream of JSON?
 
 ```js
-var stream = bfj.streamify(data)
+const bfj = require('bfj')
 
-stream.on('data', read)
-stream.on('end', end)
-stream.on('dataError', error)
+const stream = bfj.streamify(data)
+
+// Get data out of the stream with event handlers
+stream.on('data', chunk => { /* ... */ })
+stream.on('end', () => { /* ... */)
+stream.on('dataError', () => { /* ... */)
+
+// ...or you can pipe it to another stream
+stream.pipe(someOtherStream)
 ```
 
 `streamify` returns a [readable stream][readable]
@@ -243,7 +257,9 @@ and an [options](#options-for-serialisation-functions) object.
 ### bfj.walk (stream, options)
 
 ```js
-var emitter = bfj.walk(fs.createReadStream(path))
+const bfj = require('bfj')
+
+const emitter = bfj.walk(fs.createReadStream(path))
 
 emitter.on(bfj.events.array, () => { /* ... */ })
 emitter.on(bfj.events.object, () => { /* ... */ })
@@ -365,7 +381,9 @@ of an object,
 ### bfj.eventify (data, options)
 
 ```js
-var emitter = bfj.eventify(data)
+const bfj = require('bfj')
+
+const emitter = bfj.eventify(data)
 
 emitter.on(bfj.events.array, () => { /* ... */ })
 emitter.on(bfj.events.object, () => { /* ... */ })
