@@ -2,7 +2,7 @@
 
 [![Build status][ci-image]][ci-status]
 
-Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.
+Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 
 * [Why would I want those?](#why-would-i-want-those)
 * [What functions does it implement?](#what-functions-does-it-implement)
@@ -113,7 +113,7 @@ git clone git@github.com:philbooth/bfj.git
 ## How do I read a JSON file?
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
 bfj.read(path)
   .then(data => {
@@ -121,7 +121,7 @@ bfj.read(path)
   })
   .catch(error => {
     // :(
-  })
+  });
 ```
 
 `read` returns a [promise](promise) and
@@ -144,7 +144,7 @@ with the first error.
 ## How do I write a JSON file?
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
 bfj.write(path, data)
   .then(() => {
@@ -152,7 +152,7 @@ bfj.write(path, data)
   })
   .catch(error => {
     // :(
-  })
+  });
 ```
 
 `write` returns a [promise](promise)
@@ -171,7 +171,7 @@ and an [options](#options-for-serialisation-functions) object.
 ## How do I parse a stream of JSON?
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
 bfj.parse(fs.createReadStream(path))
   .then(data => {
@@ -179,7 +179,7 @@ bfj.parse(fs.createReadStream(path))
   })
   .catch(error => {
     // :(
-  })
+  });
 ```
 
 `parse` returns a [promise](promise)
@@ -204,7 +204,7 @@ with the first error.
 ## How do I create a JSON string?
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
 bfj.stringify(data)
   .then(json => {
@@ -212,7 +212,7 @@ bfj.stringify(data)
   })
   .catch(error => {
     // :(
-  })
+  });
 ```
 
 `stringify` returns a [promise](promise) and
@@ -229,17 +229,17 @@ and an [options](#options-for-serialisation-functions) object.
 ## How do I create a stream of JSON?
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
-const stream = bfj.streamify(data)
+const stream = bfj.streamify(data);
 
 // Get data out of the stream with event handlers
-stream.on('data', chunk => { /* ... */ })
-stream.on('end', () => { /* ... */)
-stream.on('dataError', () => { /* ... */)
+stream.on('data', chunk => { /* ... */ });
+stream.on('end', () => { /* ... */);
+stream.on('dataError', () => { /* ... */);
 
 // ...or you can pipe it to another stream
-stream.pipe(someOtherStream)
+stream.pipe(someOtherStream);
 ```
 
 `streamify` returns a [readable stream][readable]
@@ -257,20 +257,20 @@ and an [options](#options-for-serialisation-functions) object.
 ### bfj.walk (stream, options)
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
-const emitter = bfj.walk(fs.createReadStream(path))
+const emitter = bfj.walk(fs.createReadStream(path));
 
-emitter.on(bfj.events.array, () => { /* ... */ })
-emitter.on(bfj.events.object, () => { /* ... */ })
-emitter.on(bfj.events.property, name => { /* ... */ })
-emitter.on(bfj.events.string, value => { /* ... */ })
-emitter.on(bfj.events.number, value => { /* ... */ })
-emitter.on(bfj.events.literal, value => { /* ... */ })
-emitter.on(bfj.events.endArray, () => { /* ... */ })
-emitter.on(bfj.events.endObject, () => { /* ... */ })
-emitter.on(bfj.events.error, error => { /* ... */ })
-emitter.on(bfj.events.end, () => { /* ... */ })
+emitter.on(bfj.events.array, () => { /* ... */ });
+emitter.on(bfj.events.object, () => { /* ... */ });
+emitter.on(bfj.events.property, name => { /* ... */ });
+emitter.on(bfj.events.string, value => { /* ... */ });
+emitter.on(bfj.events.number, value => { /* ... */ });
+emitter.on(bfj.events.literal, value => { /* ... */ });
+emitter.on(bfj.events.endArray, () => { /* ... */ });
+emitter.on(bfj.events.endObject, () => { /* ... */ });
+emitter.on(bfj.events.error, error => { /* ... */ });
+emitter.on(bfj.events.end, () => { /* ... */ });
 ```
 
 `walk` returns an [event emitter][eventemitter]
@@ -381,19 +381,19 @@ of an object,
 ### bfj.eventify (data, options)
 
 ```js
-const bfj = require('bfj')
+const bfj = require('bfj');
 
-const emitter = bfj.eventify(data)
+const emitter = bfj.eventify(data);
 
-emitter.on(bfj.events.array, () => { /* ... */ })
-emitter.on(bfj.events.object, () => { /* ... */ })
-emitter.on(bfj.events.property, name => { /* ... */ })
-emitter.on(bfj.events.string, value => { /* ... */ })
-emitter.on(bfj.events.number, value => { /* ... */ })
-emitter.on(bfj.events.literal, value => { /* ... */ })
-emitter.on(bfj.events.endArray, () => { /* ... */ })
-emitter.on(bfj.events.endObject, () => { /* ... */ })
-emitter.on(bfj.events.end, () => { /* ... */ })
+emitter.on(bfj.events.array, () => { /* ... */ });
+emitter.on(bfj.events.object, () => { /* ... */ });
+emitter.on(bfj.events.property, name => { /* ... */ });
+emitter.on(bfj.events.string, value => { /* ... */ });
+emitter.on(bfj.events.number, value => { /* ... */ });
+emitter.on(bfj.events.literal, value => { /* ... */ });
+emitter.on(bfj.events.endArray, () => { /* ... */ });
+emitter.on(bfj.events.endObject, () => { /* ... */ });
+emitter.on(bfj.events.end, () => { /* ... */ });
 ```
 
 `eventify` returns an [event emitter][eventemitter]
