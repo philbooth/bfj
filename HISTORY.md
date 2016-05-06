@@ -1,5 +1,9 @@
 # History
 
+## 2.1.0
+
+* Stop throwing errors from promise-returning methods.
+
 ## 2.0.0
 
 * Honour `toJSON` on all objects.
