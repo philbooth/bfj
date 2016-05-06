@@ -13,27 +13,25 @@ module.exports = streamify
  * Asynchronously serialises a data structure to a stream of JSON
  * data. Sanely handles promises, buffers, maps and other iterables.
  *
- * @param data:     The data to transform.
+ * @param data:       The data to transform.
  *
- * @option space:   Indentation string, or the number of spaces
- *          to indent each nested level by.
+ * @option space:     Indentation string, or the number of spaces
+ *                    to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *
  * @option buffers:   'toString' or 'ignore', default is 'toString'.
  *
- * @option maps:    'object' or 'ignore', default is 'object'.
+ * @option maps:      'object' or 'ignore', default is 'object'.
  *
  * @option iterables: 'array' or 'ignore', default is 'array'.
  *
  * @option circular:  'error' or 'ignore', default is 'error'.
  **/
 function streamify (data, options) {
-  let isProperty, needsComma, isEnded, space
+  let isProperty, needsComma, isEnded
 
-  normaliseOptions(options || {})
-
-  check.assert.maybe.nonEmptyString(space)
+  const space = normaliseSpace(options || {})
 
   const stream = new JsonStream(read)
   const emitter = eventify(data, options)
@@ -54,14 +52,6 @@ function streamify (data, options) {
   emitter.on(events.error, error)
 
   return stream
-
-  function normaliseOptions (rawOptions) {
-    if (check.positive(rawOptions.space)) {
-      space = (new Array(rawOptions.space + 1)).join(' ')
-    } else {
-      space = rawOptions.space
-    }
-  }
 
   function read () {
     if (awaitPush) {
@@ -212,6 +202,16 @@ function streamify (data, options) {
 
   function error (err) {
     stream.emit('dataError', err)
+  }
+}
+
+function normaliseSpace (options) {
+  if (check.positive(options.space)) {
+    return new Array(options.space + 1).join(' ')
+  }
+
+  if (check.nonEmptyString(options.space)) {
+    return options.space
   }
 }
 

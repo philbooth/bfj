@@ -67,8 +67,8 @@ suite('parse:', () => {
       })
     })
 
-    test('parse throws if reviver is an object', () => {
-      assert.throws(() => {
+    test('parse does not throw if reviver is an object', () => {
+      assert.doesNotThrow(() => {
         parse({}, { reviver: {} })
       })
     })
@@ -81,6 +81,17 @@ suite('parse:', () => {
 
     test('parse returns a promise', () => {
       assert.instanceOf(parse(), Promise)
+    })
+
+    test('parse rejects immediately if reviver is an object', () => {
+      return parse({}, { reviver: {} })
+        .then(() => assert(false))
+        .catch(error => assert.instanceOf(error, Error))
+    })
+
+    test('parse does not reject immediately if reviver is a function', () => {
+      parse({}, { reviver: () => {} })
+        .catch(error => assert(false))
     })
 
     test('walk was not called', () => {

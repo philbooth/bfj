@@ -26,7 +26,11 @@ function parse (stream, options) {
   options = options || {}
   const reviver = options.reviver
 
-  check.assert.maybe.function(reviver)
+  try {
+    check.assert.maybe.function(reviver, 'Invalid reviver option')
+  } catch (error) {
+    return Promise.reject(error)
+  }
 
   const emitter = walk(stream, options)
 
