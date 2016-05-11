@@ -9,7 +9,7 @@ util.inherits(JsonStream, Readable)
 module.exports = JsonStream
 
 function JsonStream (read) {
-  if (check.not.instance(this, JsonStream)) {
+  if (check.not.instanceStrict(this, JsonStream)) {
     return new JsonStream(read)
   }
 
