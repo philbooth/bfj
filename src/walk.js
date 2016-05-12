@@ -37,7 +37,7 @@ module.exports = initialise
  *          them to save memory. The default value is `16384`.
  **/
 function initialise (stream, options) {
-  check.assert.instance(stream, require('stream').Readable, 'Invalid stream argument')
+  check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
 
   options = options || {}
 

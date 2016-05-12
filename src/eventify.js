@@ -101,15 +101,15 @@ function eventify (data, options) {
   }
 
   function coerce (datum) {
-    if (check.instance(datum, Promise)) {
+    if (check.instanceStrict(datum, Promise)) {
       return coerceThing(datum, 'promises', coercePromise).then(coerce)
     }
 
-    if (check.instance(datum, Buffer)) {
+    if (check.instanceStrict(datum, Buffer)) {
       return coerceThing(datum, 'buffers', coerceBuffer)
     }
 
-    if (check.instance(datum, Map)) {
+    if (check.instanceStrict(datum, Map)) {
       return coerceThing(datum, 'maps', coerceMap)
     }
 
