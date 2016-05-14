@@ -29,7 +29,7 @@
     "check-types": "7.0.0"
   },
   "devDependencies": {
-    "eslint": "2.9.0",
+    "eslint": "2.10.0",
     "esprima": "2.7.x",
     "mocha": "2.4.x",
     "chai": "3.5.x",
