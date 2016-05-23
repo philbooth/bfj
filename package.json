@@ -31,7 +31,7 @@
   "devDependencies": {
     "eslint": "2.10.2",
     "esprima": "2.7.x",
-    "mocha": "2.4.x",
+    "mocha": "2.5.1",
     "chai": "3.5.x",
     "mockery": "1.7.0",
     "spooks": "2.0.x"
