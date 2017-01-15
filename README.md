@@ -1,6 +1,8 @@
 # BFJ
 
-[![Build status][ci-image]][ci-status]
+[![Package status](https://img.shields.io/npm/v/bfj.svg?style=flat-square)](https://www.npmjs.com/package/bfj)
+[![Build status](https://img.shields.io/travis/philbooth/bfj.svg?style=flat-square)](https://travis-ci.org/philbooth/bfj)
+[![License](https://img.shields.io/github/license/philbooth/bfj.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 
