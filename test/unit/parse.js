@@ -69,7 +69,7 @@ suite('parse:', () => {
 
     test('parse does not throw if reviver is an object', () => {
       assert.doesNotThrow(() => {
-        parse({}, { reviver: {} })
+        parse({}, { reviver: {} }).catch(() => {})
       })
     })
 

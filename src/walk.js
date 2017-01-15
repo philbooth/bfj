@@ -73,42 +73,31 @@ function initialise (stream, options) {
 
     if (!isWalkBegun) {
       isWalkBegun = true
-      value()
-      return
+      return value()
     }
 
-    resume()
+    return resume()
   }
 
   function value () {
-    awaitNonWhitespace()
+    return awaitNonWhitespace()
       .then(next)
       .then(handleValue)
+      .catch(() => {})
   }
 
   function awaitNonWhitespace () {
-    let resolve, reject
-
-    wait()
-
-    return new Promise((res, rej) => {
-      resolve = res
-      reject = rej
-    })
+    return wait()
 
     function wait () {
-      awaitCharacter()
+      return awaitCharacter()
         .then(step)
-        .catch(reject)
     }
 
     function step () {
-      if (!isWhitespace(character())) {
-        return resolve()
+      if (isWhitespace(character())) {
+        return next().then(wait)
       }
-
-      next()
-        .then(wait)
     }
   }
 
@@ -121,7 +110,7 @@ function initialise (stream, options) {
 
     if (isStreamEnded) {
       setImmediate(endWalk)
-      return Promise.reject()
+      return Promise.reject(new Error('!!! PHIL !!!'))
     }
 
     resumeFn = after
@@ -151,9 +140,7 @@ function initialise (stream, options) {
   function next () {
     let resolve
 
-    awaitCharacter().then(after)
-
-    return new Promise(res => resolve = res)
+    return awaitCharacter().then(after)
 
     function after () {
       const result = character()
@@ -174,7 +161,7 @@ function initialise (stream, options) {
         index = 0
       }
 
-      resolve(result)
+      return result
     }
   }
 
@@ -207,18 +194,18 @@ function initialise (stream, options) {
         return literalTrue()
       default:
         fail(char, 'value', previousPosition)
-        value()
+        return value()
     }
   }
 
   function array () {
-    scope(events.array, value)
+    return scope(events.array, value)
   }
 
   function scope (event, contentHandler) {
     emitter.emit(event)
     scopes.push(event)
-    endScope(event).then(contentHandler)
+    return endScope(event).then(contentHandler)
   }
 
   function endScope (scp) {
@@ -243,7 +230,7 @@ function initialise (stream, options) {
   }
 
   function endValue () {
-    awaitNonWhitespace()
+    return awaitNonWhitespace()
       .then(after)
       .catch(endWalk)
 
@@ -253,20 +240,20 @@ function initialise (stream, options) {
         return setImmediate(value)
       }
 
-      checkScope()
+      return checkScope()
     }
 
     function checkScope () {
       const scp = scopes[scopes.length - 1]
 
-      endScope(scp).then(() => {
+      return endScope(scp).then(() => {
         const handler = handlers[scp]
 
         if (checkCharacter(character(), ',', currentPosition)) {
-          next().then(handler)
-        } else {
-          handler()
+          return next().then(handler)
         }
+
+        return handler()
       })
     }
   }
@@ -293,11 +280,11 @@ function initialise (stream, options) {
   }
 
   function object () {
-    scope(events.object, property)
+    return scope(events.object, property)
   }
 
   function property () {
-    awaitNonWhitespace()
+    return awaitNonWhitespace()
       .then(next)
       .then(propertyName)
   }
@@ -305,7 +292,7 @@ function initialise (stream, options) {
   function propertyName (char) {
     checkCharacter(char, '"', previousPosition)
 
-    walkString(events.property)
+    return walkString(events.property)
       .then(awaitNonWhitespace)
       .then(next)
       .then(propertyValue)
@@ -313,7 +300,7 @@ function initialise (stream, options) {
 
   function propertyValue (char) {
     checkCharacter(char, ':', previousPosition)
-    value()
+    return value()
   }
 
   function walkString (event) {
@@ -323,9 +310,7 @@ function initialise (stream, options) {
 
     isWalkingString = true
 
-    next().then(step)
-
-    return new Promise(res => resolve = res)
+    return next().then(step)
 
     function step (char) {
       if (isEscaping) {
@@ -333,7 +318,7 @@ function initialise (stream, options) {
 
         return escape(char).then(escaped => {
           str += escaped
-          next().then(step)
+          return next().then(step)
         })
       }
 
@@ -349,35 +334,26 @@ function initialise (stream, options) {
 
       isWalkingString = false
       emitter.emit(event, str)
-      resolve()
     }
   }
 
   function escape (char) {
-    let resolve
-
-    const promise = new Promise(res => resolve = res)
-
     if (escapes[char]) {
-      resolve(escapes[char])
-    } else if (char === 'u') {
-      escapeHex().then(resolve)
-    } else {
-      fail(char, 'escape character', previousPosition)
-      resolve(`\\${char}`)
+      return Promise.resolve(escapes[char])
     }
 
-    return promise
+    if (char === 'u') {
+      return escapeHex()
+    }
+
+    fail(char, 'escape character', previousPosition)
+    return Promise.resolve(`\\${char}`)
   }
 
   function escapeHex () {
-    let resolve
-
     let hexits = ''
 
-    next().then(step.bind(null, 0))
-
-    return new Promise(res => resolve = res)
+    return next().then(step.bind(null, 0))
 
     function step (idx, char) {
       if (isHexit(char)) {
@@ -389,23 +365,23 @@ function initialise (stream, options) {
       }
 
       if (hexits.length === 4) {
-        return resolve(String.fromCharCode(parseInt(hexits, 16)))
+        return String.fromCharCode(parseInt(hexits, 16))
       }
 
       fail(char, 'hex digit', previousPosition)
 
-      resolve(`\\u${hexits}${char}`)
+      return `\\u${hexits}${char}`
     }
   }
 
   function string () {
-    walkString(events.string).then(endValue)
+    return walkString(events.string).then(endValue)
   }
 
   function number (firstCharacter) {
     let digits = firstCharacter
 
-    walkDigits().then(addDigits.bind(null, checkDecimalPlace))
+    return walkDigits().then(addDigits.bind(null, checkDecimalPlace))
 
     function addDigits (step, result) {
       digits += result.digits
@@ -414,7 +390,7 @@ function initialise (stream, options) {
         return endNumber()
       }
 
-      step()
+      return step()
     }
 
     function checkDecimalPlace () {
@@ -425,7 +401,7 @@ function initialise (stream, options) {
         })
       }
 
-      checkExponent()
+      return checkExponent()
     }
 
     function checkExponent () {
@@ -438,7 +414,7 @@ function initialise (stream, options) {
         })
       }
 
-      endNumber()
+      return endNumber()
     }
 
     function checkSign () {
@@ -449,29 +425,26 @@ function initialise (stream, options) {
         })
       }
 
-      readExponent()
+      return readExponent()
     }
 
     function readExponent () {
-      walkDigits().then(addDigits.bind(null, endNumber))
+      return walkDigits().then(addDigits.bind(null, endNumber))
     }
 
     function endNumber () {
       emitter.emit(events.number, parseFloat(digits))
-      endValue()
+      return endValue()
     }
   }
 
   function walkDigits () {
-    let resolve
     let digits = ''
 
-    wait()
-
-    return new Promise(res => resolve = res)
+    return wait()
 
     function wait () {
-      awaitCharacter()
+      return awaitCharacter()
         .then(step)
         .catch(atEnd)
     }
@@ -480,29 +453,29 @@ function initialise (stream, options) {
       if (isDigit(character())) {
         return next().then(char => {
           digits += char
-          wait()
+          return wait()
         })
       }
 
-      resolve({ digits, atEnd: false })
+      return { digits, atEnd: false }
     }
 
     function atEnd () {
-      resolve({ digits, atEnd: true })
+      return { digits, atEnd: true }
     }
   }
 
   function literalFalse () {
-    literal([ 'a', 'l', 's', 'e' ], false)
+    return literal([ 'a', 'l', 's', 'e' ], false)
   }
 
   function literal (expectedCharacters, val) {
     let actual, expected, invalid
 
-    wait()
+    return wait()
 
     function wait () {
-      awaitCharacter()
+      return awaitCharacter()
         .then(step)
         .catch(atEnd)
     }
@@ -512,7 +485,7 @@ function initialise (stream, options) {
         return atEnd()
       }
 
-      next().then(afterNext)
+      return next().then(afterNext)
     }
 
     function atEnd () {
@@ -524,7 +497,7 @@ function initialise (stream, options) {
         done()
       }
 
-      endValue()
+      return endValue()
     }
 
     function afterNext (char) {
@@ -535,7 +508,7 @@ function initialise (stream, options) {
         invalid = true
       }
 
-      wait()
+      return wait()
     }
 
     function done () {
@@ -544,11 +517,11 @@ function initialise (stream, options) {
   }
 
   function literalNull () {
-    literal([ 'u', 'l', 'l' ], null)
+    return literal([ 'u', 'l', 'l' ], null)
   }
 
   function literalTrue () {
-    literal([ 'r', 'u', 'e' ], true)
+    return literal([ 'r', 'u', 'e' ], true)
   }
 
   function endStream () {
