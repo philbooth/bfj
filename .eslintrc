@@ -1,4 +1,3 @@
-parser: "esprima"
 env:
   es6: true
   node: true
