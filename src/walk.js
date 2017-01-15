@@ -138,8 +138,6 @@ function initialise (stream, options) {
   }
 
   function next () {
-    let resolve
-
     return awaitCharacter().then(after)
 
     function after () {
@@ -306,7 +304,6 @@ function initialise (stream, options) {
   function walkString (event) {
     let isEscaping = false
     let str = ''
-    let resolve
 
     isWalkingString = true
 
