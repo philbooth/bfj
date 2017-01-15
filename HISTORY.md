@@ -1,5 +1,9 @@
 # History
 
+## 2.1.2
+
+* Fix lint errors.
+
 ## 2.1.1
 
 * Fix "unhandled rejection" warnings.
