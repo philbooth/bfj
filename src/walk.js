@@ -110,7 +110,7 @@ function initialise (stream, options) {
 
     if (isStreamEnded) {
       setImmediate(endWalk)
-      return Promise.reject(new Error('!!! PHIL !!!'))
+      return Promise.reject()
     }
 
     resumeFn = after
