@@ -3,6 +3,8 @@
 const assert = require('chai').assert
 const path = require('path')
 const fs = require('fs')
+const request = require('request')
+const stream = require('stream')
 
 const modulePath = '../src'
 
@@ -192,6 +194,29 @@ suite('integration:', () => {
         assert.isTrue(failed)
         assert.isUndefined(result)
         assert.instanceOf(error, Error)
+      })
+    })
+
+    suite('parse request:', () => {
+      let result, failed
+
+      setup(() => {
+        failed = false
+        const jsonstream = new stream.PassThrough()
+        request({ url: 'https://raw.githubusercontent.com/philbooth/bfj/master/package.json' }).pipe(jsonstream)
+        return bfj.parse(jsonstream)
+          .then(res => {
+            result = res
+          })
+          .catch(err => {
+            console.log(err)
+            failed = true
+          })
+      })
+
+      test('result was correct', () => {
+        assert.isFalse(failed)
+        assert.deepEqual(result, require('../package.json'))
       })
     })
 

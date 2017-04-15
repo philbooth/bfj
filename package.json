@@ -34,7 +34,8 @@
     "chai": "3.5.x",
     "mockery": "2.0.x",
     "spooks": "2.0.x",
-    "please-release-me": "1.0.x"
+    "please-release-me": "1.0.x",
+    "request": "2.81.x"
   },
   "scripts": {
     "lint": "eslint src",
