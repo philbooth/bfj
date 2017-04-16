@@ -5,6 +5,7 @@ const check = require('check-types')
 const error = require('./error')
 const events = require('./events')
 const Hoopy = require('hoopy')
+const memory = require('./memory')
 
 const terminators = {
   obj: '}',
@@ -72,6 +73,8 @@ function initialise (stream, options) {
   const grow = !! options.grow
   const json = new Hoopy(size)
 
+  memory.initialise()
+
   stream.setEncoding('utf8')
   stream.on('data', readStream)
   stream.on('end', endStream)
@@ -108,6 +111,8 @@ function initialise (stream, options) {
   }
 
   function value () {
+    memory.update()
+
     return awaitNonWhitespace()
       .then(next)
       .then(handleValue)
@@ -571,6 +576,8 @@ function initialise (stream, options) {
     }
 
     emitter.emit(events.end)
+
+    memory.report()
   }
 
   function resume () {

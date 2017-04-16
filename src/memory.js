@@ -23,6 +23,7 @@ function initialise () {
 function update () {
   const currentMemory = process.memoryUsage()
   PROPERTIES.forEach(name => updateProperty(name, currentMemory))
+  memory.count += 1
 }
 
 function updateProperty (name, currentMemory) {

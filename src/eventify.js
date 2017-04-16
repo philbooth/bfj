@@ -3,6 +3,7 @@
 const check = require('check-types')
 const EventEmitter = require('events').EventEmitter
 const events = require('./events')
+const memory = require('./memory')
 
 const invalidTypes = {
   undefined: true, // eslint-disable-line no-undefined
@@ -63,14 +64,20 @@ function eventify (data, options) {
   }
 
   function begin () {
+    memory.initialise()
+
     proceed(data).then(after)
 
     function after () {
       emitter.emit(events.end)
+
+      memory.report()
     }
   }
 
   function proceed (datum) {
+    memory.update()
+
     return coerce(datum).then(after)
 
     function after (coerced) {
