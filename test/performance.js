@@ -9,17 +9,13 @@ const bfj = require('../src')
 
 console.log('reading json')
 
-const time = process.hrtime()
+let time = process.hrtime()
 
 bfj.read(getDataPath('.json'))
   .then(data => {
-    let options
     reportTime()
-    if (process.argv[2] === 'wpt') {
-      options = { space: 2 }
-    }
     console.log('writing json')
-    return bfj.write(getDataPath('-result.json'), data, options)
+    return bfj.write(getDataPath('-result.json'), data)
   })
   .then(() => done('succeeded'))
   .catch(error => done(error.stack, 1))
