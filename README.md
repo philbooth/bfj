@@ -175,6 +175,7 @@ and an [options](#options-for-serialisation-functions) object.
 ```js
 const bfj = require('bfj');
 
+// By passing a readable stream to bfj.parse():
 bfj.parse(fs.createReadStream(path))
   .then(data => {
     // :)
@@ -182,26 +183,54 @@ bfj.parse(fs.createReadStream(path))
   .catch(error => {
     // :(
   });
+
+// ...or by passing the result from bfj.unpipe() to stream.pipe():
+request({ url }).pipe(bfj.unpipe((error, data) => {
+  if (error) {
+    // :(
+  } else {
+    // :)
+  }
+}))
 ```
 
-`parse` returns a [promise](promise)
-and asynchronously parses
-a stream of JSON data.
+* `parse` returns a [promise](promise)
+  and asynchronously parses
+  a stream of JSON data.
 
-It takes two arguments;
-a [readable stream][readable]
-from which
-the JSON
-will be parsed
-and an [options](#options-for-parsing-functions) object.
+  It takes two arguments;
+  a [readable stream][readable]
+  from which
+  the JSON
+  will be parsed
+  and an [options](#options-for-parsing-functions) object.
 
-If there are
-no syntax errors,
-the returned promise is resolved
-with the parsed data.
-If syntax errors occur,
-the promise is rejected
-with the first error.
+  If there are
+  no syntax errors,
+  the returned promise is resolved
+  with the parsed data.
+  If syntax errors occur,
+  the promise is rejected
+  with the first error.
+
+* `unpipe` returns a [writable stream][writable]
+  that can be passed to [`stream.pipe`][pipe],
+  then parses JSON data
+  read from the stream.
+
+  It takes two arguments;
+  a callback function
+  that will be called
+  after parsing is complete
+  and an [options](#options-for-parsing-functions) object.
+
+  If there are no errors,
+  the callback is invoked
+  with the result as the second argument.
+  If errors occur,
+  the first error is passed
+  the callback
+  as the first argument.
 
 ## How do I create a JSON string?
 
@@ -641,8 +670,10 @@ with the command
 [ci-status]: http://travis-ci.org/#!/philbooth/bfj
 [sax]: http://en.wikipedia.org/wiki/Simple_API_for_XML
 [promise]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[eventemitter]: https://nodejs.org/api/events.html#events_class_events_eventemitter
-[readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
+[eventemitter]: https://nodejs.org/api/events.html#events_class_eventemitter
+[readable]: https://nodejs.org/api/stream.html#stream_readable_streams
+[writable]: https://nodejs.org/api/stream.html#stream_writable_streams
+[pipe]: https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options
 [reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter
 [space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
 [history]: HISTORY.md

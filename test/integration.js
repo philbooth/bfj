@@ -198,24 +198,20 @@ suite('integration:', () => {
     })
 
     suite('parse request:', () => {
-      let result, failed
+      let error, result
 
-      setup(() => {
-        failed = false
+      setup(done => {
         const jsonstream = new stream.PassThrough()
-        request({ url: 'https://raw.githubusercontent.com/philbooth/bfj/master/package.json' }).pipe(jsonstream)
-        return bfj.parse(jsonstream)
-          .then(res => {
+        request({ url: 'https://raw.githubusercontent.com/philbooth/bfj/master/package.json' })
+          .pipe(bfj.unpipe((err, res) => {
+            error = err
             result = res
-          })
-          .catch(err => {
-            console.log(err)
-            failed = true
-          })
+            done()
+          }))
       })
 
       test('result was correct', () => {
-        assert.isFalse(failed)
+        assert.isNull(error)
         assert.deepEqual(result, require('../package.json'))
       })
     })
