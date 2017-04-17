@@ -1,5 +1,17 @@
 # History
 
+## 3.0.0
+
+* chore: delete left-over debugging code (b903a27)
+* chore: run tests on node 7 (acbb808)
+* chore: remove old linter config (62c18ce)
+* chore: update dependencies (882c74c)
+* chore: add an integration test that parses a request (029afdb)
+* chore: fix the broken perf test (8ac0e03)
+* chore: add a crude memory-profiling script (1ee6f36)
+* breaking change: preallocate memory to avoid out-of-memory conditions (18da753)
+* feature: implement unpipe (f8a41d2)
+
 ## 2.1.2
 
 * Fix lint errors.
