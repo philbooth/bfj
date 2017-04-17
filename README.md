@@ -32,20 +32,18 @@ to parse
 large JSON strings
 or stringify
 large JavaScript data sets,
-it makes sense
-to do so asynchronously
-rather than
-monopolising
-the event loop.
-BFJ implements
-those asynchronous functions.
+it monopolises the event loop
+and can lead to out-of-memory exceptions.
+BFJ implements asynchronous functions
+and uses pre-allocated fixed-length arrays
+to try and alleviate those issues.
 
 ## What functions does it implement?
 
-Seven functions
+Eight functions
 are exported.
 
-Three are
+Four are
 concerned with
 parsing, or
 turning JSON strings
@@ -55,9 +53,9 @@ into JavaScript data:
   asynchronously parses
   a JSON file from disk.
 
-* [`parse`](#how-do-i-parse-a-stream-of-json)
-  asynchronously parses
-  a stream of JSON.
+* [`parse` and `unpipe`](#how-do-i-parse-a-stream-of-json)
+  are for asynchronously parsing
+  streams of JSON.
 
 * [`walk`](#bfjwalk-stream-options)
   asynchronously walks
