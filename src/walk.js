@@ -31,18 +31,24 @@ module.exports = initialise
  * Returns an event emitter and asynchronously walks a stream of JSON data,
  * emitting events as it encounters tokens.
  *
- * @param stream:   Readable instance representing the incoming JSON.
+ * @param stream: Readable instance representing the incoming JSON.
  *
- * @option discard: The number of characters to process before discarding
- *          them to save memory. The default value is `16384`.
+ * @option size: The number of characters to keep in memory. Higher values use more
+ *               memory, lower values increase the chance of failure due to chunk
+ *               size exceeding available space. The default value is `1048576`.
+ *
+ * @option grow: Boolean indicating whether to grow memory automatically when an
+ *               incoming chunk exceeds the amount of available space. Introduces
+ *               the possibility of out-of-memory exceptions and may slow down
+ *               parsing. The default value is `false`.
  **/
 function initialise (stream, options) {
   check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
 
   options = options || {}
 
-  let json = ''
   let index = 0
+  let length = 0
   let isStreamEnded = false
   let isWalkBegun = false
   let isWalkEnded = false
@@ -60,7 +66,10 @@ function initialise (stream, options) {
     obj: property
   }
   const emitter = new EventEmitter()
-  const discardThreshold = options.discard || 16384
+  let size = options.size || 1048576
+  const initialSize = size
+  const grow = !! options.grow
+  let json = new Array(size)
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)
@@ -69,14 +78,39 @@ function initialise (stream, options) {
   return emitter
 
   function readStream (chunk) {
-    json += chunk
+    try {
+      chunk.split('').forEach(readCharacter)
 
-    if (!isWalkBegun) {
-      isWalkBegun = true
-      return value()
+      if (!isWalkBegun) {
+        isWalkBegun = true
+        return value()
+      }
+
+      return resume()
+    } catch (err) {
+      emitter.emit(events.error, err)
+      endWalk()
+    }
+  }
+
+  function readCharacter (c) {
+    if (length > size && index === length - size - 1) {
+      if (! grow) {
+        throw new Error(`Chunk exceeded size limit. Try increasing the size option to greater than ${size} or using the grow option.`)
+      }
+
+      const oldSize = size
+      size += initialSize
+      const embiggened = new Array(size)
+      for (let i = 0; i < oldSize; ++i) {
+        embiggened[i] = json[(index + i) % oldSize]
+      }
+      json = embiggened
+      index = 0
+      length = oldSize
     }
 
-    return resume()
+    json[length++ % size] = c
   }
 
   function value () {
@@ -104,7 +138,7 @@ function initialise (stream, options) {
   function awaitCharacter () {
     let resolve, reject
 
-    if (index < json.length) {
+    if (index < length) {
       return Promise.resolve()
     }
 
@@ -121,7 +155,7 @@ function initialise (stream, options) {
     })
 
     function after () {
-      if (index < json.length) {
+      if (index < length) {
         return resolve()
       }
 
@@ -134,7 +168,7 @@ function initialise (stream, options) {
   }
 
   function character () {
-    return json[index]
+    return json[index % size]
   }
 
   function next () {
@@ -152,11 +186,6 @@ function initialise (stream, options) {
         currentPosition.column = 1
       } else {
         currentPosition.column += 1
-      }
-
-      if (index === discardThreshold) {
-        json = json.substring(index)
-        index = 0
       }
 
       return result

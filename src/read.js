@@ -16,8 +16,14 @@ module.exports = read
  *
  * @option reviver: Transformation function, invoked depth-first.
  *
- * @option discard: The number of characters to process before discarding them
- *          to save memory. The default value is `16384`.
+ * @option size: The number of characters to keep in memory. Higher values use more
+ *               memory, lower values increase the chance of failure due to chunk
+ *               size exceeding available space. The default value is `1048576`.
+ *
+ * @option grow: Boolean indicating whether to grow memory automatically when an
+ *               incoming chunk exceeds the amount of available space. Introduces
+ *               the possibility of out-of-memory exceptions and may slow down
+ *               parsing. The default value is `false`.
  **/
 function read (path, options) {
   return parse(fs.createReadStream(path, options), options)
