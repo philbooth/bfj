@@ -4,6 +4,7 @@ const EventEmitter = require('events').EventEmitter
 const check = require('check-types')
 const error = require('./error')
 const events = require('./events')
+const Hoopy = require('hoopy')
 
 const terminators = {
   obj: '}',
@@ -69,7 +70,7 @@ function initialise (stream, options) {
   let size = options.size || 1048576
   const initialSize = size
   const grow = !! options.grow
-  let json = new Array(size)
+  let json = new Hoopy(size)
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)
@@ -94,23 +95,16 @@ function initialise (stream, options) {
   }
 
   function readCharacter (c) {
-    if (length > size && index === length - size - 1) {
+    if (length > size && index % size === length - size - 1) {
       if (! grow) {
         throw new Error(`Chunk exceeded size limit. Try increasing the size option to greater than ${size} or using the grow option.`)
       }
 
-      const oldSize = size
+      json.grow(initialSize)
       size += initialSize
-      const embiggened = new Array(size)
-      for (let i = 0; i < oldSize; ++i) {
-        embiggened[i] = json[(index + i) % oldSize]
-      }
-      json = embiggened
-      index = 0
-      length = oldSize
     }
 
-    json[length++ % size] = c
+    json[length++] = c
   }
 
   function value () {
@@ -168,7 +162,7 @@ function initialise (stream, options) {
   }
 
   function character () {
-    return json[index % size]
+    return json[index]
   }
 
   function next () {

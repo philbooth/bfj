@@ -26,7 +26,8 @@
     "url": "https://github.com/philbooth/bfj.git"
   },
   "dependencies": {
-    "check-types": "7.1.5"
+    "check-types": "7.1.5",
+    "hoopy": "^0.1.1"
   },
   "devDependencies": {
     "eslint": "3.19.x",
@@ -45,4 +46,3 @@
     "perf": "wget -O test/mtg.json http://mtgjson.com/json/AllSets-x.json && node test/performance mtg"
   }
 }
-
