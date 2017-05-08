@@ -1,5 +1,9 @@
 # History
 
+## 3.1.2
+
+* fix: eliminate duplicated readme section (283b3ce)
+
 ## 3.1.1
 
 * fix: document the dropped support for node 4 (6120c9e)
