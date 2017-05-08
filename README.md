@@ -20,7 +20,6 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [What options can I specify?](#what-options-can-i-specify)
   * [Options for parsing functions](#options-for-parsing-functions)
   * [Options for serialisation functions](#options-for-serialisation-functions)
-* [Which versions of node are supported?](#which-versions-of-node-are-supported)
 * [Is there a change log?](#is-there-a-change-log)
 * [How do I set up the dev environment?](#how-do-i-set-up-the-dev-environment)
 * [What versions of Node.js does it support?](#what-versions-of-nodejs-does-it-support)
@@ -623,14 +622,6 @@ of an object,
   circular references
   in the data.
 
-## Which versions of node are supported?
-
-As of [version 3.0.0](HISTORY.md#300),
-only Node.js versions 6 or greater
-are supported
-because of the dependency
-on [Hoopy](https://github.com/philbooth/hoopy).
-
 ## Is there a change log?
 
 [Yes][history].
@@ -667,7 +658,13 @@ with the command
 
 ## What versions of Node.js does it support?
 
-4 and later.
+As of [version `3.0.0`](HISTORY.md#300),
+only Node.js versions 6 or greater
+are supported
+because of the dependency
+on [Hoopy](https://github.com/philbooth/hoopy).
+Previous versions supported
+node 4 and later.
 
 ## What license is it released under?
 
