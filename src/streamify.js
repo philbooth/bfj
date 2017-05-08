@@ -4,6 +4,9 @@ const check = require('check-types')
 const eventify = require('./eventify')
 const events = require('./events')
 const JsonStream = require('./jsonstream')
+const Hoopy = require('hoopy')
+
+const BUFFER_SIZE = 65536
 
 module.exports = streamify
 
@@ -36,7 +39,9 @@ function streamify (data, options) {
   const stream = new JsonStream(read)
   const emitter = eventify(data, options)
 
-  let json = ''
+  let json = new Hoopy(BUFFER_SIZE)
+  let length = 0
+  let index = 0
   let indentation = ''
   let awaitPush = true
 
@@ -58,7 +63,7 @@ function streamify (data, options) {
       awaitPush = false
 
       if (isEnded) {
-        if (json !== '') {
+        if (length > 0) {
           after()
         }
 
@@ -76,9 +81,21 @@ function streamify (data, options) {
   function array () {
     beforeScope()
 
-    json += '['
+    addJson('[')
 
     afterScope()
+  }
+
+  function addJson (characters) {
+    const characterCount = characters.length
+
+    if (length + characterCount > json.length) {
+      json.grow(characterCount > BUFFER_SIZE ? characterCount : BUFFER_SIZE)
+    }
+
+    for (let i = 0; i < characterCount; ++i) {
+      json[index + length++] = characters[i]
+    }
   }
 
   function beforeScope () {
@@ -90,7 +107,7 @@ function streamify (data, options) {
       isProperty = false
 
       if (space) {
-        json += ' '
+        addJson(' ')
       }
     } else {
       if (needsComma) {
@@ -98,7 +115,7 @@ function streamify (data, options) {
           needsComma = false
         }
 
-        json += ','
+        addJson(',')
       } else if (!isScope) {
         needsComma = true
       }
@@ -110,7 +127,7 @@ function streamify (data, options) {
   }
 
   function indent () {
-    json += `\n${indentation}`
+    addJson(`\n${indentation}`)
   }
 
   function afterScope () {
@@ -128,17 +145,26 @@ function streamify (data, options) {
       return
     }
 
-    if (!stream.push(json, 'utf8')) {
-      awaitPush = true
+    let i
+
+    for (i = 0; i < length && ! awaitPush; ++i) {
+      if (! stream.push(json[i + index], 'utf8')) {
+        awaitPush = true
+      }
     }
 
-    json = ''
+    if (i === length) {
+      index = length = 0
+    } else {
+      length -= i
+      index += i
+    }
   }
 
   function object () {
     beforeScope()
 
-    json += '{'
+    addJson('{')
 
     afterScope()
   }
@@ -146,7 +172,8 @@ function streamify (data, options) {
   function property (name) {
     before()
 
-    json += `"${name}":`
+    addJson(`"${name}":`)
+
     isProperty = true
 
     after()
@@ -159,7 +186,7 @@ function streamify (data, options) {
   function value (v) {
     before()
 
-    json += v
+    addJson('' + v)
 
     after()
   }
@@ -167,7 +194,7 @@ function streamify (data, options) {
   function endArray () {
     beforeScopeEnd()
 
-    json += ']'
+    addJson(']')
 
     afterScopeEnd()
   }
@@ -188,7 +215,7 @@ function streamify (data, options) {
   function endObject () {
     beforeScopeEnd()
 
-    json += '}'
+    addJson('}')
 
     afterScopeEnd()
   }
