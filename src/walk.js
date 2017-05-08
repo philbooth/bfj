@@ -70,7 +70,7 @@ function initialise (stream, options) {
   let size = options.size || 1048576
   const initialSize = size
   const grow = !! options.grow
-  let json = new Hoopy(size)
+  const json = new Hoopy(size)
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)

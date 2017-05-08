@@ -39,7 +39,7 @@ function streamify (data, options) {
   const stream = new JsonStream(read)
   const emitter = eventify(data, options)
 
-  let json = new Hoopy(BUFFER_SIZE)
+  const json = new Hoopy(BUFFER_SIZE)
   let length = 0
   let index = 0
   let indentation = ''
@@ -90,6 +90,7 @@ function streamify (data, options) {
     const characterCount = characters.length
 
     if (length + characterCount > json.length) {
+      // eslint-disable-next-line no-ternary
       json.grow(characterCount > BUFFER_SIZE ? characterCount : BUFFER_SIZE)
     }
 
@@ -186,7 +187,7 @@ function streamify (data, options) {
   function value (v) {
     before()
 
-    addJson('' + v)
+    addJson(`${v}`)
 
     after()
   }
