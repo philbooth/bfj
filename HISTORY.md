@@ -1,5 +1,9 @@
 # History
 
+## 3.1.1
+
+* fix: document the dropped support for node 4 (6120c9e)
+
 ## 3.1.0
 
 * chore: tweak the readme (040e9be)
