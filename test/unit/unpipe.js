@@ -7,6 +7,7 @@ const spooks = require('spooks')
 const modulePath = '../../src/unpipe'
 
 mockery.registerAllowable(modulePath)
+mockery.registerAllowable('stream')
 
 suite('unpipe:', () => {
   let log, results
