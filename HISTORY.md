@@ -1,5 +1,13 @@
 # History
 
+## 3.1.0
+
+* chore: tweak the readme (040e9be)
+* chore: swap out bespoke circular array for hoopy (0ed7986)
+* feature: used fixed-length circular array in streamify (e773a94)
+* fix: eliminate mockery allowed module warning (b1dc7db)
+* chore: fix lint errors (abde4de)
+
 ## 3.0.0
 
 * chore: delete left-over debugging code (b903a27)
