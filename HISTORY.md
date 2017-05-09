@@ -1,5 +1,9 @@
 # History
 
+## 3.1.3
+
+* fix: eliminate needless per-character chunking in streamify (a7fcc2f)
+
 ## 3.1.2
 
 * fix: eliminate duplicated readme section (283b3ce)
