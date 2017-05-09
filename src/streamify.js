@@ -86,17 +86,12 @@ function streamify (data, options) {
     afterScope()
   }
 
-  function addJson (characters) {
-    const characterCount = characters.length
-
-    if (length + characterCount > json.length) {
-      // eslint-disable-next-line no-ternary
-      json.grow(characterCount > BUFFER_SIZE ? characterCount : BUFFER_SIZE)
+  function addJson (chunk) {
+    if (length + 1 > json.length) {
+      json.grow(BUFFER_SIZE)
     }
 
-    for (let i = 0; i < characterCount; ++i) {
-      json[index + length++] = characters[i]
-    }
+    json[index + length++] = chunk
   }
 
   function beforeScope () {
