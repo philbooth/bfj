@@ -115,7 +115,7 @@ git clone git@github.com:philbooth/bfj.git
 ```js
 const bfj = require('bfj');
 
-bfj.read(path)
+bfj.read(path[, options])
   .then(data => {
     // :)
   })
@@ -146,7 +146,7 @@ with the first error.
 ```js
 const bfj = require('bfj');
 
-bfj.write(path, data)
+bfj.write(path, data[, options])
   .then(() => {
     // :)
   })
@@ -174,7 +174,7 @@ and an [options](#options-for-serialisation-functions) object.
 const bfj = require('bfj');
 
 // By passing a readable stream to bfj.parse():
-bfj.parse(fs.createReadStream(path))
+bfj.parse(fs.createReadStream(path)[, options])
   .then(data => {
     // :)
   })
@@ -235,7 +235,7 @@ request({ url }).pipe(bfj.unpipe((error, data) => {
 ```js
 const bfj = require('bfj');
 
-bfj.stringify(data)
+bfj.stringify(data[, options])
   .then(json => {
     // :)
   })
@@ -260,7 +260,7 @@ and an [options](#options-for-serialisation-functions) object.
 ```js
 const bfj = require('bfj');
 
-const stream = bfj.streamify(data);
+const stream = bfj.streamify(data[, options]);
 
 // Get data out of the stream with event handlers
 stream.on('data', chunk => { /* ... */ });
@@ -288,7 +288,7 @@ and an [options](#options-for-serialisation-functions) object.
 ```js
 const bfj = require('bfj');
 
-const emitter = bfj.walk(fs.createReadStream(path));
+const emitter = bfj.walk(fs.createReadStream(path)[, options]);
 
 emitter.on(bfj.events.array, () => { /* ... */ });
 emitter.on(bfj.events.object, () => { /* ... */ });
@@ -412,7 +412,7 @@ of an object,
 ```js
 const bfj = require('bfj');
 
-const emitter = bfj.eventify(data);
+const emitter = bfj.eventify(data[, options]);
 
 emitter.on(bfj.events.array, () => { /* ... */ });
 emitter.on(bfj.events.object, () => { /* ... */ });
