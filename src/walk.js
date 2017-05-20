@@ -50,6 +50,7 @@ function initialise (stream, options) {
 
   let index = 0
   let length = 0
+  let unwalked = 0
   let isStreamEnded = false
   let isWalkBegun = false
   let isWalkEnded = false
@@ -95,7 +96,7 @@ function initialise (stream, options) {
   }
 
   function readCharacter (c) {
-    if (length > size && index % size === length - size - 1) {
+    if (length > size && unwalked >= size - 1) {
       if (! grow) {
         throw new Error(`Chunk exceeded size limit. Try increasing the size option to greater than ${size} or using the grow option.`)
       }
@@ -105,6 +106,7 @@ function initialise (stream, options) {
     }
 
     json[length++] = c
+    unwalked += 1
   }
 
   function value () {
@@ -172,6 +174,7 @@ function initialise (stream, options) {
       const result = character()
 
       index += 1
+      unwalked -= 1
       previousPosition.line = currentPosition.line
       previousPosition.column = currentPosition.column
 
