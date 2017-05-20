@@ -1,5 +1,12 @@
 # History
 
+## 3.1.4
+
+* fix: add options to example code (5c207dd)
+* chore: update authors (cdf2b7d)
+* chore: bump up the default array size to 4mb (4a2fe55)
+* fix: fix stupid memory consumption bug (d2b6fe2)
+
 ## 3.1.3
 
 * fix: eliminate needless per-character chunking in streamify (a7fcc2f)
