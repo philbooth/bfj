@@ -67,7 +67,7 @@ function initialise (stream, options) {
     obj: property
   }
   const emitter = new EventEmitter()
-  let size = options.size || 1048576
+  let size = options.size || 4194304
   const initialSize = size
   const grow = !! options.grow
   const json = new Hoopy(size)
