@@ -30,6 +30,9 @@ module.exports = eventify
  * @option iterables:  'array' or 'ignore', default is 'array'.
  *
  * @option circular:   'error' or 'ignore', default is 'error'.
+ *
+ * @option yieldRate:  The number of data items to process per timeslice,
+ *                     default is 16384.
  **/
 function eventify (data, options) {
   let ignoreCircularReferences, ignoreItems
@@ -37,6 +40,8 @@ function eventify (data, options) {
   const references = []
   const coercions = {}
   const emitter = new EventEmitter()
+  let count = 0
+  let yieldRate
 
   normaliseOptions()
   setImmediate(begin)
@@ -54,6 +59,9 @@ function eventify (data, options) {
     if (options.circular === 'ignore') {
       ignoreCircularReferences = true
     }
+
+    check.assert.maybe.positive(options.yieldRate)
+    yieldRate = options.yieldRate || 16384
   }
 
   function normaliseOption (key) {
@@ -71,7 +79,17 @@ function eventify (data, options) {
   }
 
   function proceed (datum) {
-    return coerce(datum).then(after)
+    if (++count % yieldRate !== 0) {
+      return coerce(datum).then(after)
+    }
+
+    return new Promise(resolve => {
+      setImmediate(() => {
+        coerce(datum)
+          .then(after)
+          .then(resolve)
+      })
+    })
 
     function after (coerced) {
       if (isInvalidType(coerced)) {
@@ -190,7 +208,7 @@ function eventify (data, options) {
   }
 
   function collection (obj, arr, type, action) {
-    let ignoreThisItem, resolve
+    let ignoreThisItem
 
     if (references.indexOf(obj) >= 0) {
       ignoreThisItem = ignoreItems = true
@@ -204,9 +222,7 @@ function eventify (data, options) {
 
     emitter.emit(events[type])
 
-    setImmediate(item.bind(null, 0))
-
-    return new Promise(res => resolve = res)
+    return item(0)
 
     function item (index) {
       if (index >= arr.length) {
@@ -215,19 +231,19 @@ function eventify (data, options) {
         }
 
         if (ignoreItems) {
-          return
+          return Promise.resolve()
         }
 
         emitter.emit(events.endPrefix + events[type])
 
-        return resolve()
+        return Promise.resolve()
       }
 
       if (ignoreItems) {
         return item(index + 1)
       }
 
-      action(arr[index]).then(item.bind(null, index + 1))
+      return action(arr[index]).then(item.bind(null, index + 1))
     }
   }
 

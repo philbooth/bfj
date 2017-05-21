@@ -30,6 +30,9 @@ module.exports = streamify
  * @option iterables: 'array' or 'ignore', default is 'array'.
  *
  * @option circular:  'error' or 'ignore', default is 'error'.
+ *
+ * @option yieldRate:  The number of data items to process per timeslice,
+ *                     default is 16384.
  **/
 function streamify (data, options) {
   let isProperty, needsComma, isEnded

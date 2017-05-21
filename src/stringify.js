@@ -24,6 +24,9 @@ module.exports = stringify
  * @option iterables: 'array' or 'ignore', default is 'array'.
  *
  * @option circular:  'error' or 'ignore', default is 'error'.
+ *
+ * @option yieldRate:  The number of data items to process per timeslice,
+ *                     default is 16384.
  **/
 function stringify (data, options) {
   let resolve, reject

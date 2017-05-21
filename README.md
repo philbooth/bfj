@@ -609,6 +609,16 @@ of an object,
   circular references
   in the data.
 
+* `options.yieldRate`:
+  The number of data items to process
+  before yielding to the event loop.
+  Smaller values yield to the event loop more frequently,
+  meaning less time will be consumed by bfj per tick
+  but the overall serialisation time will be slower.
+  Larger values yield to the event loop less often,
+  meaning slower tick times but faster overall serialisation time.
+  The default value is `16384`.
+
 ## Is there a change log?
 
 [Yes][history].
