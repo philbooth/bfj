@@ -34,7 +34,7 @@ module.exports = initialise
  * @param stream:   Readable instance representing the incoming JSON.
  *
  * @option discard: The number of characters to process before discarding
- *                  them to save memory. The default value is `16384`.
+ *                  them to save memory. The default value is `1048576`.
  **/
 function initialise (stream, options) {
   check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
@@ -60,7 +60,7 @@ function initialise (stream, options) {
     obj: property
   }
   const emitter = new EventEmitter()
-  const discardThreshold = options.discard || 16384
+  const discardThreshold = options.discard || 1048576
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)

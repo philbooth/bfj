@@ -19,7 +19,7 @@ module.exports = unpipe
  * @option reviver: Transformation function, invoked depth-first.
  *
  * @option discard: The number of characters to process before discarding them
- *                  to save memory. The default value is `16384`.
+ *                  to save memory. The default value is `1048576`.
  **/
 function unpipe (callback, options) {
   check.assert.function(callback, 'Invalid callback argument')

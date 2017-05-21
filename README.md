@@ -542,7 +542,7 @@ of an object,
   discarding them
   to save memory.
   The default value
-  is `16384`.
+  is `1048576`.
 
 ### Options for serialisation functions
 

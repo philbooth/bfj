@@ -18,7 +18,7 @@ module.exports = parse
  * @option reviver: Transformation function, invoked depth-first.
  *
  * @option discard: The number of characters to process before discarding
- *                  them to save memory. The default value is `16384`.
+ *                  them to save memory. The default value is `1048576`.
  **/
 function parse (stream, options) {
   let resolve, reject, scopeKey
