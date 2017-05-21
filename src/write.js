@@ -17,7 +17,7 @@ module.exports = write
  * @param data:     The data to transform.
  *
  * @option space:   Indentation string, or the number of spaces
- *          to indent each nested level by.
+ *                  to indent each nested level by.
  *
  * @option promises:  'resolve' or 'ignore', default is 'resolve'.
  *

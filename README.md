@@ -536,26 +536,13 @@ of an object,
   is analagous to the
   [reviver parameter for JSON.parse][reviver].
 
-* `options.size`:
+* `options.discard`:
   The number of characters
-  to keep in memory.
-  Higher values use more memory,
-  lower values increase the chance of failure
-  due to chunk size exceeding available space.
+  to process before
+  discarding them
+  to save memory.
   The default value
-  is `1048576`.
-
-* `options.grow`:
-  Boolean flag indicating whether
-  to grow memory automatically
-  when an incoming chunk exceeds
-  the available memory.
-  Introduces the possibility
-  of out-of-memory exceptions
-  and may slow down parsing
-  if `options.size` is a small number.
-  The default value
-  is `false`.
+  is `16384`.
 
 ### Options for serialisation functions
 

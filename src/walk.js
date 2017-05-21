@@ -4,7 +4,6 @@ const EventEmitter = require('events').EventEmitter
 const check = require('check-types')
 const error = require('./error')
 const events = require('./events')
-const Hoopy = require('hoopy')
 
 const terminators = {
   obj: '}',
@@ -32,25 +31,18 @@ module.exports = initialise
  * Returns an event emitter and asynchronously walks a stream of JSON data,
  * emitting events as it encounters tokens.
  *
- * @param stream: Readable instance representing the incoming JSON.
+ * @param stream:   Readable instance representing the incoming JSON.
  *
- * @option size: The number of characters to keep in memory. Higher values use more
- *               memory, lower values increase the chance of failure due to chunk
- *               size exceeding available space. The default value is `1048576`.
- *
- * @option grow: Boolean indicating whether to grow memory automatically when an
- *               incoming chunk exceeds the amount of available space. Introduces
- *               the possibility of out-of-memory exceptions and may slow down
- *               parsing. The default value is `false`.
+ * @option discard: The number of characters to process before discarding
+ *                  them to save memory. The default value is `16384`.
  **/
 function initialise (stream, options) {
   check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
 
   options = options || {}
 
+  let json = ''
   let index = 0
-  let length = 0
-  let unwalked = 0
   let isStreamEnded = false
   let isWalkBegun = false
   let isWalkEnded = false
@@ -68,10 +60,7 @@ function initialise (stream, options) {
     obj: property
   }
   const emitter = new EventEmitter()
-  let size = options.size || 4194304
-  const initialSize = size
-  const grow = !! options.grow
-  const json = new Hoopy(size)
+  const discardThreshold = options.discard || 16384
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)
@@ -80,33 +69,14 @@ function initialise (stream, options) {
   return emitter
 
   function readStream (chunk) {
-    try {
-      chunk.split('').forEach(readCharacter)
+    json += chunk
 
-      if (!isWalkBegun) {
-        isWalkBegun = true
-        return value()
-      }
-
-      return resume()
-    } catch (err) {
-      emitter.emit(events.error, err)
-      endWalk()
-    }
-  }
-
-  function readCharacter (c) {
-    if (length > size && unwalked >= size - 1) {
-      if (! grow) {
-        throw new Error(`Chunk exceeded size limit. Try increasing the size option to greater than ${size} or using the grow option.`)
-      }
-
-      json.grow(initialSize)
-      size += initialSize
+    if (!isWalkBegun) {
+      isWalkBegun = true
+      return value()
     }
 
-    json[length++] = c
-    unwalked += 1
+    return resume()
   }
 
   function value () {
@@ -134,13 +104,13 @@ function initialise (stream, options) {
   function awaitCharacter () {
     let resolve, reject
 
-    if (index < length) {
+    if (index < json.length) {
       return Promise.resolve()
     }
 
     if (isStreamEnded) {
       setImmediate(endWalk)
-      return Promise.reject()
+      return Promise.reject(new Error('!!! PHIL !!!'))
     }
 
     resumeFn = after
@@ -151,7 +121,7 @@ function initialise (stream, options) {
     })
 
     function after () {
-      if (index < length) {
+      if (index < json.length) {
         return resolve()
       }
 
@@ -174,7 +144,6 @@ function initialise (stream, options) {
       const result = character()
 
       index += 1
-      unwalked -= 1
       previousPosition.line = currentPosition.line
       previousPosition.column = currentPosition.column
 
@@ -183,6 +152,11 @@ function initialise (stream, options) {
         currentPosition.column = 1
       } else {
         currentPosition.column += 1
+      }
+
+      if (index === discardThreshold) {
+        json = json.substring(index)
+        index = 0
       }
 
       return result

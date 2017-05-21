@@ -2781,14 +2781,14 @@ suite('walk:', () => {
       })
     })
 
-    suite('populated array with size=1, grow=true:', () => {
+    suite('populated array with discard=1:', () => {
       let stream, emitter
 
       setup(done => {
         stream = new Readable()
         stream._read = () => {}
 
-        emitter = walk(stream, { size: 1, grow: true })
+        emitter = walk(stream, { discard: 1 })
 
         stream.push(' ')
 
@@ -2824,10 +2824,6 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.array, 1)
       })
 
-      test('string event occurred once', () => {
-        assert.strictEqual(log.counts.string, 1)
-      })
-
       test('string event was dispatched correctly', () => {
         assert.strictEqual(log.args.string[0][0], "")
       })
@@ -2840,131 +2836,8 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.end, 1)
       })
 
-      test('error event did not occur', () => {
-        assert.strictEqual(log.counts.error, 0)
-      })
-    })
-
-    suite('grow=false and chunk exceeds space:', () => {
-      let stream, emitter
-
-      setup(done => {
-        stream = new Readable()
-        stream._read = () => {}
-
-        emitter = walk(stream, { size: 1, grow: false })
-
-        stream.push('[')
-
-        Object.keys(events).forEach(key => {
-          emitter.on(events[key], spooks.fn({
-            name: key,
-            log: log
-          }))
-        })
-
-        emitter.on(events.end, done)
-
-        emitter.on(events.array, () => {
-          stream.push('""]')
-          stream.push(null)
-        })
-
-        setImmediate(stream.push.bind(stream, '['))
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
-      test('array event occurred once', () => {
-        assert.strictEqual(log.counts.array, 1)
-      })
-
-      test('string event did not occur', () => {
-        assert.strictEqual(log.counts.string, 0)
-      })
-
-      test('endArray event did not occur', () => {
-        assert.strictEqual(log.counts.endArray, 0)
-      })
-
-      test('end event occurred once', () => {
-        assert.strictEqual(log.counts.end, 1)
-      })
-
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
-      })
-
-      test('error event was dispatched correctly', () => {
-        assert.lengthOf(log.args.error[0], 1)
-        assert.instanceOf(log.args.error[0][0], Error)
-        assert.strictEqual(log.args.error[0][0].message, 'Chunk exceeded size limit. Try increasing the size option to greater than 1 or using the grow option.')
-        assert.isUndefined(log.args.error[0][0].actual)
-        assert.isUndefined(log.args.error[0][0].expected)
-        assert.isUndefined(log.args.error[0][0].lineNumber)
-        assert.isUndefined(log.args.error[0][0].columnNumber)
-      })
-    })
-
-    suite('grow=false and chunk ok:', () => {
-      let stream, emitter
-
-      setup(done => {
-        stream = new Readable()
-        stream._read = () => {}
-
-        emitter = walk(stream, { size: 2, grow: false })
-
-        stream.push('[')
-
-        Object.keys(events).forEach(key => {
-          emitter.on(events[key], spooks.fn({
-            name: key,
-            log: log
-          }))
-        })
-
-        emitter.on(events.end, done)
-
-        emitter.on(events.array, () => {
-          stream.push('""')
-        })
-
-        emitter.on(events.string, () => {
-          stream.push(']')
-        })
-
-        emitter.on(events.endArray, () => {
-          stream.push(null)
-        })
-
-        setImmediate(stream.push.bind(stream, '['))
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
-      test('array event occurred once', () => {
-        assert.strictEqual(log.counts.array, 1)
-      })
-
       test('string event occurred once', () => {
         assert.strictEqual(log.counts.string, 1)
-      })
-
-      test('string event was dispatched correctly', () => {
-        assert.strictEqual(log.args.string[0][0], "")
-      })
-
-      test('endArray event occurred once', () => {
-        assert.strictEqual(log.counts.endArray, 1)
-      })
-
-      test('end event occurred once', () => {
-        assert.strictEqual(log.counts.end, 1)
       })
 
       test('error event did not occur', () => {
