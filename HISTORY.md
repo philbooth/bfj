@@ -1,5 +1,11 @@
 # History
 
+## 4.0.0
+
+* breaking change: revert to strings from circular arrays in walk (ccda677)
+* feature: add yieldRate option to control events per tick (419247b)
+* chore: increase the default discard threshold (751aa6c)
+
 ## 3.1.4
 
 * fix: add options to example code (5c207dd)
