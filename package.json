@@ -25,6 +25,9 @@
     "type": "git",
     "url": "https://github.com/philbooth/bfj.git"
   },
+  "engines": {
+    "node": ">= 6.0.0"
+  },
   "dependencies": {
     "check-types": "7.1.5",
     "hoopy": "^0.1.1"
