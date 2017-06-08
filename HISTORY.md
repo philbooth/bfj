@@ -1,5 +1,9 @@
 # History
 
+## 4.0.1
+
+* fix: set minimum required node version (db58b47)
+
 ## 4.0.0
 
 * breaking change: revert to strings from circular arrays in walk (ccda677)
