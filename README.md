@@ -663,6 +663,13 @@ on [Hoopy](https://github.com/philbooth/hoopy).
 Previous versions supported
 node 4 and later.
 
+A separate `node-4` branch is also maintained,
+which maintains feature parity version-for-version
+with `master`.
+Releases from this branch
+are available in npm
+under the package name [`bfj-node4`](https://www.npmjs.com/package/bfj-node4).
+
 ## What license is it released under?
 
 [MIT][license].
