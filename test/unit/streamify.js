@@ -7,7 +7,6 @@ const spooks = require('spooks')
 const modulePath = '../../src/streamify'
 
 mockery.registerAllowable(modulePath)
-mockery.registerAllowable('hoopy')
 mockery.registerAllowable('check-types')
 mockery.registerAllowable('./events')
 

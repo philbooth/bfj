@@ -4,7 +4,6 @@ const check = require('check-types')
 const eventify = require('./eventify')
 const events = require('./events')
 const JsonStream = require('./jsonstream')
-const Hoopy = require('hoopy')
 
 const BUFFER_SIZE = 65536
 
@@ -42,7 +41,7 @@ function streamify (data, options) {
   const stream = new JsonStream(read)
   const emitter = eventify(data, options)
 
-  const json = new Hoopy(BUFFER_SIZE)
+  let json = new Array(BUFFER_SIZE)
   let length = 0
   let index = 0
   let indentation = ''
@@ -91,10 +90,15 @@ function streamify (data, options) {
 
   function addJson (chunk) {
     if (length + 1 > json.length) {
-      json.grow(BUFFER_SIZE)
+      const embiggened = new Array(json.length + BUFFER_SIZE)
+      for (let i = 0; i < length; ++i) {
+        embiggened[i] = json[(index + i) % json.length]
+      }
+      json = embiggened
+      index = 0
     }
 
-    json[index + length++] = chunk
+    json[(index + length++) % json.length] = chunk
   }
 
   function beforeScope () {
@@ -147,7 +151,7 @@ function streamify (data, options) {
     let i
 
     for (i = 0; i < length && ! awaitPush; ++i) {
-      if (! stream.push(json[i + index], 'utf8')) {
+      if (! stream.push(json[(i + index) % json.length], 'utf8')) {
         awaitPush = true
       }
     }

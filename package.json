@@ -1,5 +1,5 @@
 {
-  "name": "bfj",
+  "name": "bfj-node4",
   "version": "4.0.1",
   "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
   "homepage": "https://github.com/philbooth/bfj",
@@ -26,11 +26,10 @@
     "url": "https://github.com/philbooth/bfj.git"
   },
   "engines": {
-    "node": ">= 6.0.0"
+    "node": ">= 4.0.0"
   },
   "dependencies": {
-    "check-types": "7.1.5",
-    "hoopy": "^0.1.1"
+    "check-types": "7.1.5"
   },
   "devDependencies": {
     "eslint": "3.19.x",

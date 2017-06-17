@@ -197,25 +197,6 @@ suite('integration:', () => {
       })
     })
 
-    suite('parse request:', () => {
-      let error, result
-
-      setup(done => {
-        const jsonstream = new stream.PassThrough()
-        request({ url: 'https://raw.githubusercontent.com/philbooth/bfj/master/package.json' })
-          .pipe(bfj.unpipe((err, res) => {
-            error = err
-            result = res
-            done()
-          }))
-      })
-
-      test('result was correct', () => {
-        assert.isNull(error)
-        assert.deepEqual(result, require('../package.json'))
-      })
-    })
-
     suite('stringify value:', () => {
       let result
 
