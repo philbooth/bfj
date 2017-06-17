@@ -655,13 +655,7 @@ with the command
 
 ## What versions of Node.js does it support?
 
-As of [version `3.0.0`](HISTORY.md#300),
-only Node.js versions 6 or greater
-are supported
-because of the dependency
-on [Hoopy](https://github.com/philbooth/hoopy).
-Previous versions supported
-node 4 and later.
+Versions 4 and later.
 
 ## What license is it released under?
 
