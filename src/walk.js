@@ -31,10 +31,13 @@ module.exports = initialise
  * Returns an event emitter and asynchronously walks a stream of JSON data,
  * emitting events as it encounters tokens.
  *
- * @param stream:   Readable instance representing the incoming JSON.
+ * @param stream:     Readable instance representing the incoming JSON.
  *
- * @option discard: The number of characters to process before discarding
- *                  them to save memory. The default value is `1048576`.
+ * @option discard:   The number of characters to process before discarding
+ *                    them to save memory. The default value is `1048576`.
+ *
+ * @option yieldRate: The number of data items to process per timeslice,
+ *                    default is 16384.
  **/
 function initialise (stream, options) {
   check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
@@ -47,6 +50,7 @@ function initialise (stream, options) {
   let isWalkBegun = false
   let isWalkEnded = false
   let isWalkingString = false
+  let count = 0
   let resumeFn
 
   const currentPosition = {
@@ -61,6 +65,7 @@ function initialise (stream, options) {
   }
   const emitter = new EventEmitter()
   const discardThreshold = options.discard || 1048576
+  const yieldRate = options.yieldRate || 16384
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)
@@ -80,10 +85,22 @@ function initialise (stream, options) {
   }
 
   function value () {
-    return awaitNonWhitespace()
-      .then(next)
-      .then(handleValue)
-      .catch(() => {})
+    /* eslint-disable no-underscore-dangle */
+    if (++count % yieldRate !== 0) {
+      return _do()
+    }
+
+    return new Promise(resolve => {
+      setImmediate(() => _do().then(resolve))
+    })
+
+    function _do () {
+      return awaitNonWhitespace()
+        .then(next)
+        .then(handleValue)
+        .catch(() => {})
+    }
+    /* eslint-enable no-underscore-dangle */
   }
 
   function awaitNonWhitespace () {
@@ -110,7 +127,7 @@ function initialise (stream, options) {
 
     if (isStreamEnded) {
       setImmediate(endWalk)
-      return Promise.reject(new Error('!!! PHIL !!!'))
+      return Promise.reject()
     }
 
     resumeFn = after
