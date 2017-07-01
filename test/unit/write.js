@@ -265,3 +265,42 @@ suite('write:', () => {
   })
 })
 
+suite('write with error thrown by fs.createWriteStream:', () => {
+  let write
+
+  setup(() => {
+    mockery.enable({ useCleanCache: true })
+    mockery.registerMock('fs', {
+      createWriteStream () {
+        throw new Error('foo')
+      }
+    })
+    mockery.registerMock('./streamify', () => ({
+      pipe: spooks.fn({ name: 'pipe', log: {}, chain: true }),
+      on: spooks.fn({ name: 'on', log: {}, chain: true })
+    }))
+    write = require(modulePath)
+  })
+
+  teardown(() => {
+    mockery.deregisterMock('./streamify')
+    mockery.deregisterMock('fs')
+    mockery.disable()
+  })
+
+  test('write does not throw', () => {
+    assert.doesNotThrow(() => {
+      write()
+    })
+  })
+
+  test('write rejects', () => {
+    write()
+      .then(() => assert.fail('write should reject'))
+      .catch(error => {
+        assert.instanceOf(error, Error)
+        assert.equal(error.message, 'foo')
+      })
+  })
+})
+
