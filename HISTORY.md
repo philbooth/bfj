@@ -1,5 +1,12 @@
 # History
 
+## 4.1.0
+
+* fix: update node support in the readme (61c41f4)
+* fix: reject if fs.createReadStream throws (4840938)
+* fix: test on node 8 (371807b)
+* feature: add a yieldRate option to the parsing functions (35bd20b)
+
 ## 4.0.1
 
 * fix: set minimum required node version (db58b47)

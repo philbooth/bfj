@@ -1,6 +1,6 @@
 {
   "name": "bfj-node4",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
   "homepage": "https://github.com/philbooth/bfj",
   "bugs": "https://github.com/philbooth/bfj/issues",
