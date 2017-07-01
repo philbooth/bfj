@@ -12,12 +12,15 @@ module.exports = read
  * there are no errors, the promise is resolved with the parsed data. If errors
  * occur, the promise is rejected with the first error.
  *
- * @param path:     Path to the JSON file.
+ * @param path:       Path to the JSON file.
  *
- * @option reviver: Transformation function, invoked depth-first.
+ * @option reviver:   Transformation function, invoked depth-first.
  *
- * @option discard: The number of characters to process before discarding them
- *                  to save memory. The default value is `1048576`.
+ * @option discard:   The number of characters to process before discarding them
+ *                    to save memory. The default value is `1048576`.
+ *
+ * @option yieldRate: The number of data items to process per timeslice,
+ *                    default is 16384.
  **/
 function read (path, options) {
   try {
