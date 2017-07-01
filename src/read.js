@@ -20,6 +20,10 @@ module.exports = read
  *                  to save memory. The default value is `1048576`.
  **/
 function read (path, options) {
-  return parse(fs.createReadStream(path, options), options)
+  try {
+    return parse(fs.createReadStream(path, options), options)
+  } catch (error) {
+    return Promise.reject(error)
+  }
 }
 

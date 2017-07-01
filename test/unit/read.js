@@ -126,3 +126,39 @@ suite('read:', () => {
   })
 })
 
+suite('read with error thrown by fs.createReadStream:', () => {
+  let read
+
+  setup(() => {
+    mockery.enable({ useCleanCache: true })
+    mockery.registerMock('fs', {
+      createReadStream () {
+        throw new Error('foo')
+      }
+    })
+    mockery.registerMock('./parse', () => {})
+    read = require(modulePath)
+  })
+
+  teardown(() => {
+    mockery.deregisterMock('fs')
+    mockery.deregisterMock('./parse')
+    mockery.disable()
+  })
+
+  test('read does not throw', () => {
+    assert.doesNotThrow(() => {
+      read()
+    })
+  })
+
+  test('read rejects', () => {
+    read()
+      .then(() => assert.fail('read should reject'))
+      .catch(error => {
+        assert.instanceOf(error, Error)
+        assert.equal(error.message, 'foo')
+      })
+  })
+})
+
