@@ -124,7 +124,7 @@ bfj.read(path, options)
   });
 ```
 
-`read` returns a [promise](promise) and
+`read` returns a [promise] and
 asynchronously parses
 a JSON file
 from disk.
@@ -155,7 +155,7 @@ bfj.write(path, data, options)
   });
 ```
 
-`write` returns a [promise](promise)
+`write` returns a [promise]
 and asynchronously serialises a data structure
 to a JSON file on disk.
 The promise is resolved
@@ -192,7 +192,7 @@ request({ url }).pipe(bfj.unpipe((error, data) => {
 }))
 ```
 
-* `parse` returns a [promise](promise)
+* `parse` returns a [promise]
   and asynchronously parses
   a stream of JSON data.
 
@@ -244,7 +244,7 @@ bfj.stringify(data, options)
   });
 ```
 
-`stringify` returns a [promise](promise) and
+`stringify` returns a [promise] and
 asynchronously serialises a data structure
 to a JSON string.
 The promise is resolved
