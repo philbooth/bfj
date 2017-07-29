@@ -1,5 +1,12 @@
 # History
 
+## 4.1.1
+
+* fix: fix links in readme (90d7a0b)
+* fix: pop references on exiting collections (c13eaf4)
+* fix: eliminate sequential reference look-up (d622893)
+* chore: add a couple of sentences on speed (ae8994d)
+
 ## 4.1.0
 
 * fix: update node support in the readme (61c41f4)
