@@ -235,6 +235,7 @@ function eventify (data, options) {
         }
 
         emitter.emit(events.endPrefix + events[type])
+        references.pop()
 
         return Promise.resolve()
       }
