@@ -7,6 +7,7 @@
 Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 
 * [Why would I want those?](#why-would-i-want-those)
+* [Is it fast?](#is-it-fast)
 * [What functions does it implement?](#what-functions-does-it-implement)
 * [How do I install it?](#how-do-i-install-it)
 * [How do I read a JSON file?](#how-do-i-read-a-json-file)
@@ -28,15 +29,26 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 ## Why would I want those?
 
 If you need
-to parse
-large JSON strings
-or stringify
-large JavaScript data sets,
+to parse huge JSON strings
+or stringify huge JavaScript data sets,
 it monopolises the event loop
 and can lead to out-of-memory exceptions.
 BFJ implements asynchronous functions
 and uses pre-allocated fixed-length arrays
 to try and alleviate those issues.
+
+## Is it fast?
+
+No.
+BFJ yields frequently
+to avoid monopolising the event loop,
+interrupting its own execution
+to let other event handlers run.
+The frequency of those yields
+can be controlled with the [`yieldRate` option](#what-options-can-i-specify),
+but fundamentally it is not designed for speed.
+If you need quick results,
+BFJ is not for you.
 
 ## What functions does it implement?
 
