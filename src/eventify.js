@@ -37,7 +37,7 @@ module.exports = eventify
 function eventify (data, options) {
   let ignoreCircularReferences, ignoreItems
 
-  const references = []
+  const references = new Map()
   const coercions = {}
   const emitter = new EventEmitter()
   let count = 0
@@ -210,14 +210,14 @@ function eventify (data, options) {
   function collection (obj, arr, type, action) {
     let ignoreThisItem
 
-    if (references.indexOf(obj) >= 0) {
+    if (references.has(obj)) {
       ignoreThisItem = ignoreItems = true
 
       if (! ignoreCircularReferences) {
         emitter.emit(events.error, new Error('Circular reference.'))
       }
     } else {
-      references.push(obj)
+      references.set(obj, true)
     }
 
     emitter.emit(events[type])
@@ -235,7 +235,7 @@ function eventify (data, options) {
         }
 
         emitter.emit(events.endPrefix + events[type])
-        references.pop()
+        references.delete(obj)
 
         return Promise.resolve()
       }
