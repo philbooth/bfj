@@ -1811,6 +1811,42 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
     })
+
+    suite('parallel reference:', () => {
+      setup(done => {
+        const array = [ 'foo' ]
+        const emitter = eventify([ array, array ])
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred three times', () => {
+        assert.strictEqual(log.counts.array, 3)
+      })
+
+      test('string event occurred twice', () => {
+        assert.strictEqual(log.counts.string, 2)
+      })
+
+      test('endArray event occurred three times', () => {
+        assert.strictEqual(log.counts.endArray, 3)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
+      })
+    })
   })
 })
 
