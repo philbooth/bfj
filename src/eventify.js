@@ -119,6 +119,10 @@ function eventify (data, options) {
   }
 
   function coerce (datum) {
+    if (check.primitive(datum)) {
+      return Promise.resolve(datum)
+    }
+
     if (check.instanceStrict(datum, Promise)) {
       return coerceThing(datum, 'promises', coercePromise).then(coerce)
     }
@@ -139,7 +143,7 @@ function eventify (data, options) {
       return coerceThing(datum, 'iterables', coerceIterable)
     }
 
-    if (check.assigned(datum) && check.function(datum.toJSON)) {
+    if (check.function(datum.toJSON)) {
       return Promise.resolve(datum.toJSON())
     }
 
