@@ -40,6 +40,7 @@ function eventify (data, options) {
   const references = new Map()
   const coercions = {}
   const emitter = new EventEmitter()
+  let disableCoercions = false
   let count = 0
   let yieldRate
 
@@ -55,6 +56,10 @@ function eventify (data, options) {
     normaliseOption('buffers')
     normaliseOption('maps')
     normaliseOption('iterables')
+
+    if (Object.keys(coercions).length === 0) {
+      disableCoercions = true
+    }
 
     if (options.circular === 'ignore') {
       ignoreCircularReferences = true
@@ -119,7 +124,7 @@ function eventify (data, options) {
   }
 
   function coerce (datum) {
-    if (check.primitive(datum)) {
+    if (disableCoercions || check.primitive(datum)) {
       return Promise.resolve(datum)
     }
 
