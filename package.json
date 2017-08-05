@@ -29,7 +29,7 @@
     "node": ">= 4.0.0"
   },
   "dependencies": {
-    "check-types": "7.1.5"
+    "check-types": "7.3.0"
   },
   "devDependencies": {
     "eslint": "3.19.x",
