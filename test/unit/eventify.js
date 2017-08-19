@@ -48,6 +48,16 @@ suite('eventify:', () => {
       assert.instanceOf(eventify(), require('events').EventEmitter)
     })
 
+    test('EventEmitter is decorated with pause method', () => {
+      assert.isFunction(eventify().pause)
+      assert.lengthOf(eventify().pause, 0)
+    })
+
+    test('pause method returns continue function', () => {
+      assert.isFunction(eventify().pause())
+      assert.lengthOf(eventify().pause(), 0)
+    })
+
     suite('undefined:', () => {
       setup(done => {
         const emitter = eventify(undefined)
@@ -67,7 +77,8 @@ suite('eventify:', () => {
       })
 
       test('end event was dispatched correctly', () => {
-        assert.lengthOf(log.args.end[0], 0)
+        assert.lengthOf(log.args.end[0], 1)
+        assert.isUndefined(log.args.end[0][0])
       })
 
       test('array event did not occur', () => {
@@ -129,10 +140,6 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.end, 1)
       })
 
-      test('end event was dispatched correctly', () => {
-        assert.lengthOf(log.args.end[0], 0)
-      })
-
       test('array event did not occur', () => {
         assert.strictEqual(log.counts.array, 0)
       })
@@ -190,10 +197,6 @@ suite('eventify:', () => {
 
       test('end event occurred once', () => {
         assert.strictEqual(log.counts.end, 1)
-      })
-
-      test('end event was dispatched correctly', () => {
-        assert.lengthOf(log.args.end[0], 0)
       })
 
       test('array event did not occur', () => {
@@ -256,7 +259,8 @@ suite('eventify:', () => {
       })
 
       test('array event was dispatched correctly', () => {
-        assert.lengthOf(log.args.array[0], 0)
+        assert.lengthOf(log.args.array[0], 1)
+        assert.isUndefined(log.args.array[0][0])
       })
 
       test('endArray event occurred once', () => {
@@ -264,7 +268,8 @@ suite('eventify:', () => {
       })
 
       test('endArray event was dispatched correctly', () => {
-        assert.lengthOf(log.args.endArray[0], 0)
+        assert.lengthOf(log.args.endArray[0], 1)
+        assert.isUndefined(log.args.endArray[0][0])
       })
 
       test('end event occurred once', () => {
@@ -323,7 +328,8 @@ suite('eventify:', () => {
       })
 
       test('object event was dispatched correctly', () => {
-        assert.lengthOf(log.args.object[0], 0)
+        assert.lengthOf(log.args.object[0], 1)
+        assert.isUndefined(log.args.object[0][0])
       })
 
       test('endObject event occurred once', () => {
@@ -331,7 +337,8 @@ suite('eventify:', () => {
       })
 
       test('endObject event was dispatched correctly', () => {
-        assert.lengthOf(log.args.endObject[0], 0)
+        assert.lengthOf(log.args.endObject[0], 1)
+        assert.isUndefined(log.args.endObject[0][0])
       })
 
       test('end event occurred once', () => {

@@ -8,6 +8,7 @@ const modulePath = '../../src/streamify'
 
 mockery.registerAllowable(modulePath)
 mockery.registerAllowable('check-types')
+mockery.registerAllowable('trier')
 mockery.registerAllowable('./events')
 
 suite('streamify:', () => {
@@ -151,96 +152,59 @@ suite('streamify:', () => {
         assert.lengthOf(log.args.on[1], 2)
         assert.strictEqual(log.args.on[1][0], 'obj')
         assert.isFunction(log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[1][1], log.args.on[0][1])
       })
 
       test('EventEmitter.on was called correctly third time', () => {
         assert.lengthOf(log.args.on[2], 2)
         assert.strictEqual(log.args.on[2][0], 'pro')
         assert.isFunction(log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[2][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[2][1], log.args.on[1][1])
       })
 
       test('EventEmitter.on was called correctly fourth time', () => {
         assert.lengthOf(log.args.on[3], 2)
         assert.strictEqual(log.args.on[3][0], 'str')
         assert.isFunction(log.args.on[3][1])
-        assert.notStrictEqual(log.args.on[3][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[3][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[3][1], log.args.on[2][1])
       })
 
       test('EventEmitter.on was called correctly fifth time', () => {
         assert.lengthOf(log.args.on[4], 2)
         assert.strictEqual(log.args.on[4][0], 'num')
         assert.isFunction(log.args.on[4][1])
-        assert.notStrictEqual(log.args.on[4][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[4][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[4][1], log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[4][1], log.args.on[3][1])
       })
 
       test('EventEmitter.on was called correctly sixth time', () => {
         assert.lengthOf(log.args.on[5], 2)
         assert.strictEqual(log.args.on[5][0], 'lit')
         assert.isFunction(log.args.on[5][1])
-        assert.strictEqual(log.args.on[5][1], log.args.on[4][1])
       })
 
       test('EventEmitter.on was called correctly seventh time', () => {
         assert.lengthOf(log.args.on[6], 2)
         assert.strictEqual(log.args.on[6][0], 'end-arr')
         assert.isFunction(log.args.on[6][1])
-        assert.notStrictEqual(log.args.on[6][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[6][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[6][1], log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[6][1], log.args.on[3][1])
-        assert.notStrictEqual(log.args.on[6][1], log.args.on[4][1])
       })
 
       test('EventEmitter.on was called correctly eighth time', () => {
         assert.lengthOf(log.args.on[7], 2)
         assert.strictEqual(log.args.on[7][0], 'end-obj')
         assert.isFunction(log.args.on[7][1])
-        assert.notStrictEqual(log.args.on[7][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[7][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[7][1], log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[7][1], log.args.on[3][1])
-        assert.notStrictEqual(log.args.on[7][1], log.args.on[4][1])
-        assert.notStrictEqual(log.args.on[7][1], log.args.on[6][1])
       })
 
       test('EventEmitter.on was called correctly ninth time', () => {
         assert.lengthOf(log.args.on[8], 2)
         assert.strictEqual(log.args.on[8][0], 'end')
         assert.isFunction(log.args.on[8][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[3][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[4][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[6][1])
-        assert.notStrictEqual(log.args.on[8][1], log.args.on[7][1])
       })
 
       test('EventEmitter.on was called correctly tenth time', () => {
         assert.lengthOf(log.args.on[9], 2)
         assert.strictEqual(log.args.on[9][0], 'err')
         assert.isFunction(log.args.on[9][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[3][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[4][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[6][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[7][1])
-        assert.notStrictEqual(log.args.on[9][1], log.args.on[8][1])
       })
 
       suite('array event:', () => {
         setup(() => {
-          log.args.on[0][1]()
+          return log.args.on[0][1]()
         })
 
         test('stream.push was not called', () => {
@@ -249,7 +213,7 @@ suite('streamify:', () => {
 
         suite('end event:', () => {
           setup(() => {
-            log.args.on[8][1]()
+            return log.args.on[8][1]()
           })
 
           test('stream.push was not called', () => {
@@ -295,7 +259,7 @@ suite('streamify:', () => {
 
           suite('end event:', () => {
             setup(() => {
-              log.args.on[8][1]()
+              return log.args.on[8][1]()
             })
 
             test('stream.push was called twice', () => {
@@ -317,7 +281,7 @@ suite('streamify:', () => {
 
           suite('string event:', () => {
             setup(() => {
-              log.args.on[3][1]('foo')
+              return log.args.on[3][1]('foo')
             })
 
             test('stream.push was called twice', () => {
@@ -331,7 +295,7 @@ suite('streamify:', () => {
 
             suite('string event:', () => {
               setup(() => {
-                log.args.on[3][1]('bar')
+                return log.args.on[3][1]('bar')
               })
 
               test('stream.push was called twice', () => {
@@ -346,7 +310,7 @@ suite('streamify:', () => {
 
             suite('array event:', () => {
               setup(() => {
-                log.args.on[0][1]()
+                return log.args.on[0][1]()
               })
 
               test('stream.push was called twice', () => {
@@ -360,7 +324,7 @@ suite('streamify:', () => {
 
               suite('array event:', () => {
                 setup(() => {
-                  log.args.on[0][1]()
+                  return log.args.on[0][1]()
                 })
 
                 test('stream.push was called once', () => {
@@ -373,7 +337,7 @@ suite('streamify:', () => {
 
                 suite('endArray event:', () => {
                   setup(() => {
-                    log.args.on[6][1]()
+                    return log.args.on[6][1]()
                   })
 
                   test('stream.push was called once', () => {
@@ -386,7 +350,7 @@ suite('streamify:', () => {
 
                   suite('string event:', () => {
                     setup(() => {
-                      log.args.on[3][1]('bar')
+                      return log.args.on[3][1]('bar')
                     })
 
                     test('stream.push was called twice', () => {
@@ -400,7 +364,7 @@ suite('streamify:', () => {
 
                     suite('string event:', () => {
                       setup(() => {
-                        log.args.on[3][1]('baz')
+                        return log.args.on[3][1]('baz')
                       })
 
                       test('stream.push was called twice', () => {
@@ -415,7 +379,7 @@ suite('streamify:', () => {
 
                     suite('endArray event:', () => {
                       setup(() => {
-                        log.args.on[6][1]()
+                        return log.args.on[6][1]()
                       })
 
                       test('stream.push was called once', () => {
@@ -428,7 +392,7 @@ suite('streamify:', () => {
 
                       suite('string event:', () => {
                         setup(() => {
-                          log.args.on[3][1]('baz')
+                          return log.args.on[3][1]('baz')
                         })
 
                         test('stream.push was called twice', () => {
@@ -452,7 +416,7 @@ suite('streamify:', () => {
 
             suite('object event:', () => {
               setup(() => {
-                log.args.on[1][1]()
+                return log.args.on[1][1]()
               })
 
               test('stream.push was called twice', () => {
@@ -466,7 +430,7 @@ suite('streamify:', () => {
 
               suite('property event:', () => {
                 setup(() => {
-                  log.args.on[2][1]('bar')
+                  return log.args.on[2][1]('bar')
                 })
 
                 test('stream.push was called once', () => {
@@ -479,7 +443,7 @@ suite('streamify:', () => {
 
                 suite('string event:', () => {
                   setup(() => {
-                    log.args.on[3][1]('baz')
+                    return log.args.on[3][1]('baz')
                   })
 
                   test('stream.push was called once', () => {
@@ -492,7 +456,7 @@ suite('streamify:', () => {
 
                   suite('property event:', () => {
                     setup(() => {
-                      log.args.on[2][1]('nested')
+                      return log.args.on[2][1]('nested')
                     })
 
                     test('stream.push was called twice', () => {
@@ -506,7 +470,7 @@ suite('streamify:', () => {
 
                     suite('object event:', () => {
                       setup(() => {
-                        log.args.on[1][1]()
+                        return log.args.on[1][1]()
                       })
 
                       test('stream.push was called once', () => {
@@ -519,7 +483,7 @@ suite('streamify:', () => {
 
                       suite('endObject event:', () => {
                         setup(() => {
-                          log.args.on[7][1]()
+                          return log.args.on[7][1]()
                         })
 
                         test('stream.push was called once', () => {
@@ -532,7 +496,7 @@ suite('streamify:', () => {
 
                         suite('property event:', () => {
                           setup(() => {
-                            log.args.on[2][1]('qux')
+                            return log.args.on[2][1]('qux')
                           })
 
                           test('stream.push was called twice', () => {
@@ -546,7 +510,7 @@ suite('streamify:', () => {
 
                           suite('string event:', () => {
                             setup(() => {
-                              log.args.on[3][1]('wibble')
+                              return log.args.on[3][1]('wibble')
                             })
 
                             test('stream.push was called once', () => {
@@ -561,7 +525,7 @@ suite('streamify:', () => {
 
                         suite('endObject event:', () => {
                           setup(() => {
-                            log.args.on[7][1]()
+                            return log.args.on[7][1]()
                           })
 
                           test('stream.push was called once', () => {
@@ -574,7 +538,7 @@ suite('streamify:', () => {
 
                           suite('string event:', () => {
                             setup(() => {
-                              log.args.on[3][1]('wibble')
+                              return log.args.on[3][1]('wibble')
                             })
 
                             test('stream.push was called twice', () => {
@@ -602,7 +566,7 @@ suite('streamify:', () => {
           suite('string event, push returns false:', () => {
             setup(() => {
               results.push[0] = false
-              log.args.on[3][1]('foo')
+              return log.args.on[3][1]('foo')
             })
 
             teardown(() => {
@@ -619,7 +583,7 @@ suite('streamify:', () => {
 
             suite('string event:', () => {
               setup(() => {
-                log.args.on[3][1]('bar')
+                return log.args.on[3][1]('bar')
               })
 
               test('stream.push was not called', () => {
@@ -629,7 +593,7 @@ suite('streamify:', () => {
               suite('read stream, endArrayEvent:', () => {
                 setup(() => {
                   log.args.JsonStream[0][0]()
-                  log.args.on[6][1]()
+                  return log.args.on[6][1]()
                 })
 
                 test('stream.push was called once', () => {
@@ -657,7 +621,7 @@ suite('streamify:', () => {
 
               suite('end event:', () => {
                 setup(() => {
-                  log.args.on[8][1]()
+                  return log.args.on[8][1]()
                 })
 
                 test('stream.push was not called', () => {
@@ -759,7 +723,7 @@ suite('streamify:', () => {
         suite('object event:', () => {
           setup(() => {
             log.args.JsonStream[0][0]()
-            log.args.on[1][1]()
+            return log.args.on[1][1]()
           })
 
           test('stream.push was called twice', () => {
@@ -810,7 +774,7 @@ suite('streamify:', () => {
       suite('read stream, object event:', () => {
         setup(() => {
           log.args.JsonStream[0][0]()
-          log.args.on[1][1]()
+          return log.args.on[1][1]()
         })
 
         test('stream.push was called once', () => {
@@ -823,7 +787,7 @@ suite('streamify:', () => {
 
         suite('property event:', () => {
           setup(() => {
-            log.args.on[2][1]('foo')
+            return log.args.on[2][1]('foo')
           })
 
           test('stream.push was called twice', () => {
@@ -837,7 +801,7 @@ suite('streamify:', () => {
 
           suite('string event:', () => {
             setup(() => {
-              log.args.on[3][1]('bar')
+              return log.args.on[3][1]('bar')
             })
 
             test('stream.push was called twice', () => {
@@ -851,7 +815,7 @@ suite('streamify:', () => {
 
             suite('property event:', () => {
               setup(() => {
-                log.args.on[2][1]('baz')
+                return log.args.on[2][1]('baz')
               })
 
               test('stream.push was called three times', () => {
@@ -866,7 +830,7 @@ suite('streamify:', () => {
 
               suite('string event:', () => {
                 setup(() => {
-                  log.args.on[3][1]('qux')
+                  return log.args.on[3][1]('qux')
                 })
 
                 test('stream.push was called twice', () => {
@@ -880,7 +844,7 @@ suite('streamify:', () => {
 
                 suite('property event:', () => {
                   setup(() => {
-                    log.args.on[2][1]('wibble')
+                    return log.args.on[2][1]('wibble')
                   })
 
                   test('stream.push was called three times', () => {
@@ -895,7 +859,7 @@ suite('streamify:', () => {
 
                   suite('array event:', () => {
                     setup(() => {
-                      log.args.on[0][1]()
+                      return log.args.on[0][1]()
                     })
 
                     test('stream.push was called twice', () => {
@@ -909,7 +873,7 @@ suite('streamify:', () => {
 
                     suite('string event:', () => {
                       setup(() => {
-                        log.args.on[3][1]('0')
+                        return log.args.on[3][1]('0')
                       })
 
                       test('stream.push was called twice', () => {
@@ -923,7 +887,7 @@ suite('streamify:', () => {
 
                       suite('string event:', () => {
                         setup(() => {
-                          log.args.on[3][1]('1')
+                          return log.args.on[3][1]('1')
                         })
 
                         test('stream.push was called three times', () => {
@@ -938,7 +902,7 @@ suite('streamify:', () => {
 
                         suite('endArray event:', () => {
                           setup(() => {
-                            log.args.on[6][1]()
+                            return log.args.on[6][1]()
                           })
 
                           test('stream.push was called twice', () => {
@@ -952,7 +916,7 @@ suite('streamify:', () => {
 
                           suite('property event:', () => {
                             setup(() => {
-                              log.args.on[2][1]('a')
+                              return log.args.on[2][1]('a')
                             })
 
                             test('stream.push was called three times', () => {
@@ -967,7 +931,7 @@ suite('streamify:', () => {
 
                             suite('string event:', () => {
                               setup(() => {
-                                log.args.on[3][1]('b')
+                                return log.args.on[3][1]('b')
                               })
 
                               test('stream.push was called twice', () => {
@@ -981,7 +945,7 @@ suite('streamify:', () => {
 
                               suite('endObject event:', () => {
                                 setup(() => {
-                                  log.args.on[7][1]()
+                                  return log.args.on[7][1]()
                                 })
 
                                 test('stream.push was called twice', () => {
@@ -1013,7 +977,7 @@ suite('streamify:', () => {
       suite('read stream, end event:', () => {
         setup(() => {
           log.args.JsonStream[0][0]()
-          log.args.on[8][1]()
+          return log.args.on[8][1]()
         })
 
         test('stream.push was called once', () => {
@@ -1031,7 +995,7 @@ suite('streamify:', () => {
 
       suite('error event:', () => {
         setup(() => {
-          log.args.on[9][1]('foo')
+          return log.args.on[9][1]('foo')
         })
 
         test('stream.emit was called once', () => {
