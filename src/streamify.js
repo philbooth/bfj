@@ -5,8 +5,9 @@ const eventify = require('./eventify')
 const events = require('./events')
 const JsonStream = require('./jsonstream')
 const Hoopy = require('hoopy')
+const trier = require('trier')
 
-const BUFFER_SIZE = 65536
+const BUFFER_SIZE = 1048576
 
 module.exports = streamify
 
@@ -47,17 +48,19 @@ function streamify (data, options) {
   let index = 0
   let indentation = ''
   let awaitPush = true
+  let isPaused = false
+  let mutex = Promise.resolve()
 
-  emitter.on(events.array, array)
-  emitter.on(events.object, object)
-  emitter.on(events.property, property)
-  emitter.on(events.string, string)
-  emitter.on(events.number, value)
-  emitter.on(events.literal, value)
-  emitter.on(events.endArray, endArray)
-  emitter.on(events.endObject, endObject)
-  emitter.on(events.end, end)
-  emitter.on(events.error, error)
+  emitter.on(events.array, noRacing(array))
+  emitter.on(events.object, noRacing(object))
+  emitter.on(events.property, noRacing(property))
+  emitter.on(events.string, noRacing(string))
+  emitter.on(events.number, noRacing(value))
+  emitter.on(events.literal, noRacing(value))
+  emitter.on(events.endArray, noRacing(endArray))
+  emitter.on(events.endObject, noRacing(endObject))
+  emitter.on(events.end, noRacing(end))
+  emitter.on(events.error, noRacing(error))
 
   return stream
 
@@ -70,73 +73,13 @@ function streamify (data, options) {
           after()
         }
 
-        endStream()
+        return endStream()
       }
     }
-  }
 
-  function endStream () {
-    if (!awaitPush) {
-      stream.push(null)
+    if (isPaused) {
+      after()
     }
-  }
-
-  function array () {
-    beforeScope()
-
-    addJson('[')
-
-    afterScope()
-  }
-
-  function addJson (chunk) {
-    if (length + 1 > json.length) {
-      json.grow(BUFFER_SIZE)
-    }
-
-    json[index + length++] = chunk
-  }
-
-  function beforeScope () {
-    before(true)
-  }
-
-  function before (isScope) {
-    if (isProperty) {
-      isProperty = false
-
-      if (space) {
-        addJson(' ')
-      }
-    } else {
-      if (needsComma) {
-        if (isScope) {
-          needsComma = false
-        }
-
-        addJson(',')
-      } else if (!isScope) {
-        needsComma = true
-      }
-
-      if (space && indentation) {
-        indent()
-      }
-    }
-  }
-
-  function indent () {
-    addJson(`\n${indentation}`)
-  }
-
-  function afterScope () {
-    needsComma = false
-
-    if (space) {
-      indentation += space
-    }
-
-    after()
   }
 
   function after () {
@@ -160,63 +103,140 @@ function streamify (data, options) {
     }
   }
 
+  function endStream () {
+    if (! awaitPush) {
+      stream.push(null)
+    }
+  }
+
+  function noRacing (handler) {
+    return value => mutex = mutex.then(() => handler(value))
+  }
+
+  function array () {
+    return beforeScope()
+      .then(() => addJson('['))
+      .then(() => afterScope())
+  }
+
+  function beforeScope () {
+    return before(true)
+  }
+
+  function before (isScope) {
+    if (isProperty) {
+      isProperty = false
+
+      if (space) {
+        return addJson(' ')
+      }
+
+      return Promise.resolve()
+    }
+
+    return Promise.resolve()
+      .then(() => {
+        if (needsComma) {
+          if (isScope) {
+            needsComma = false
+          }
+
+          return addJson(',')
+        }
+
+        if (! isScope) {
+          needsComma = true
+        }
+      })
+      .then(() => {
+        if (space && indentation) {
+          return indent()
+        }
+      })
+  }
+
+  function addJson (chunk) {
+    if (length + 1 <= json.length) {
+      json[index + length++] = chunk
+      after()
+      return Promise.resolve()
+    }
+
+    isPaused = true
+    return new Promise(resolve => {
+      let unpause = emitter.pause()
+      trier.attempt({
+        interval: -20,
+        until () {
+          return length + 1 <= json.length
+        },
+        pass () {
+          isPaused = false
+          json[index + length++] = chunk
+          resolve()
+          setImmediate(unpause)
+        }
+      })
+    })
+  }
+
+  function indent () {
+    return addJson(`\n${indentation}`)
+  }
+
+  function afterScope () {
+    needsComma = false
+
+    if (space) {
+      indentation += space
+    }
+  }
+
   function object () {
-    beforeScope()
-
-    addJson('{')
-
-    afterScope()
+    return beforeScope()
+      .then(() => addJson('{'))
+      .then(() => afterScope())
   }
 
   function property (name) {
-    before()
-
-    addJson(`"${name}":`)
-
-    isProperty = true
-
-    after()
+    return before()
+      .then(() => addJson(`"${name}":`))
+      .then(() => { isProperty = true })
   }
 
   function string (s) {
-    value(`"${s}"`)
+    return value(`"${s}"`)
   }
 
   function value (v) {
-    before()
-
-    addJson(`${v}`)
-
-    after()
+    return before()
+      .then(() => addJson(`${v}`))
   }
 
   function endArray () {
-    beforeScopeEnd()
-
-    addJson(']')
-
-    afterScopeEnd()
+    return beforeScopeEnd()
+      .then(() => addJson(']'))
+      .then(() => afterScopeEnd())
   }
 
   function beforeScopeEnd () {
     if (space) {
       indentation = indentation.substr(space.length)
 
-      indent()
+      return indent()
     }
+
+    return Promise.resolve()
   }
 
   function afterScopeEnd () {
     needsComma = true
-    after()
   }
 
   function endObject () {
-    beforeScopeEnd()
-
-    addJson('}')
-
-    afterScopeEnd()
+    return beforeScopeEnd()
+      .then(() => addJson('}'))
+      .then(() => afterScopeEnd())
   }
 
   function end () {

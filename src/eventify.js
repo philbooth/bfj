@@ -17,7 +17,8 @@ module.exports = eventify
  *
  * Returns an event emitter and asynchronously traverses a data structure
  * (depth-first), emitting events as it encounters items. Sanely handles
- * promises, buffers, maps and other iterables.
+ * promises, buffers, maps and other iterables. The event emitter is
+ * decorated with a `pause` method that can be called to pause processing.
  *
  * @param data:       The data structure to traverse.
  *
@@ -43,7 +44,16 @@ function eventify (data, options) {
   let disableCoercions = false
   let count = 0
   let yieldRate
+  let pause
 
+  emitter.pause = () => {
+    let resolve
+    pause = new Promise(res => resolve = res)
+    return () => {
+      pause = null
+      resolve()
+    }
+  }
   normaliseOptions()
   setImmediate(begin)
 
@@ -76,11 +86,9 @@ function eventify (data, options) {
   }
 
   function begin () {
-    proceed(data).then(after)
-
-    function after () {
-      emitter.emit(events.end)
-    }
+    return proceed(data)
+      .catch(error => emit(events.error, error))
+      .then(() => emit(events.end))
   }
 
   function proceed (datum) {
@@ -88,11 +96,12 @@ function eventify (data, options) {
       return coerce(datum).then(after)
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       setImmediate(() => {
         coerce(datum)
           .then(after)
           .then(resolve)
+          .catch(reject)
       })
     })
 
@@ -198,11 +207,16 @@ function eventify (data, options) {
   }
 
   function literal (datum) {
-    value(datum, 'literal')
+    return value(datum, 'literal')
   }
 
   function value (datum, type) {
-    emitter.emit(events[type], datum)
+    return emit(events[type], datum)
+  }
+
+  function emit (event, data) {
+    return (pause || Promise.resolve())
+      .then(() => emitter.emit(event, data))
   }
 
   function array (datum) {
@@ -219,19 +233,20 @@ function eventify (data, options) {
   function collection (obj, arr, type, action) {
     let ignoreThisItem
 
-    if (references.has(obj)) {
-      ignoreThisItem = ignoreItems = true
+    return Promise.resolve()
+      .then(() => {
+        if (references.has(obj)) {
+          ignoreThisItem = ignoreItems = true
 
-      if (! ignoreCircularReferences) {
-        emitter.emit(events.error, new Error('Circular reference.'))
-      }
-    } else {
-      references.set(obj, true)
-    }
-
-    emitter.emit(events[type])
-
-    return item(0)
+          if (! ignoreCircularReferences) {
+            return emit(events.error, new Error('Circular reference.'))
+          }
+        } else {
+          references.set(obj, true)
+        }
+      })
+      .then(() => emit(events[type]))
+      .then(() => item(0))
 
     function item (index) {
       if (index >= arr.length) {
@@ -243,17 +258,16 @@ function eventify (data, options) {
           return Promise.resolve()
         }
 
-        emitter.emit(events.endPrefix + events[type])
-        references.delete(obj)
-
-        return Promise.resolve()
+        return emit(events.endPrefix + events[type])
+          .then(() => references.delete(obj))
       }
 
       if (ignoreItems) {
         return item(index + 1)
       }
 
-      return action(arr[index]).then(item.bind(null, index + 1))
+      return action(arr[index])
+        .then(() => item(index + 1))
     }
   }
 
@@ -266,9 +280,8 @@ function eventify (data, options) {
         return Promise.resolve()
       }
 
-      emitter.emit(events.property, key)
-
-      return proceed(item)
+      return emit(events.property, key)
+        .then(() => proceed(item))
     })
   }
 
