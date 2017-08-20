@@ -583,9 +583,9 @@ of an object,
   to their resolved value.
   Set this property
   to `'ignore'`
-  if you'd prefer
-  to ignore promises
-  in the data.
+  for improved performance
+  if you don't need
+  to coerce promises.
 
 * `options.buffers`:
   By default,
@@ -593,9 +593,9 @@ of an object,
   using their `toString` method.
   Set this property
   to `'ignore'`
-  if you'd prefer
-  to ignore buffers
-  in the data.
+  for improved performance
+  if you don't need
+  to coerce buffers.
 
 * `options.maps`:
   By default,
@@ -603,9 +603,9 @@ of an object,
   to plain objects.
   Set this property
   to `'ignore'`
-  if you'd prefer
-  to ignore maps
-  in the data.
+  for improved performance
+  if you don't need
+  to coerce maps.
 
 * `options.iterables`:
   By default,
@@ -615,9 +615,9 @@ of an object,
   to arrays.
   Set this property
   to `'ignore'`
-  if you'd prefer
-  to ignore other iterables
-  in the data.
+  for improved performance
+  if you don't need
+  to coerce iterables.
 
 * `options.circular`:
   By default,
