@@ -214,9 +214,9 @@ function eventify (data, options) {
     return emit(events[type], datum)
   }
 
-  function emit (event, data) {
+  function emit (event, eventData) {
     return (pause || Promise.resolve())
-      .then(() => emitter.emit(event, data))
+      .then(() => emitter.emit(event, eventData))
   }
 
   function array (datum) {
