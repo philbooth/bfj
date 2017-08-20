@@ -113,7 +113,7 @@ function streamify (data, options) {
   }
 
   function noRacing (handler) {
-    return value => mutex = mutex.then(() => handler(value))
+    return eventData => mutex = mutex.then(() => handler(eventData))
   }
 
   function array () {
@@ -167,7 +167,7 @@ function streamify (data, options) {
 
     isPaused = true
     return new Promise(resolve => {
-      let unpause = emitter.pause()
+      const unpause = emitter.pause()
       trier.attempt({
         interval: -10,
         until () {
@@ -204,7 +204,9 @@ function streamify (data, options) {
   function property (name) {
     return before()
       .then(() => addJson(`"${name}":`))
-      .then(() => { isProperty = true })
+      .then(() => {
+        isProperty = true
+      })
   }
 
   function string (s) {
