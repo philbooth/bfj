@@ -67,8 +67,8 @@ suite('streamify:', () => {
       streamify = undefined
     })
 
-    test('streamify expects two arguments', () => {
-      assert.lengthOf(streamify, 2)
+    test('streamify expects one argument', () => {
+      assert.lengthOf(streamify, 1)
     })
 
     test('streamify does not throw', () => {

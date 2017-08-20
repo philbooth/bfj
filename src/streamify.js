@@ -7,7 +7,7 @@ const JsonStream = require('./jsonstream')
 const Hoopy = require('hoopy')
 const trier = require('trier')
 
-const BUFFER_SIZE = 1048576
+const DEFAULT_BUFFER_LENGTH = 1048576
 
 module.exports = streamify
 
@@ -17,33 +17,35 @@ module.exports = streamify
  * Asynchronously serialises a data structure to a stream of JSON
  * data. Sanely handles promises, buffers, maps and other iterables.
  *
- * @param data:       The data to transform.
+ * @param data:         The data to transform.
  *
- * @option space:     Indentation string, or the number of spaces
- *                    to indent each nested level by.
+ * @option space:       Indentation string, or the number of spaces
+ *                      to indent each nested level by.
  *
- * @option promises:  'resolve' or 'ignore', default is 'resolve'.
+ * @option promises:    'resolve' or 'ignore', default is 'resolve'.
  *
- * @option buffers:   'toString' or 'ignore', default is 'toString'.
+ * @option buffers:     'toString' or 'ignore', default is 'toString'.
  *
- * @option maps:      'object' or 'ignore', default is 'object'.
+ * @option maps:        'object' or 'ignore', default is 'object'.
  *
- * @option iterables: 'array' or 'ignore', default is 'array'.
+ * @option iterables:   'array' or 'ignore', default is 'array'.
  *
- * @option circular:  'error' or 'ignore', default is 'error'.
+ * @option circular:    'error' or 'ignore', default is 'error'.
  *
- * @option yieldRate:  The number of data items to process per timeslice,
- *                     default is 16384.
+ * @option yieldRate:    The number of data items to process per timeslice,
+ *                       default is 16384.
+ *
+ * @option bufferLength: The length of the buffer, default is 1048576.
  **/
-function streamify (data, options) {
+function streamify (data, options = {}) {
   let isProperty, needsComma, isEnded
 
-  const space = normaliseSpace(options || {})
+  const space = normaliseSpace(options)
 
   const stream = new JsonStream(read)
   const emitter = eventify(data, options)
 
-  const json = new Hoopy(BUFFER_SIZE)
+  const json = new Hoopy(options.bufferLength || DEFAULT_BUFFER_LENGTH)
   let length = 0
   let index = 0
   let indentation = ''
@@ -166,7 +168,7 @@ function streamify (data, options) {
     return new Promise(resolve => {
       let unpause = emitter.pause()
       trier.attempt({
-        interval: -20,
+        interval: -10,
         until () {
           return length + 1 <= json.length
         },

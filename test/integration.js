@@ -76,8 +76,8 @@ suite('integration:', () => {
       assert.isFunction(bfj.streamify)
     })
 
-    test('streamify expects two arguments', () => {
-      assert.lengthOf(bfj.streamify, 2)
+    test('streamify expects one argument', () => {
+      assert.lengthOf(bfj.streamify, 1)
     })
 
     test('stringify function is exported', () => {
