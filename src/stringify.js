@@ -10,23 +10,25 @@ module.exports = stringify
  * Returns a promise and asynchronously serialises a data structure to a
  * JSON string. Sanely handles promises, buffers, maps and other iterables.
  *
- * @param data:     The data to transform
+ * @param data:         The data to transform
  *
- * @option space:   Indentation string, or the number of spaces
- *          to indent each nested level by.
+ * @option space:       Indentation string, or the number of spaces
+ *                      to indent each nested level by.
  *
- * @option promises:  'resolve' or 'ignore', default is 'resolve'.
+ * @option promises:    'resolve' or 'ignore', default is 'resolve'.
  *
- * @option buffers:   'toString' or 'ignore', default is 'toString'.
+ * @option buffers:     'toString' or 'ignore', default is 'toString'.
  *
- * @option maps:    'object' or 'ignore', default is 'object'.
+ * @option maps:        'object' or 'ignore', default is 'object'.
  *
- * @option iterables: 'array' or 'ignore', default is 'array'.
+ * @option iterables:   'array' or 'ignore', default is 'array'.
  *
- * @option circular:  'error' or 'ignore', default is 'error'.
+ * @option circular:    'error' or 'ignore', default is 'error'.
  *
- * @option yieldRate:  The number of data items to process per timeslice,
- *                     default is 16384.
+ * @option yieldRate:    The number of data items to process per timeslice,
+ *                       default is 16384.
+ *
+ * @option bufferLength: The length of the buffer, default is 1048576.
  **/
 function stringify (data, options) {
   let resolve, reject
