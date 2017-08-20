@@ -1,5 +1,17 @@
 # History
 
+## 4.2.0
+
+* chore: add a unit test for parallel object references (e8f3895)
+* chore: update check-types (c0bc551)
+* fix: shortcut primitive coercion (c6381b5)
+* fix: shortcut coercions (d9a9676)
+* fix: eliminate unnecessary indirection in promise coercion (c63e81f)
+* fix: yield rather than grow when buffer is filled (a3cc7e6)
+* feature: add a bufferLength option (3b560f9)
+* fix: document improved performance from disabling coercions (25eecc7)
+* fix: fix lint errors (a85f7c0)
+
 ## 4.1.1
 
 * fix: fix links in readme (90d7a0b)
