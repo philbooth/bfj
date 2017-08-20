@@ -164,7 +164,7 @@ function eventify (data, options) {
   }
 
   function coercePromise (promise) {
-    return promise.then(result => result)
+    return promise
   }
 
   function coerceBuffer (buffer) {
