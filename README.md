@@ -548,14 +548,6 @@ of an object,
   is analagous to the
   [reviver parameter for JSON.parse][reviver].
 
-* `options.discard`:
-  The number of characters
-  to process before
-  discarding them
-  to save memory.
-  The default value
-  is `1048576`.
-
 * `options.yieldRate`:
   The number of data items to process
   before yielding to the event loop.

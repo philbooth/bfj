@@ -33,9 +33,6 @@ module.exports = initialise
  *
  * @param stream:     Readable instance representing the incoming JSON.
  *
- * @option discard:   The number of characters to process before discarding
- *                    them to save memory. The default value is `1048576`.
- *
  * @option yieldRate: The number of data items to process per timeslice,
  *                    default is 16384.
  **/
@@ -44,7 +41,6 @@ function initialise (stream, options) {
 
   options = options || {}
 
-  let json = ''
   let index = 0
   let isStreamEnded = false
   let isWalkBegun = false
@@ -53,6 +49,8 @@ function initialise (stream, options) {
   let count = 0
   let resumeFn
 
+  const json = []
+  const lengths = []
   const currentPosition = {
     line: 1,
     column: 1
@@ -64,7 +62,6 @@ function initialise (stream, options) {
     obj: property
   }
   const emitter = new EventEmitter()
-  const discardThreshold = options.discard || 1048576
   const yieldRate = options.yieldRate || 16384
 
   stream.setEncoding('utf8')
@@ -74,7 +71,7 @@ function initialise (stream, options) {
   return emitter
 
   function readStream (chunk) {
-    json += chunk
+    addChunk(chunk)
 
     if (!isWalkBegun) {
       isWalkBegun = true
@@ -82,6 +79,26 @@ function initialise (stream, options) {
     }
 
     return resume()
+  }
+
+  function addChunk (chunk) {
+    json.push(chunk)
+
+    const chunkLength = chunk.length
+    lengths.push({
+      item: chunkLength,
+      aggregate: length() + chunkLength
+    })
+  }
+
+  function length () {
+    const chunkCount = lengths.length
+
+    if (chunkCount === 0) {
+      return 0
+    }
+
+    return lengths[chunkCount - 1].aggregate
   }
 
   function value () {
@@ -121,7 +138,7 @@ function initialise (stream, options) {
   function awaitCharacter () {
     let resolve, reject
 
-    if (index < json.length) {
+    if (index < length()) {
       return Promise.resolve()
     }
 
@@ -138,7 +155,7 @@ function initialise (stream, options) {
     })
 
     function after () {
-      if (index < json.length) {
+      if (index < length()) {
         return resolve()
       }
 
@@ -151,7 +168,17 @@ function initialise (stream, options) {
   }
 
   function character () {
-    return json[index]
+    if (lengths[0].item > index) {
+      return json[0][index]
+    }
+
+    const len = lengths.length
+    for (let i = 1; i < len; ++i) {
+      const { aggregate, item } = lengths[i]
+      if (aggregate > index) {
+        return json[i][index + item - aggregate]
+      }
+    }
   }
 
   function next () {
@@ -171,9 +198,13 @@ function initialise (stream, options) {
         currentPosition.column += 1
       }
 
-      if (index === discardThreshold) {
-        json = json.substring(index)
-        index = 0
+      if (index > lengths[0].aggregate) {
+        json.shift()
+
+        const difference = lengths.shift().item
+        index -= difference
+
+        lengths.forEach(len => len.aggregate -= difference)
       }
 
       return result
