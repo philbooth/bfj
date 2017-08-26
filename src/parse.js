@@ -161,9 +161,9 @@ function parse (stream, options = {}) {
 
   function transform (obj, key) {
     if (obj && typeof obj === 'object') {
-      Object.keys(obj).forEach(childKey => {
-        obj[childKey] = transform(obj[childKey], childKey)
-      })
+      for (const [ k, v ] of Object.entries(obj)) {
+        obj[k] = transform(v, k)
+      }
     }
 
     return reviver(key, obj)
