@@ -1,5 +1,9 @@
 # History
 
+## 4.2.1
+
+* refactor: discard chunks more aggressively (970a964)
+
 ## 4.2.0
 
 * chore: add a unit test for parallel object references (e8f3895)
