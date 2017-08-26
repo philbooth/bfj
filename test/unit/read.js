@@ -148,7 +148,7 @@ suite('read with error thrown by fs.createReadStream:', () => {
 
   test('read does not throw', () => {
     assert.doesNotThrow(() => {
-      read()
+      read().catch(() => {})
     })
   })
 

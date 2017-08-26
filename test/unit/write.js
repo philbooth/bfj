@@ -290,7 +290,7 @@ suite('write with error thrown by fs.createWriteStream:', () => {
 
   test('write does not throw', () => {
     assert.doesNotThrow(() => {
-      write()
+      write().catch(() => {})
     })
   })
 
