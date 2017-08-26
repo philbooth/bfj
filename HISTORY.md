@@ -1,5 +1,9 @@
 # History
 
+## 4.2.2
+
+* fix: fix non-node4 syntax (3ca3c6c)
+
 ## 4.2.1
 
 * refactor: discard chunks more aggressively (970a964)
