@@ -17,9 +17,6 @@ module.exports = parse
  *
  * @option reviver:   Transformation function, invoked depth-first.
  *
- * @option discard:   The number of characters to process before discarding
- *                    them to save memory. The default value is `1048576`.
- *
  * @option yieldRate: The number of data items to process per timeslice,
  *                    default is 16384.
  **/
