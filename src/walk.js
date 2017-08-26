@@ -174,7 +174,9 @@ function initialise (stream, options) {
 
     const len = lengths.length
     for (let i = 1; i < len; ++i) {
-      const { aggregate, item } = lengths[i]
+      const l = lengths[i]
+      const aggregate = l.aggregate
+      const item = l.item
       if (aggregate > index) {
         return json[i][index + item - aggregate]
       }
