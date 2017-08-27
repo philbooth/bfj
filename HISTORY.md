@@ -1,5 +1,9 @@
 # History
 
+## 4.2.2
+
+* fix: silence obnoxious unhandled rejection warnings (1d4a902)
+
 ## 4.2.1
 
 * refactor: discard chunks more aggressively (970a964)
