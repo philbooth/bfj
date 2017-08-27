@@ -353,7 +353,7 @@ function initialise (stream, options) {
 
   function walkString (event) {
     let isEscaping = false
-    let str = ''
+    const str = []
 
     isWalkingString = true
 
@@ -364,7 +364,7 @@ function initialise (stream, options) {
         isEscaping = false
 
         return escape(char).then(escaped => {
-          str += escaped
+          str.push(escaped)
           return next().then(step)
         })
       }
@@ -375,12 +375,12 @@ function initialise (stream, options) {
       }
 
       if (char !== '"') {
-        str += char
+        str.push(char)
         return next().then(step)
       }
 
       isWalkingString = false
-      emitter.emit(event, str)
+      emitter.emit(event, str.join(''))
     }
   }
 
@@ -398,18 +398,20 @@ function initialise (stream, options) {
   }
 
   function escapeHex () {
-    let hexits = ''
+    let hexits = []
 
     return next().then(step.bind(null, 0))
 
     function step (idx, char) {
       if (isHexit(char)) {
-        hexits += char
+        hexits.push(char)
       }
 
       if (idx < 3) {
         return next().then(step.bind(null, idx + 1))
       }
+
+      hexits = hexits.join('')
 
       if (hexits.length === 4) {
         return String.fromCharCode(parseInt(hexits, 16))
@@ -426,12 +428,12 @@ function initialise (stream, options) {
   }
 
   function number (firstCharacter) {
-    let digits = firstCharacter
+    let digits = [ firstCharacter ]
 
     return walkDigits().then(addDigits.bind(null, checkDecimalPlace))
 
     function addDigits (step, result) {
-      digits += result.digits
+      digits = digits.concat(result.digits)
 
       if (result.atEnd) {
         return endNumber()
@@ -443,7 +445,7 @@ function initialise (stream, options) {
     function checkDecimalPlace () {
       if (character() === '.') {
         return next().then(char => {
-          digits += char
+          digits.push(char)
           walkDigits().then(addDigits.bind(null, checkExponent))
         })
       }
@@ -454,7 +456,7 @@ function initialise (stream, options) {
     function checkExponent () {
       if (character() === 'e' || character() === 'E') {
         return next().then(char => {
-          digits += char
+          digits.push(char)
           awaitCharacter()
             .then(checkSign)
             .catch(fail.bind(null, 'EOF', 'exponent', currentPosition))
@@ -467,7 +469,7 @@ function initialise (stream, options) {
     function checkSign () {
       if (character() === '+' || character() === '-') {
         return next().then(char => {
-          digits += char
+          digits.push(char)
           readExponent()
         })
       }
@@ -480,13 +482,13 @@ function initialise (stream, options) {
     }
 
     function endNumber () {
-      emitter.emit(events.number, parseFloat(digits))
+      emitter.emit(events.number, parseFloat(digits.join('')))
       return endValue()
     }
   }
 
   function walkDigits () {
-    let digits = ''
+    const digits = []
 
     return wait()
 
@@ -499,7 +501,7 @@ function initialise (stream, options) {
     function step () {
       if (isDigit(character())) {
         return next().then(char => {
-          digits += char
+          digits.push(char)
           return wait()
         })
       }
