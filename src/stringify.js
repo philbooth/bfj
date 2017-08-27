@@ -34,7 +34,7 @@ function stringify (data, options) {
   let resolve, reject
 
   const stream = streamify(data, options)
-  let json = ''
+  const json = []
 
   stream.on('data', read)
   stream.on('end', end)
@@ -46,11 +46,11 @@ function stringify (data, options) {
   })
 
   function read (chunk) {
-    json += chunk
+    json.push(chunk)
   }
 
   function end () {
-    resolve(json)
+    resolve(json.join(''))
   }
 
   function error (e) {
