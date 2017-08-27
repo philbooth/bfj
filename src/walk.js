@@ -48,6 +48,7 @@ function initialise (stream, options) {
   let isWalkingString = false
   let count = 0
   let resumeFn
+  let cachedCharacter
 
   const json = []
   const lengths = []
@@ -168,8 +169,12 @@ function initialise (stream, options) {
   }
 
   function character () {
+    if (cachedCharacter) {
+      return cachedCharacter
+    }
+
     if (lengths[0].item > index) {
-      return json[0][index]
+      return cachedCharacter = json[0][index]
     }
 
     const len = lengths.length
@@ -178,7 +183,7 @@ function initialise (stream, options) {
       const aggregate = l.aggregate
       const item = l.item
       if (aggregate > index) {
-        return json[i][index + item - aggregate]
+        return cachedCharacter = json[i][index + item - aggregate]
       }
     }
   }
@@ -189,6 +194,7 @@ function initialise (stream, options) {
     function after () {
       const result = character()
 
+      cachedCharacter = null
       index += 1
       previousPosition.line = currentPosition.line
       previousPosition.column = currentPosition.column
