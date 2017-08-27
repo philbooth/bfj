@@ -1,5 +1,11 @@
 # History
 
+## 4.2.3
+
+* fix: eliminate costly string concatenation (42998d7)
+* fix: micro-optimise eventify::proceed::after (98a2519)
+* fix: micro-optimise walk::character (8d1c4cf)
+
 ## 4.2.2
 
 * fix: silence obnoxious unhandled rejection warnings (1d4a902)
