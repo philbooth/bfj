@@ -114,21 +114,20 @@ function eventify (data, options) {
         return literal(coerced)
       }
 
-      const type = typeof coerced
-
-      if (type === 'number') {
-        return value(coerced, type)
-      }
-
-      if (type === 'string') {
-        return value(escapeString(coerced), type)
-      }
-
       if (Array.isArray(coerced)) {
         return array(coerced)
       }
 
-      return object(coerced)
+      const type = typeof coerced
+
+      switch (type) {
+        case 'number':
+          return value(coerced, type)
+        case 'string':
+          return value(escapeString(coerced), type)
+        default:
+          return object(coerced)
+      }
     }
   }
 
