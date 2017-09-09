@@ -30,13 +30,13 @@
   },
   "dependencies": {
     "check-types": "^7.3.0",
-    "trier": "^0.3.6"
+    "tryer": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "3.19.x",
-    "mocha": "3.2.x",
-    "chai": "3.5.x",
-    "mockery": "2.0.x",
+    "eslint": "4.6.x",
+    "mocha": "3.5.x",
+    "chai": "4.1.x",
+    "mockery": "2.1.x",
     "spooks": "2.0.x",
     "please-release-me": "1.0.x",
     "request": "2.81.x"
