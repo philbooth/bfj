@@ -9,7 +9,7 @@ const modulePath = '../../src/streamify'
 mockery.registerAllowable(modulePath)
 mockery.registerAllowable('hoopy')
 mockery.registerAllowable('check-types')
-mockery.registerAllowable('trier')
+mockery.registerAllowable('tryer')
 mockery.registerAllowable('./events')
 
 suite('streamify:', () => {

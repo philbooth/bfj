@@ -5,7 +5,7 @@ const eventify = require('./eventify')
 const events = require('./events')
 const JsonStream = require('./jsonstream')
 const Hoopy = require('hoopy')
-const trier = require('trier')
+const tryer = require('tryer')
 
 const DEFAULT_BUFFER_LENGTH = 1048576
 
@@ -167,7 +167,7 @@ function streamify (data, options = {}) {
     isPaused = true
     return new Promise(resolve => {
       const unpause = emitter.pause()
-      trier.attempt({
+      tryer({
         interval: -10,
         until () {
           return length + 1 <= json.length
