@@ -1,5 +1,9 @@
 # History
 
+## 4.2.4
+
+* chore: update deps (c3eeeb4)
+
 ## 4.2.3
 
 * fix: eliminate costly string concatenation (42998d7)
