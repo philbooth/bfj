@@ -3,6 +3,7 @@
 const check = require('check-types')
 const EventEmitter = require('events').EventEmitter
 const events = require('./events')
+const Promise = require('bluebird')
 
 const invalidTypes = {
   undefined: true, // eslint-disable-line no-undefined

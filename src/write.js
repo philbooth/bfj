@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const Promise = require('bluebird')
 const streamify = require('./streamify')
 
 module.exports = write

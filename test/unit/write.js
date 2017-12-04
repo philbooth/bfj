@@ -3,6 +3,7 @@
 const assert = require('chai').assert
 const proxyquire = require('proxyquire')
 const spooks = require('spooks')
+const Promise = require('bluebird')
 
 const modulePath = '../../src/write'
 
