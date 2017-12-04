@@ -1,50 +1,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const mockery = require('mockery')
+const proxyquire = require('proxyquire')
 const spooks = require('spooks')
 
 const modulePath = '../../src/write'
 
-mockery.registerAllowable(modulePath)
-
 suite('write:', () => {
-  let log, results
-
-  setup(() => {
-    log = {}
-    results = {
-      createWriteStream: [ {} ]
-    }
-
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('fs', {
-      createWriteStream: spooks.fn({
-        name: 'createWriteStream',
-        log: log,
-        results: results.createWriteStream
-      })
-    })
-    mockery.registerMock('./streamify', spooks.fn({
-      name: 'streamify',
-      log: log,
-      results: [
-        {
-          pipe: spooks.fn({ name: 'pipe', log: log, chain: true }),
-          on: spooks.fn({ name: 'on', log: log, chain: true })
-        }
-      ]
-    }))
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./streamify')
-    mockery.deregisterMock('fs')
-    mockery.disable()
-
-    log = results = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -56,14 +18,33 @@ suite('write:', () => {
   })
 
   suite('require:', () => {
-    let write
+    let log, results, write
 
     setup(() => {
-      write = require(modulePath)
-    })
+      log = {}
+      results = {
+        createWriteStream: [ {} ]
+      }
 
-    teardown(() => {
-      write = undefined
+      write = proxyquire(modulePath, {
+        'fs': {
+          createWriteStream: spooks.fn({
+            name: 'createWriteStream',
+            log: log,
+            results: results.createWriteStream
+          })
+        },
+        './streamify': spooks.fn({
+          name: 'streamify',
+          log: log,
+          results: [
+            {
+              pipe: spooks.fn({ name: 'pipe', log: log, chain: true }),
+              on: spooks.fn({ name: 'on', log: log, chain: true })
+            }
+          ]
+        })
+      })
     })
 
     test('write expects three arguments', () => {
@@ -121,7 +102,6 @@ suite('write:', () => {
 
       test('fs.createWriteStream was called once', () => {
         assert.strictEqual(log.counts.createWriteStream, 1)
-        assert.strictEqual(log.these.createWriteStream[0], require('fs'))
       })
 
       test('fs.createWriteStream was called correctly', () => {
@@ -134,7 +114,6 @@ suite('write:', () => {
 
       test('stream.pipe was called once', () => {
         assert.strictEqual(log.counts.pipe, 1)
-        assert.strictEqual(log.these.pipe[0], require('./streamify')())
       })
 
       test('stream.pipe was called correctly', () => {
@@ -145,9 +124,6 @@ suite('write:', () => {
 
       test('stream.on was called three times', () => {
         assert.strictEqual(log.counts.on, 3)
-        assert.strictEqual(log.these.on[0], require('./streamify')())
-        assert.strictEqual(log.these.on[1], require('./streamify')())
-        assert.strictEqual(log.these.on[2], require('./streamify')())
       })
 
       test('stream.on was called correctly first time', () => {
@@ -269,23 +245,17 @@ suite('write with error thrown by fs.createWriteStream:', () => {
   let write
 
   setup(() => {
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('fs', {
-      createWriteStream () {
-        throw new Error('foo')
-      }
+    write = proxyquire(modulePath, {
+      fs: {
+        createWriteStream () {
+          throw new Error('foo')
+        }
+      },
+      './streamify': () => ({
+        pipe: spooks.fn({ name: 'pipe', log: {}, chain: true }),
+        on: spooks.fn({ name: 'on', log: {}, chain: true })
+      })
     })
-    mockery.registerMock('./streamify', () => ({
-      pipe: spooks.fn({ name: 'pipe', log: {}, chain: true }),
-      on: spooks.fn({ name: 'on', log: {}, chain: true })
-    }))
-    write = require(modulePath)
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./streamify')
-    mockery.deregisterMock('fs')
-    mockery.disable()
   })
 
   test('write does not throw', () => {

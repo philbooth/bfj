@@ -1,36 +1,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const mockery = require('mockery')
+const proxyquire = require('proxyquire')
 const spooks = require('spooks')
 
 const modulePath = '../../src/unpipe'
 
-mockery.registerAllowable(modulePath)
-mockery.registerAllowable('stream')
-
 suite('unpipe:', () => {
-  let log, results
-
-  setup(() => {
-    log = {}
-    results = {
-      parse: [ Promise.resolve() ]
-    }
-
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('./parse', spooks.fn({
-      name: 'parse',
-      log: log,
-      results: results.parse
-    }))
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./parse')
-    mockery.disable()
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -42,14 +18,20 @@ suite('unpipe:', () => {
   })
 
   suite('require:', () => {
-    let unpipe
+    let log, results, unpipe
 
     setup(() => {
-      unpipe = require(modulePath)
-    })
-
-    teardown(() => {
-      unpipe = undefined
+      log = {}
+      results = {
+        parse: [ Promise.resolve() ]
+      }
+      unpipe = proxyquire(modulePath, {
+        './parse': spooks.fn({
+          name: 'parse',
+          log: log,
+          results: results.parse
+        })
+      })
     })
 
     test('unpipe expects two arguments', () => {

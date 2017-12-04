@@ -690,7 +690,7 @@ Versions 4 and later.
 [eslint]: http://eslint.org/
 [mocha]: https://mochajs.org/
 [chai]: http://chaijs.com/
-[mockery]: https://github.com/mfncooper/mockery
+[proxyquire]: https://github.com/thlorenz/proxyquire
 [spooks]: https://github.com/philbooth/spooks.js
 [license]: COPYING
 

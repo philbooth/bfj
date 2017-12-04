@@ -1,41 +1,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const mockery = require('mockery')
+const proxyquire = require('proxyquire')
 const spooks = require('spooks')
 
 const modulePath = '../../src/parse'
 
-mockery.registerAllowable(modulePath)
-mockery.registerAllowable('check-types')
-mockery.registerAllowable('./events')
-
 suite('parse:', () => {
-  let log, results
-
-  setup(() => {
-    log = {}
-    results = {
-      walk: [
-        { on: spooks.fn({ name: 'on', log: log }) }
-      ]
-    }
-
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('./walk', spooks.fn({
-      name: 'walk',
-      log: log,
-      results: results.walk
-    }))
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./walk')
-    mockery.disable()
-
-    log = results = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -47,14 +18,22 @@ suite('parse:', () => {
   })
 
   suite('require:', () => {
-    let parse
+    let log, results, parse
 
     setup(() => {
-      parse = require(modulePath)
-    })
-
-    teardown(() => {
-      parse = undefined
+      log = {}
+      results = {
+        walk: [
+          { on: spooks.fn({ name: 'on', log: log }) }
+        ]
+      }
+      parse = proxyquire(modulePath, {
+        './walk': spooks.fn({
+          name: 'walk',
+          log: log,
+          results: results.walk
+        })
+      })
     })
 
     test('parse expects two arguments', () => {

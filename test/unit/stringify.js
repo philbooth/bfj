@@ -1,38 +1,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const mockery = require('mockery')
+const proxyquire = require('proxyquire')
 const spooks = require('spooks')
 
 const modulePath = '../../src/stringify'
 
-mockery.registerAllowable(modulePath)
-
 suite('stringify:', () => {
-  let log
-
-  setup(() => {
-    log = {}
-
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('./streamify', spooks.fn({
-      name: 'streamify',
-      log: log,
-      results: [
-        {
-          on: spooks.fn({ name: 'on', log: log })
-        }
-      ]
-    }))
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./streamify')
-    mockery.disable()
-
-    log = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -44,14 +18,20 @@ suite('stringify:', () => {
   })
 
   suite('require:', () => {
-    let stringify
+    let log, stringify
 
     setup(() => {
-      stringify = require(modulePath)
-    })
+      log = {}
 
-    teardown(() => {
-      stringify = undefined
+      stringify = proxyquire(modulePath, {
+        './streamify': spooks.fn({
+          name: 'streamify',
+          log: log,
+          results: [
+            { on: spooks.fn({ name: 'on', log: log }) }
+          ]
+        })
+      })
     })
 
     test('stringify expects two arguments', () => {
@@ -108,9 +88,6 @@ suite('stringify:', () => {
 
       test('stream.on was called three times', () => {
         assert.strictEqual(log.counts.on, 3)
-        assert.strictEqual(log.these.on[0], require('./streamify')())
-        assert.strictEqual(log.these.on[1], require('./streamify')())
-        assert.strictEqual(log.these.on[2], require('./streamify')())
       })
 
       test('stream.on was called correctly first time', () => {
