@@ -1,9 +1,10 @@
 'use strict'
 
-const EventEmitter = require('events').EventEmitter
 const check = require('check-types')
 const error = require('./error')
+const EventEmitter = require('events').EventEmitter
 const events = require('./events')
+const Promise = require('bluebird')
 
 const terminators = {
   obj: '}',

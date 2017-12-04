@@ -21,6 +21,8 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [What options can I specify?](#what-options-can-i-specify)
   * [Options for parsing functions](#options-for-parsing-functions)
   * [Options for serialisation functions](#options-for-serialisation-functions)
+* [Why does it return bluebird promises?](#why-does-it-return-bluebird-promises)
+* [Can I specify a different promise implementation?](#can-i-specify-a-different-promise-implementation)
 * [Is there a change log?](#is-there-a-change-log)
 * [How do I set up the dev environment?](#how-do-i-set-up-the-dev-environment)
 * [What versions of Node.js does it support?](#what-versions-of-nodejs-does-it-support)
@@ -136,7 +138,7 @@ bfj.read(path, options)
   });
 ```
 
-`read` returns a [promise] and
+`read` returns a [bluebird promise][promise] and
 asynchronously parses
 a JSON file
 from disk.
@@ -167,7 +169,7 @@ bfj.write(path, data, options)
   });
 ```
 
-`write` returns a [promise]
+`write` returns a [bluebird promise][promise]
 and asynchronously serialises a data structure
 to a JSON file on disk.
 The promise is resolved
@@ -204,7 +206,7 @@ request({ url }).pipe(bfj.unpipe((error, data) => {
 }))
 ```
 
-* `parse` returns a [promise]
+* `parse` returns a [bluebird promise][promise]
   and asynchronously parses
   a stream of JSON data.
 
@@ -256,7 +258,7 @@ bfj.stringify(data, options)
   });
 ```
 
-`stringify` returns a [promise] and
+`stringify` returns a [bluebird promise][promise] and
 asynchronously serialises a data structure
 to a JSON string.
 The promise is resolved
@@ -633,6 +635,26 @@ of an object,
   meaning slower tick times but faster overall serialisation time.
   The default value is `16384`.
 
+## Why does it return bluebird promises?
+
+Before version `5.0.0`,
+native promises were used.
+But they were found to be an indirect cause
+of out-of-memory errors
+when serialising large amounts of data to JSON,
+due to [well-documented problems
+with the native promise implementation](https://alexn.org/blog/2017/10/11/javascript-promise-leaks-memory.html).
+So alternative implementations were evaluated
+and bluebird won.
+
+## Can I specify a different promise implementation?
+
+I'm not against adding a `Promise` option
+that allows callers to specify
+the implementation that should be used,
+I just haven't got round to implementing it yet.
+I'll accept a PR if anyone wants to work on it.
+
 ## Is there a change log?
 
 [Yes][history].
@@ -678,7 +700,7 @@ Versions 4 and later.
 [ci-image]: https://secure.travis-ci.org/philbooth/bfj.png?branch=master
 [ci-status]: http://travis-ci.org/#!/philbooth/bfj
 [sax]: http://en.wikipedia.org/wiki/Simple_API_for_XML
-[promise]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[promise]: http://bluebirdjs.com/docs/api-reference.html
 [eventemitter]: https://nodejs.org/api/events.html#events_class_eventemitter
 [readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [writable]: https://nodejs.org/api/stream.html#stream_writable_streams

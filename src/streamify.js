@@ -4,6 +4,7 @@ const check = require('check-types')
 const eventify = require('./eventify')
 const events = require('./events')
 const JsonStream = require('./jsonstream')
+const Promise = require('bluebird')
 const tryer = require('tryer')
 
 const DEFAULT_BUFFER_LENGTH = 1048576

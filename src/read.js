@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const parse = require('./parse')
+const Promise = require('bluebird')
 
 module.exports = read
 

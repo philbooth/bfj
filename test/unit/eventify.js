@@ -1,8 +1,9 @@
 'use strict'
 
 const assert = require('chai').assert
-const spooks = require('spooks')
 const events = require('../../src/events')
+const Promise = require('bluebird')
+const spooks = require('spooks')
 
 const modulePath = '../../src/eventify'
 

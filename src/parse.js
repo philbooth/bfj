@@ -1,8 +1,9 @@
 'use strict'
 
 const check = require('check-types')
-const walk = require('./walk')
 const events = require('./events')
+const Promise = require('bluebird')
+const walk = require('./walk')
 
 module.exports = parse
 

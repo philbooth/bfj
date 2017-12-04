@@ -1,8 +1,9 @@
 'use strict'
 
 const assert = require('chai').assert
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
+const Promise = require('bluebird')
 const request = require('request')
 const stream = require('stream')
 
