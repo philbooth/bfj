@@ -52,6 +52,7 @@ function eventify (data, options) {
     pause = new Promise(res => resolve = res)
     return () => {
       pause = null
+      count = 0
       resolve()
     }
   }
