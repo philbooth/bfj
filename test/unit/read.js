@@ -1,46 +1,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const mockery = require('mockery')
+const proxyquire = require('proxyquire')
 const spooks = require('spooks')
 
 const modulePath = '../../src/read'
 
-mockery.registerAllowable(modulePath)
-
 suite('read:', () => {
-  let log, results
-
-  setup(() => {
-    log = {}
-    results = {
-      parse: [ {} ],
-      createReadStream: [ {} ]
-    }
-
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('fs', {
-      createReadStream: spooks.fn({
-        name: 'createReadStream',
-        log: log,
-        results: results.createReadStream
-      })
-    })
-    mockery.registerMock('./parse', spooks.fn({
-      name: 'parse',
-      log: log,
-      results: results.parse
-    }))
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./parse')
-    mockery.deregisterMock('fs')
-    mockery.disable()
-
-    log = results = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -52,14 +18,28 @@ suite('read:', () => {
   })
 
   suite('require:', () => {
-    let read
+    let log, results, read
 
     setup(() => {
-      read = require(modulePath)
-    })
-
-    teardown(() => {
-      read = undefined
+      log = {}
+      results = {
+        parse: [ {} ],
+        createReadStream: [ {} ]
+      }
+      read = proxyquire(modulePath, {
+        fs: {
+          createReadStream: spooks.fn({
+            name: 'createReadStream',
+            log: log,
+            results: results.createReadStream
+          })
+        },
+        './parse': spooks.fn({
+          name: 'parse',
+          log: log,
+          results: results.parse
+        })
+      })
     })
 
     test('read expects two arguments', () => {
@@ -98,7 +78,6 @@ suite('read:', () => {
       })
 
       test('fs.createReadStream was called correctly', () => {
-        assert.strictEqual(log.these.createReadStream[0], require('fs'))
         assert.lengthOf(log.args.createReadStream[0], 2)
         assert.strictEqual(log.args.createReadStream[0][0], path)
         assert.lengthOf(Object.keys(log.args.createReadStream[0][0]), 0)
@@ -130,20 +109,14 @@ suite('read with error thrown by fs.createReadStream:', () => {
   let read
 
   setup(() => {
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('fs', {
-      createReadStream () {
-        throw new Error('foo')
-      }
+    read = proxyquire(modulePath, {
+      fs: {
+        createReadStream () {
+          throw new Error('foo')
+        }
+      },
+      './parse': () => {}
     })
-    mockery.registerMock('./parse', () => {})
-    read = require(modulePath)
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('fs')
-    mockery.deregisterMock('./parse')
-    mockery.disable()
   })
 
   test('read does not throw', () => {

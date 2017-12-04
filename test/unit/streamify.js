@@ -1,51 +1,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const mockery = require('mockery')
+const proxyquire = require('proxyquire')
 const spooks = require('spooks')
 
 const modulePath = '../../src/streamify'
 
-mockery.registerAllowable(modulePath)
-mockery.registerAllowable('hoopy')
-mockery.registerAllowable('check-types')
-mockery.registerAllowable('tryer')
-mockery.registerAllowable('./events')
-
 suite('streamify:', () => {
-  let log, results
-
-  setup(() => {
-    log = {}
-    results = {
-      eventify: [
-        { on: spooks.fn({ name: 'on', log: log }) }
-      ],
-      push: [ true ]
-    }
-
-    mockery.enable({ useCleanCache: true })
-    mockery.registerMock('./eventify', spooks.fn({
-      name: 'eventify',
-      log: log,
-      results: results.eventify
-    }))
-    mockery.registerMock('./jsonstream', spooks.ctor({
-      name: 'JsonStream',
-      log: log,
-      archetype: { instance: { push: () => {}, emit: () => {} } },
-      results: results
-    }))
-  })
-
-  teardown(() => {
-    mockery.deregisterMock('./jsonstream')
-    mockery.deregisterMock('./eventify')
-    mockery.disable()
-
-    log = results = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -57,14 +18,29 @@ suite('streamify:', () => {
   })
 
   suite('require:', () => {
-    let streamify
+    let log, results, streamify
 
     setup(() => {
-      streamify = require(modulePath)
-    })
-
-    teardown(() => {
-      streamify = undefined
+      log = {}
+      results = {
+        eventify: [
+          { on: spooks.fn({ name: 'on', log: log }) }
+        ],
+        push: [ true ]
+      }
+      streamify = proxyquire(modulePath, {
+        './eventify': spooks.fn({
+          name: 'eventify',
+          log: log,
+          results: results.eventify
+        }),
+        './jsonstream': spooks.ctor({
+          name: 'JsonStream',
+          log: log,
+          archetype: { instance: { push: () => {}, emit: () => {} } },
+          results: results
+        })
+      })
     })
 
     test('streamify expects one argument', () => {
@@ -78,7 +54,8 @@ suite('streamify:', () => {
     })
 
     test('streamify returns stream', () => {
-      assert.strictEqual(streamify(), require('./jsonstream')())
+      assert.isFunction(streamify().push)
+      assert.isFunction(streamify().emit)
     })
 
     test('JsonStream was not called', () => {
@@ -228,8 +205,6 @@ suite('streamify:', () => {
 
             test('stream.push was called twice', () => {
               assert.strictEqual(log.counts.push, 2)
-              assert.strictEqual(log.these.push[0], require('./jsonstream')())
-              assert.strictEqual(log.these.push[1], require('./jsonstream')())
             })
 
             test('stream.push was called correctly first time', () => {

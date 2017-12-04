@@ -703,7 +703,7 @@ under the package name [`bfj-node4`](https://www.npmjs.com/package/bfj-node4).
 [eslint]: http://eslint.org/
 [mocha]: https://mochajs.org/
 [chai]: http://chaijs.com/
-[mockery]: https://github.com/mfncooper/mockery
+[proxyquire]: https://github.com/thlorenz/proxyquire
 [spooks]: https://github.com/philbooth/spooks.js
 [license]: COPYING
 
