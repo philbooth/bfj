@@ -33,7 +33,7 @@ module.exports = write
  * @option yieldRate:    The number of data items to process per timeslice,
  *                       default is 16384.
  *
- * @option bufferLength: The length of the buffer, default is 1048576.
+ * @option bufferLength: The length of the buffer, default is 1024.
  **/
 function write (path, data, options) {
   return new Promise((resolve, reject) => {

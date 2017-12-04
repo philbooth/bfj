@@ -8,7 +8,7 @@ const Hoopy = require('hoopy')
 const Promise = require('bluebird')
 const tryer = require('tryer')
 
-const DEFAULT_BUFFER_LENGTH = 1048576
+const DEFAULT_BUFFER_LENGTH = 1024
 
 module.exports = streamify
 
@@ -36,7 +36,7 @@ module.exports = streamify
  * @option yieldRate:    The number of data items to process per timeslice,
  *                       default is 16384.
  *
- * @option bufferLength: The length of the buffer, default is 1048576.
+ * @option bufferLength: The length of the buffer, default is 1024.
  **/
 function streamify (data, options = {}) {
   let isProperty, needsComma, isEnded

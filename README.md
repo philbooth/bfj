@@ -625,6 +625,12 @@ of an object,
   circular references
   in the data.
 
+* `options.bufferLength`:
+  The length of the write buffer.
+  Smaller values use less memory
+  but may result in a slower serialisation time.
+  The default value is `1024`.
+
 * `options.yieldRate`:
   The number of data items to process
   before yielding to the event loop.
