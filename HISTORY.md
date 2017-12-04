@@ -1,5 +1,12 @@
 # History
 
+## 5.0.0
+
+* fix: ditch mockery in favour of proxyquire (01a9177)
+* breaking change: return bluebird promises instead of native (c80fe0f)
+* fix: clear the yield counter when unpausing (9d5c95d)
+* chore: reduce the buffer length (9abd435)
+
 ## 4.2.4
 
 * chore: update deps (c3eeeb4)
