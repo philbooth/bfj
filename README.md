@@ -700,7 +700,7 @@ relies on [Node.js][node],
 [ESLint],
 [Mocha],
 [Chai],
-[Mockery] and
+[Proxyquire] and
 [Spooks].
 Assuming that
 you already have
@@ -749,4 +749,3 @@ Versions 4 and later.
 [proxyquire]: https://github.com/thlorenz/proxyquire
 [spooks]: https://github.com/philbooth/spooks.js
 [license]: COPYING
-
