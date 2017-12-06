@@ -61,4 +61,3 @@ function stringify (data, options) {
     reject(e)
   }
 }
-

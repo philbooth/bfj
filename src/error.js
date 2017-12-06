@@ -20,4 +20,3 @@ function create (actual, expected, line, column) {
 
   return error
 }
-

@@ -274,4 +274,3 @@ suite('write with error thrown by fs.createWriteStream:', () => {
       })
   })
 })
-

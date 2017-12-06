@@ -134,4 +134,3 @@ suite('read with error thrown by fs.createReadStream:', () => {
       })
   })
 })
-

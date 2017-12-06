@@ -21,4 +21,3 @@ function JsonStream (read) {
 
   return Readable.call(this, { encoding: 'utf8' })
 }
-

@@ -43,4 +43,3 @@ function reportProperty (name) {
   // eslint-disable-next-line no-console
   console.log(`mean ${name}: ${m.sum / memory.count}; hwm: ${m.hwm}`)
 }
-

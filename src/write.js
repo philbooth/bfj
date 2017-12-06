@@ -50,4 +50,3 @@ function write (path, data, options) {
       .on('dataError', reject)
   })
 }
-
