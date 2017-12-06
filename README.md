@@ -21,7 +21,7 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [What options can I specify?](#what-options-can-i-specify)
   * [Options for parsing functions](#options-for-parsing-functions)
   * [Options for serialisation functions](#options-for-serialisation-functions)
-* [Why does it return bluebird promises?](#why-does-it-return-bluebird-promises)
+* [Why does it default to bluebird promises?](#why-does-it-default-to-bluebird-promises)
 * [Can I specify a different promise implementation?](#can-i-specify-a-different-promise-implementation)
 * [Is there a change log?](#is-there-a-change-log)
 * [How do I set up the dev environment?](#how-do-i-set-up-the-dev-environment)
@@ -560,6 +560,17 @@ of an object,
   meaning slower tick times but faster overall parsing time.
   The default value is `16384`.
 
+* `options.Promise`:
+  Promise constructor that will be used
+  for promises returned by all methods.
+  If you set this option,
+  please be aware that some promise implementations
+  (including native promises)
+  may cause your process to die
+  with out-of-memory exceptions.
+  Defaults to [bluebird's implementation][promise],
+  which does not have that problem.
+
 ### Options for serialisation functions
 
 * `options.space`:
@@ -641,25 +652,42 @@ of an object,
   meaning slower tick times but faster overall serialisation time.
   The default value is `16384`.
 
-## Why does it return bluebird promises?
+* `options.Promise`:
+  Promise constructor that will be used
+  for promises returned by all methods.
+  If you set this option,
+  please be aware that some promise implementations
+  (including native promises)
+  may cause your process to die
+  with out-of-memory exceptions.
+  Defaults to [bluebird's implementation][promise],
+  which does not have that problem.
 
-Before version `5.0.0`,
+## Why does it default to bluebird promises?
+
+Until version `4.2.4`,
 native promises were used.
-But they were found to be an indirect cause
-of out-of-memory errors
+But they were found
+to cause out-of-memory errors
 when serialising large amounts of data to JSON,
 due to [well-documented problems
 with the native promise implementation](https://alexn.org/blog/2017/10/11/javascript-promise-leaks-memory.html).
-So alternative implementations were evaluated
-and bluebird won.
+So in version `5.0.0`,
+bluebird promises were used instead.
+In version `5.1.0`,
+an option was added
+that enables callers to specify
+the promise constructor to use.
+Use it at your own risk.
 
 ## Can I specify a different promise implementation?
 
-I'm not against adding a `Promise` option
-that allows callers to specify
-the implementation that should be used,
-I just haven't got round to implementing it yet.
-I'll accept a PR if anyone wants to work on it.
+Yes.
+Just pass the `Promise` option
+to any method.
+If you get out-of-memory errors
+when using that option,
+consider changing your promise implementation.
 
 ## Is there a change log?
 

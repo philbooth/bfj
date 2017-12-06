@@ -1,6 +1,6 @@
 'use strict'
 
-const Promise = require('bluebird')
+const promise = require('./promise')
 const streamify = require('./streamify')
 
 module.exports = stringify
@@ -30,12 +30,15 @@ module.exports = stringify
  *                       default is 16384.
  *
  * @option bufferLength: The length of the buffer, default is 1024.
+ *
+ * @option Promise:      The promise constructor to use, defaults to bluebird.
  **/
 function stringify (data, options) {
-  let resolve, reject
-
-  const stream = streamify(data, options)
   const json = []
+  const Promise = promise(options)
+  const stream = streamify(data, options)
+
+  let resolve, reject
 
   stream.on('data', read)
   stream.on('end', end)

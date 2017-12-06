@@ -4,7 +4,7 @@ const check = require('check-types')
 const eventify = require('./eventify')
 const events = require('./events')
 const JsonStream = require('./jsonstream')
-const Promise = require('bluebird')
+const promise = require('./promise')
 const tryer = require('tryer')
 
 const DEFAULT_BUFFER_LENGTH = 1024
@@ -36,24 +36,27 @@ module.exports = streamify
  *                       default is 16384.
  *
  * @option bufferLength: The length of the buffer, default is 1024.
+ *
+ * @option Promise:      The promise constructor to use, defaults to bluebird.
  **/
 function streamify (data, options) {
-  let isProperty, needsComma, isEnded
-
   options = options || {}
 
-  const space = normaliseSpace(options)
-
-  const stream = new JsonStream(read)
   const emitter = eventify(data, options)
-
   const json = new Array(options.bufferLength || DEFAULT_BUFFER_LENGTH)
-  let length = 0
+  const Promise = promise(options)
+  const space = normaliseSpace(options)
+  const stream = new JsonStream(read)
+
+  let awaitPush = true
   let index = 0
   let indentation = ''
-  let awaitPush = true
+  let isEnded
   let isPaused = false
+  let isProperty
+  let length = 0
   let mutex = Promise.resolve()
+  let needsComma
 
   emitter.on(events.array, noRacing(array))
   emitter.on(events.object, noRacing(object))

@@ -4,7 +4,7 @@ const check = require('check-types')
 const error = require('./error')
 const EventEmitter = require('events').EventEmitter
 const events = require('./events')
-const Promise = require('bluebird')
+const promise = require('./promise')
 
 const terminators = {
   obj: '}',
@@ -36,11 +36,29 @@ module.exports = initialise
  *
  * @option yieldRate: The number of data items to process per timeslice,
  *                    default is 16384.
+ *
+ * @option Promise:   The promise constructor to use, defaults to bluebird.
  **/
 function initialise (stream, options) {
   check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
 
   options = options || {}
+
+  const currentPosition = {
+    line: 1,
+    column: 1
+  }
+  const emitter = new EventEmitter()
+  const handlers = {
+    arr: value,
+    obj: property
+  }
+  const json = []
+  const lengths = []
+  const previousPosition = {}
+  const Promise = promise(options)
+  const scopes = []
+  const yieldRate = options.yieldRate || 16384
 
   let index = 0
   let isStreamEnded = false
@@ -50,21 +68,6 @@ function initialise (stream, options) {
   let count = 0
   let resumeFn
   let cachedCharacter
-
-  const json = []
-  const lengths = []
-  const currentPosition = {
-    line: 1,
-    column: 1
-  }
-  const previousPosition = {}
-  const scopes = []
-  const handlers = {
-    arr: value,
-    obj: property
-  }
-  const emitter = new EventEmitter()
-  const yieldRate = options.yieldRate || 16384
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)

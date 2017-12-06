@@ -2,7 +2,7 @@
 
 const check = require('check-types')
 const events = require('./events')
-const Promise = require('bluebird')
+const promise = require('./promise')
 const walk = require('./walk')
 
 module.exports = parse
@@ -20,23 +20,26 @@ module.exports = parse
  *
  * @option yieldRate: The number of data items to process per timeslice,
  *                    default is 16384.
+ *
+ * @option Promise:   The promise constructor to use, defaults to bluebird.
  **/
 function parse (stream, options) {
-  let resolve, reject, scopeKey
-
   options = options || {}
-  const reviver = options.reviver
+
+  const Promise = promise(options)
 
   try {
-    check.assert.maybe.function(reviver, 'Invalid reviver option')
+    check.assert.maybe.function(options.reviver, 'Invalid reviver option')
   } catch (err) {
     return Promise.reject(err)
   }
 
   const emitter = walk(stream, options)
-
-  const scopes = []
   const errors = []
+  const reviver = options.reviver
+  const scopes = []
+
+  let resolve, reject, scopeKey
 
   emitter.on(events.array, array)
   emitter.on(events.object, object)

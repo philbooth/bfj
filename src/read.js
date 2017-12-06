@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const parse = require('./parse')
-const Promise = require('bluebird')
+const promise = require('./promise')
 
 module.exports = read
 
@@ -19,8 +19,12 @@ module.exports = read
  *
  * @option yieldRate: The number of data items to process per timeslice,
  *                    default is 16384.
+ *
+ * @option Promise:   The promise constructor to use, defaults to bluebird.
  **/
 function read (path, options) {
+  const Promise = promise(options)
+
   try {
     return parse(fs.createReadStream(path, options), options)
   } catch (error) {

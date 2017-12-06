@@ -63,6 +63,12 @@ suite('parse:', () => {
       assert.instanceOf(parse(), Promise)
     })
 
+    test('parse returns a different type of promise if the option is set', () => {
+      assert.isFunction(global.Promise)
+      assert.notStrictEqual(Promise, global.Promise)
+      assert.instanceOf(parse('', { Promise: global.Promise }), global.Promise)
+    })
+
     test('parse rejects immediately if reviver is an object', () => {
       return parse({}, { reviver: {} })
         .then(() => assert(false))

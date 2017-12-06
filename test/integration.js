@@ -45,7 +45,7 @@ suite('integration:', () => {
       assert.isFunction(bfj.walk)
     })
 
-    test('walk expects one argument', () => {
+    test('walk expects two arguments', () => {
       assert.lengthOf(bfj.walk, 2)
     })
 
