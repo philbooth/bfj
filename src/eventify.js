@@ -56,18 +56,16 @@ function eventify (data, options) {
       resolve()
     }
   }
-  normaliseOptions()
+  parseOptions()
   setImmediate(begin)
 
   return emitter
 
-  function normaliseOptions () {
-    options = options || {}
-
-    normaliseOption('promises')
-    normaliseOption('buffers')
-    normaliseOption('maps')
-    normaliseOption('iterables')
+  function parseOptions () {
+    parseCoercionOption('promises')
+    parseCoercionOption('buffers')
+    parseCoercionOption('maps')
+    parseCoercionOption('iterables')
 
     if (Object.keys(coercions).length === 0) {
       disableCoercions = true
@@ -81,7 +79,7 @@ function eventify (data, options) {
     yieldRate = options.yieldRate || 16384
   }
 
-  function normaliseOption (key) {
+  function parseCoercionOption (key) {
     if (options[key] !== 'ignore') {
       coercions[key] = true
     }
