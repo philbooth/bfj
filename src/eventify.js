@@ -3,7 +3,7 @@
 const check = require('check-types')
 const EventEmitter = require('events').EventEmitter
 const events = require('./events')
-const Promise = require('bluebird')
+const promise = require('./promise')
 
 const invalidTypes = {
   undefined: true, // eslint-disable-line no-undefined
@@ -35,17 +35,21 @@ module.exports = eventify
  *
  * @option yieldRate:  The number of data items to process per timeslice,
  *                     default is 16384.
+ *
+ * @option Promise:      The promise constructor to use, defaults to bluebird.
  **/
-function eventify (data, options) {
-  let ignoreCircularReferences, ignoreItems
-
-  const references = new Map()
+function eventify (data, options = {}) {
   const coercions = {}
   const emitter = new EventEmitter()
-  let disableCoercions = false
+  const Promise = promise(options)
+  const references = new Map()
+
   let count = 0
-  let yieldRate
+  let disableCoercions = false
+  let ignoreCircularReferences
+  let ignoreItems
   let pause
+  let yieldRate
 
   emitter.pause = () => {
     let resolve
@@ -173,8 +177,8 @@ function eventify (data, options) {
     return Promise.resolve()
   }
 
-  function coercePromise (promise) {
-    return promise
+  function coercePromise (p) {
+    return p
   }
 
   function coerceBuffer (buffer) {

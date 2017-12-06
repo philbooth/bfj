@@ -37,8 +37,8 @@ suite('parse:', () => {
       })
     })
 
-    test('parse expects two arguments', () => {
-      assert.lengthOf(parse, 2)
+    test('parse expects one argument', () => {
+      assert.lengthOf(parse, 1)
     })
 
     test('parse does not throw', () => {
@@ -61,6 +61,12 @@ suite('parse:', () => {
 
     test('parse returns a promise', () => {
       assert.instanceOf(parse(), Promise)
+    })
+
+    test('parse returns a different type of promise if the option is set', () => {
+      assert.isFunction(global.Promise)
+      assert.notStrictEqual(Promise, global.Promise)
+      assert.instanceOf(parse('', { Promise: global.Promise }), global.Promise)
     })
 
     test('parse rejects immediately if reviver is an object', () => {

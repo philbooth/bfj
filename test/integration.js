@@ -46,15 +46,15 @@ suite('integration:', () => {
     })
 
     test('walk expects one argument', () => {
-      assert.lengthOf(bfj.walk, 2)
+      assert.lengthOf(bfj.walk, 1)
     })
 
     test('parse function is exported', () => {
       assert.isFunction(bfj.parse)
     })
 
-    test('parse expects two arguments', () => {
-      assert.lengthOf(bfj.parse, 2)
+    test('parse expects one argument', () => {
+      assert.lengthOf(bfj.parse, 1)
     })
 
     test('read function is exported', () => {
@@ -69,8 +69,8 @@ suite('integration:', () => {
       assert.isFunction(bfj.eventify)
     })
 
-    test('eventify expects two arguments', () => {
-      assert.lengthOf(bfj.eventify, 2)
+    test('eventify expects one argument', () => {
+      assert.lengthOf(bfj.eventify, 1)
     })
 
     test('streamify function is exported', () => {

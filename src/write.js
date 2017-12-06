@@ -1,7 +1,7 @@
 'use strict'
 
 const fs = require('fs')
-const Promise = require('bluebird')
+const promise = require('./promise')
 const streamify = require('./streamify')
 
 module.exports = write
@@ -34,8 +34,12 @@ module.exports = write
  *                       default is 16384.
  *
  * @option bufferLength: The length of the buffer, default is 1024.
+ *
+ * @option Promise:      The promise constructor to use, defaults to bluebird.
  **/
 function write (path, data, options) {
+  const Promise = promise(options)
+
   return new Promise((resolve, reject) => {
     streamify(data, options)
       .pipe(fs.createWriteStream(path, options))
