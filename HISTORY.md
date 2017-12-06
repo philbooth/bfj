@@ -1,5 +1,11 @@
 # History
 
+## 5.1.0
+
+* chore: remove extra trailing newlines (fa561e2)
+* feature: allow callers to pass in the Promise constructor (aa5a664)
+* refactor: better names for the option-mangling functions (5eb2e4e)
+
 ## 5.0.0
 
 * fix: ditch mockery in favour of proxyquire (01a9177)
