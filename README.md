@@ -700,7 +700,7 @@ relies on [Node.js][node],
 [ESLint],
 [Mocha],
 [Chai],
-[Mockery] and
+[Proxyquire] and
 [Spooks].
 Assuming that
 you already have
@@ -762,4 +762,3 @@ under the package name [`bfj-node4`](https://www.npmjs.com/package/bfj-node4).
 [proxyquire]: https://github.com/thlorenz/proxyquire
 [spooks]: https://github.com/philbooth/spooks.js
 [license]: COPYING
-
