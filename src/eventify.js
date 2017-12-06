@@ -291,4 +291,3 @@ function eventify (data, options) {
     return string.substring(1, string.length - 1)
   }
 }
-

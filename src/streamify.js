@@ -265,4 +265,3 @@ function normaliseSpace (options) {
     return options.space
   }
 }
-

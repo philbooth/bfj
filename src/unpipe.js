@@ -35,4 +35,3 @@ function unpipe (callback, options) {
 
   return jsonstream
 }
-

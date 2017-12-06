@@ -145,4 +145,3 @@ function parse (stream, options) {
     errors.push(e)
   }
 }
-

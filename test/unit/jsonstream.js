@@ -105,4 +105,3 @@ suite('jsonstream:', () => {
     })
   })
 })
-

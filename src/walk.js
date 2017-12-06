@@ -642,4 +642,3 @@ function isInRange (character, lower, upper) {
 
   return code >= lower.charCodeAt(0) && code <= upper.charCodeAt(0)
 }
-

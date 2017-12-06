@@ -27,4 +27,3 @@ function read (path, options) {
     return Promise.reject(error)
   }
 }
-

@@ -11,4 +11,3 @@ module.exports = {
   write: require('./write'),
   events: require('./events')
 }
-
