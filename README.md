@@ -42,6 +42,7 @@ to try and alleviate those issues.
 ## Is it fast?
 
 No.
+
 BFJ yields frequently
 to avoid monopolising the event loop,
 interrupting its own execution
@@ -49,7 +50,19 @@ to let other event handlers run.
 The frequency of those yields
 can be controlled with the [`yieldRate` option](#what-options-can-i-specify),
 but fundamentally it is not designed for speed.
-If you need quick results,
+
+Furthermore,
+when serialising data to a stream,
+BFJ uses a fixed-length buffer
+to avoid exhausting available memory.
+Whenever that buffer is full,
+serialisation is paused
+until the receiving stream processes some more data,
+regardless of the value of `yieldRate`.
+You can control the size of the buffer
+using the [`bufferLength` option](#options-for-serialisation-functions)
+but really,
+if you need quick results,
 BFJ is not for you.
 
 ## What functions does it implement?
