@@ -1,6 +1,6 @@
 {
   "name": "bfj",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Big-friendly JSON. Asynchronous streaming functions for large JSON data sets.",
   "homepage": "https://github.com/philbooth/bfj",
   "bugs": "https://github.com/philbooth/bfj/issues",

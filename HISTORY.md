@@ -1,5 +1,11 @@
 # History
 
+## 5.1.1
+
+* fix: replace old mockery link with proxyquire (e6b3924)
+* chore: delete redundant teardowns (52040a6)
+* fix: catch errors from user code (b8103e4)
+
 ## 5.1.0
 
 * chore: remove extra trailing newlines (fa561e2)
