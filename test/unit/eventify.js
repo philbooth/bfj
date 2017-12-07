@@ -1883,5 +1883,64 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
     })
+
+    suite('throw errors from event handlers:', () => {
+      setup(done => {
+        const emitter = eventify([null,false,true,0,"",{"foo":"bar"}])
+
+        Object.keys(events).forEach(key => {
+          const event = events[key]
+          emitter.on(event, spooks.fn({
+            name: key,
+            log: log
+          }))
+          if (event !== events.end) {
+            emitter.on(event, () => { throw 0 })
+          }
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('array event occured once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('literal event occured three times', () => {
+        assert.strictEqual(log.counts.literal, 3)
+      })
+
+      test('number event occured once', () => {
+        assert.strictEqual(log.counts.number, 1)
+      })
+
+      test('string event occured twice', () => {
+        assert.strictEqual(log.counts.string, 2)
+      })
+
+      test('object event occured once', () => {
+        assert.strictEqual(log.counts.object, 1)
+      })
+
+      test('property event occured once', () => {
+        assert.strictEqual(log.counts.property, 1)
+      })
+
+      test('endObject event occured once', () => {
+        assert.strictEqual(log.counts.endObject, 1)
+      })
+
+      test('endArray event occured once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('error event occured eleven times', () => {
+        assert.strictEqual(log.counts.error, 11)
+      })
+    })
   })
 })

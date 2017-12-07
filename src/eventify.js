@@ -220,6 +220,13 @@ function eventify (data, options = {}) {
   function emit (event, eventData) {
     return (pause || Promise.resolve())
       .then(() => emitter.emit(event, eventData))
+      .catch(err => {
+        try {
+          emitter.emit(events.error, err)
+        } catch (_) {
+          // When calling user code, anything is possible
+        }
+      })
   }
 
   function array (datum) {

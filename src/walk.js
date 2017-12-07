@@ -257,9 +257,21 @@ function initialise (stream, options = {}) {
   }
 
   function scope (event, contentHandler) {
-    emitter.emit(event)
+    emit(event)
     scopes.push(event)
     return endScope(event).then(contentHandler)
+  }
+
+  function emit (...args) {
+    try {
+      emitter.emit(...args)
+    } catch (err) {
+      try {
+        emitter.emit(events.error, err)
+      } catch (_) {
+        // When calling user code, anything is possible
+      }
+    }
   }
 
   function endScope (scp) {
@@ -276,7 +288,7 @@ function initialise (stream, options = {}) {
         return resolve()
       }
 
-      emitter.emit(events.endPrefix + scp)
+      emit(events.endPrefix + scp)
       scopes.pop()
 
       next().then(endValue)
@@ -313,7 +325,7 @@ function initialise (stream, options = {}) {
   }
 
   function fail (actual, expected, position) {
-    emitter.emit(
+    emit(
       events.error,
       error.create(
         actual,
@@ -386,7 +398,7 @@ function initialise (stream, options = {}) {
       }
 
       isWalkingString = false
-      emitter.emit(event, str.join(''))
+      emit(event, str.join(''))
     }
   }
 
@@ -488,7 +500,7 @@ function initialise (stream, options = {}) {
     }
 
     function endNumber () {
-      emitter.emit(events.number, parseFloat(digits.join('')))
+      emit(events.number, parseFloat(digits.join('')))
       return endValue()
     }
   }
@@ -567,7 +579,7 @@ function initialise (stream, options = {}) {
     }
 
     function done () {
-      emitter.emit(events.literal, val)
+      emit(events.literal, val)
     }
   }
 
@@ -605,7 +617,7 @@ function initialise (stream, options = {}) {
       fail('EOF', terminators[scopes.pop()], currentPosition)
     }
 
-    emitter.emit(events.end)
+    emit(events.end)
   }
 
   function resume () {

@@ -2644,5 +2644,72 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
     })
+
+    suite('throw errors from event handlers:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream)
+
+        stream.push('[null,false,true,0,"",{"foo":"bar"}]')
+        stream.push(null)
+
+        Object.keys(events).forEach(key => {
+          const event = events[key]
+          emitter.on(event, spooks.fn({
+            name: key,
+            log: log
+          }))
+          if (event !== events.end) {
+            emitter.on(event, () => { throw 0 })
+          }
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('literal event occurred three times', () => {
+        assert.strictEqual(log.counts.literal, 3)
+      })
+
+      test('number event occurred once', () => {
+        assert.strictEqual(log.counts.number, 1)
+      })
+
+      test('string event occurred twice', () => {
+        assert.strictEqual(log.counts.string, 2)
+      })
+
+      test('property event occurred once', () => {
+        assert.strictEqual(log.counts.property, 1)
+      })
+
+      test('object event occurred once', () => {
+        assert.strictEqual(log.counts.object, 1)
+      })
+
+      test('endObject event occurred once', () => {
+        assert.strictEqual(log.counts.endObject, 1)
+      })
+
+      test('error event occurred eleven times', () => {
+        assert.strictEqual(log.counts.error, 11)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+    })
   })
 })
