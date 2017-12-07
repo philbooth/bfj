@@ -10,10 +10,6 @@ suite('error:', () => {
     log = {}
   })
 
-  teardown(() => {
-    log = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -29,10 +25,6 @@ suite('error:', () => {
 
     setup(() => {
       error = require(modulePath)
-    })
-
-    teardown(() => {
-      error = undefined
     })
 
     test('error has create method', () => {
@@ -62,10 +54,6 @@ suite('error:', () => {
 
       setup(() => {
         created = error.create('foo', 'bar', 'baz', 'qux')
-      })
-
-      teardown(() => {
-        created = undefined
       })
 
       test('created has correct actual property', () => {

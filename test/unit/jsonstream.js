@@ -12,10 +12,6 @@ suite('jsonstream:', () => {
     log = {}
   })
 
-  teardown(() => {
-    log = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -31,10 +27,6 @@ suite('jsonstream:', () => {
 
     setup(() => {
       Stream = require(modulePath)
-    })
-
-    teardown(() => {
-      Stream = undefined
     })
 
     test('Stream expects one argument', () => {
@@ -70,10 +62,6 @@ suite('jsonstream:', () => {
 
       setup(() => {
         jsonstream = new Stream(spooks.fn({ name: 'read', log: log }))
-      })
-
-      teardown(() => {
-        jsonstream = undefined
       })
 
       test('jsonstream has _read method', () => {

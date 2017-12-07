@@ -14,10 +14,6 @@ suite('walk:', () => {
     log = {}
   })
 
-  teardown(() => {
-    log = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -33,10 +29,6 @@ suite('walk:', () => {
 
     setup(() => {
       walk = require(modulePath)
-    })
-
-    teardown(() => {
-      walk = undefined
     })
 
     test('walk throws without readable stream', () => {
@@ -75,10 +67,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('end event occurred once', () => {
@@ -150,10 +138,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -231,10 +215,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('object event occurred once', () => {
         assert.strictEqual(log.counts.object, 1)
       })
@@ -310,10 +290,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('string event occurred once', () => {
         assert.strictEqual(log.counts.string, 1)
       })
@@ -384,10 +360,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('number event occurred once', () => {
@@ -462,10 +434,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('literal event occurred once', () => {
         assert.strictEqual(log.counts.literal, 1)
       })
@@ -536,10 +504,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('literal event occurred once', () => {
@@ -613,10 +577,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('literal event occurred once', () => {
         assert.strictEqual(log.counts.literal, 1)
       })
@@ -688,10 +648,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -753,10 +709,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('object event occurred once', () => {
@@ -827,10 +779,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('error event occurred once', () => {
         assert.strictEqual(log.counts.error, 1)
       })
@@ -875,10 +823,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('error event occurred once', () => {
@@ -927,10 +871,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('error event occurred once', () => {
         assert.strictEqual(log.counts.error, 1)
       })
@@ -971,10 +911,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('number event did not occur', () => {
@@ -1021,10 +957,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('number event occurred once', () => {
@@ -1084,10 +1016,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('error event occurred once', () => {
         assert.strictEqual(log.counts.error, 1)
       })
@@ -1130,10 +1058,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('error event occurred once', () => {
         assert.strictEqual(log.counts.error, 1)
       })
@@ -1174,10 +1098,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('error event occurred four times', () => {
@@ -1243,10 +1163,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred twice', () => {
         assert.strictEqual(log.counts.array, 2)
       })
@@ -1284,10 +1200,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred three times', () => {
@@ -1329,10 +1241,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred three times', () => {
         assert.strictEqual(log.counts.array, 3)
       })
@@ -1370,10 +1278,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred three times', () => {
@@ -1426,10 +1330,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -1475,10 +1375,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -1528,10 +1424,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -1577,10 +1469,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -1637,10 +1525,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -1690,10 +1574,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -1747,10 +1627,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -1802,10 +1678,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -1851,10 +1723,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -1908,10 +1776,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -1963,10 +1827,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -2012,10 +1872,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -2069,10 +1925,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -2124,10 +1976,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('object event occurred twice', () => {
         assert.strictEqual(log.counts.object, 2)
       })
@@ -2174,10 +2022,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('object event occurred twice', () => {
@@ -2237,10 +2081,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('object event occurred once', () => {
@@ -2322,10 +2162,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('object event occurred three times', () => {
         assert.strictEqual(log.counts.object, 3)
       })
@@ -2382,10 +2218,6 @@ suite('walk:', () => {
         })
 
         emitter.on(events.end, done)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('object event occurred once', () => {
@@ -2461,10 +2293,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('object event occurred three times', () => {
         assert.strictEqual(log.counts.object, 3)
       })
@@ -2516,10 +2344,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('array event occurred once', () => {
         assert.strictEqual(log.counts.array, 1)
       })
@@ -2558,10 +2382,6 @@ suite('walk:', () => {
         emitter.on(events.end, done)
         emitter.on(events.array, stream.push.bind(stream, ']'))
         emitter.on(events.endArray, stream.push.bind(stream, null))
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {
@@ -2608,10 +2428,6 @@ suite('walk:', () => {
         emitter.on(events.endObject, () => {
           setTimeout(stream.push.bind(stream, null), 20)
         })
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('object event occurred once', () => {
@@ -2662,10 +2478,6 @@ suite('walk:', () => {
         setTimeout(stream.push.bind(stream, '"'), 100)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('string event occurred once', () => {
         assert.strictEqual(log.counts.string, 1)
       })
@@ -2713,10 +2525,6 @@ suite('walk:', () => {
         setTimeout(stream.push.bind(stream, null), 160)
       })
 
-      teardown(() => {
-        stream = emitter = undefined
-      })
-
       test('number event occurred once', () => {
         assert.strictEqual(log.counts.number, 1)
       })
@@ -2758,10 +2566,6 @@ suite('walk:', () => {
         setTimeout(stream.push.bind(stream, 'l'), 40)
         setTimeout(stream.push.bind(stream, 'l'), 60)
         setTimeout(stream.push.bind(stream, null), 80)
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('literal event occurred once', () => {
@@ -2814,10 +2618,6 @@ suite('walk:', () => {
         })
 
         setImmediate(stream.push.bind(stream, '['))
-      })
-
-      teardown(() => {
-        stream = emitter = undefined
       })
 
       test('array event occurred once', () => {

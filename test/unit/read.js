@@ -69,10 +69,6 @@ suite('read:', () => {
         result = read(path, options)
       })
 
-      teardown(() => {
-        path = options = result = undefined
-      })
-
       test('fs.createReadStream was called once', () => {
         assert.strictEqual(log.counts.createReadStream, 1)
       })

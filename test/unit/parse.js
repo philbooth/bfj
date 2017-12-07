@@ -99,10 +99,6 @@ suite('parse:', () => {
           .catch(spooks.fn({ name: 'reject', log: log }))
       })
 
-      teardown(() => {
-        stream = options = undefined
-      })
-
       test('walk was called once', () => {
         assert.strictEqual(log.counts.walk, 1)
         assert.isUndefined(log.these.walk[0])
@@ -647,10 +643,6 @@ suite('parse:', () => {
         parse(stream, options)
           .then(spooks.fn({ name: 'resolve', log: log }))
           .catch(spooks.fn({ name: 'reject', log: log }))
-      })
-
-      teardown(() => {
-        stream = options = undefined
       })
 
       test('walk was called once', () => {

@@ -79,10 +79,6 @@ suite('streamify:', () => {
         result = streamify(data, options)
       })
 
-      teardown(() => {
-        data = options = result = undefined
-      })
-
       test('JsonStream was called once', () => {
         assert.strictEqual(log.counts.JsonStream, 1)
         assert.isObject(log.these.JsonStream[0])
@@ -725,10 +721,6 @@ suite('streamify:', () => {
         data = {}
         options = { space: 2 }
         result = streamify(data, options)
-      })
-
-      teardown(() => {
-        data = options = result = undefined
       })
 
       test('JsonStream was called once', () => {

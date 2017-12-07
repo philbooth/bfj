@@ -14,10 +14,6 @@ suite('eventify:', () => {
     log = {}
   })
 
-  teardown(() => {
-    log = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -33,10 +29,6 @@ suite('eventify:', () => {
 
     setup(() => {
       eventify = require(modulePath)
-    })
-
-    teardown(() => {
-      eventify = undefined
     })
 
     test('eventify does not throw', () => {
