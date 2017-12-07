@@ -84,10 +84,6 @@ suite('write:', () => {
         result = write(path, data, options)
       })
 
-      teardown(() => {
-        path = data = options = result = undefined
-      })
-
       test('streamify was called once', () => {
         assert.strictEqual(log.counts.streamify, 1)
         assert.isUndefined(log.these.streamify[0])
@@ -170,10 +166,6 @@ suite('write:', () => {
           log.args.on[0][1]('foo')
         })
 
-        teardown(() => {
-          resolved = error = passed = failed = undefined
-        })
-
         test('promise was resolved', () => {
           assert.isTrue(passed)
           assert.isFalse(failed)
@@ -199,10 +191,6 @@ suite('write:', () => {
           log.args.on[1][1]('foo')
         })
 
-        teardown(() => {
-          resolved = error = passed = failed = undefined
-        })
-
         test('promise was rejected', () => {
           assert.isTrue(failed)
           assert.isFalse(passed)
@@ -226,10 +214,6 @@ suite('write:', () => {
             done()
           })
           log.args.on[2][1]('wibble')
-        })
-
-        teardown(() => {
-          resolved = error = passed = failed = undefined
         })
 
         test('promise was rejected', () => {

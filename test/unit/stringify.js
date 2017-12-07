@@ -71,7 +71,7 @@ suite('stringify:', () => {
       })
 
       teardown(() => {
-        data = options = resolved = rejected = result = done = undefined
+        resolved = rejected = undefined
       })
 
       test('streamify was called once', () => {
