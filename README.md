@@ -421,8 +421,11 @@ of an object,
 
 * `bfj.events.error`
   indicates that
-  a syntax error
-  has occurred.
+  an error has occurred.
+  The error may be due to
+  invalid syntax on the incoming stream
+  or caught from one of the event handlers
+  in user code.
   The listener
   will be passed
   the `Error` instance
@@ -449,6 +452,7 @@ emitter.on(bfj.events.number, value => { /* ... */ });
 emitter.on(bfj.events.literal, value => { /* ... */ });
 emitter.on(bfj.events.endArray, () => { /* ... */ });
 emitter.on(bfj.events.endObject, () => { /* ... */ });
+emitter.on(bfj.events.error, () => { /* ... */ });
 emitter.on(bfj.events.end, () => { /* ... */ });
 ```
 
@@ -535,9 +539,12 @@ of an object,
 
 * `bfj.events.error`
   indicates that
+  an error has occurred.
+  The error may be due to
   a circular reference
-  was encountered
-  in the data.
+  encountered in the data
+  or caught from one of the event handlers
+  in user code.
   The listener
   will be passed
   the `Error` instance
