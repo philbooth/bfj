@@ -30,7 +30,8 @@ module.exports = initialise
  * Public function `walk`.
  *
  * Returns an event emitter and asynchronously walks a stream of JSON data,
- * emitting events as it encounters tokens.
+ * emitting events as it encounters tokens. The event emitter is decorated
+ * with a `pause` method that can be called to pause processing.
  *
  * @param stream:     Readable instance representing the incoming JSON.
  *
@@ -65,23 +66,34 @@ function initialise (stream, options = {}) {
   let isWalkingString = false
   let count = 0
   let resumeFn
+  let pause
   let cachedCharacter
 
   stream.setEncoding('utf8')
   stream.on('data', readStream)
   stream.on('end', endStream)
 
+  emitter.pause = () => {
+    let resolve
+    pause = new Promise(res => resolve = res)
+    return () => {
+      pause = null
+      count = 0
+      resolve()
+    }
+  }
+
   return emitter
 
   function readStream (chunk) {
     addChunk(chunk)
 
-    if (!isWalkBegun) {
-      isWalkBegun = true
-      return value()
+    if (isWalkBegun) {
+      return resume()
     }
 
-    return resume()
+    isWalkBegun = true
+    value()
   }
 
   function addChunk (chunk) {
@@ -247,8 +259,8 @@ function initialise (stream, options = {}) {
       case 't':
         return literalTrue()
       default:
-        fail(char, 'value', previousPosition)
-        return value()
+        return fail(char, 'value', previousPosition)
+          .then(value)
     }
   }
 
@@ -257,42 +269,42 @@ function initialise (stream, options = {}) {
   }
 
   function scope (event, contentHandler) {
-    emit(event)
-    scopes.push(event)
-    return endScope(event).then(contentHandler)
+    return emit(event)
+      .then(() => {
+        scopes.push(event)
+        return endScope(event)
+      })
+      .then(contentHandler)
   }
 
   function emit (...args) {
-    try {
-      emitter.emit(...args)
-    } catch (err) {
-      try {
-        emitter.emit(events.error, err)
-      } catch (_) {
-        // When calling user code, anything is possible
-      }
-    }
+    return (pause || Promise.resolve())
+      .then(() => {
+        try {
+          emitter.emit(...args)
+        } catch (err) {
+          try {
+            emitter.emit(events.error, err)
+          } catch (_) {
+            // When calling user code, anything is possible
+          }
+        }
+      })
   }
 
   function endScope (scp) {
-    let resolve
-
-    awaitNonWhitespace()
-      .then(after)
+    return awaitNonWhitespace()
+      .then(() => {
+        if (character() === terminators[scp]) {
+          return emit(events.endPrefix + scp)
+            .then(() => {
+              scopes.pop()
+              return next()
+            })
+            .then(endValue)
+        }
+      })
       .catch(endWalk)
-
-    return new Promise(res => resolve = res)
-
-    function after () {
-      if (character() !== terminators[scp]) {
-        return resolve()
-      }
-
-      emit(events.endPrefix + scp)
-      scopes.pop()
-
-      next().then(endValue)
-    }
   }
 
   function endValue () {
@@ -302,8 +314,8 @@ function initialise (stream, options = {}) {
 
     function after () {
       if (scopes.length === 0) {
-        fail(character(), 'EOF', currentPosition)
-        return setImmediate(value)
+        return fail(character(), 'EOF', currentPosition)
+          .then(value)
       }
 
       return checkScope()
@@ -311,21 +323,21 @@ function initialise (stream, options = {}) {
 
     function checkScope () {
       const scp = scopes[scopes.length - 1]
+      const handler = handlers[scp]
 
-      return endScope(scp).then(() => {
-        const handler = handlers[scp]
-
-        if (checkCharacter(character(), ',', currentPosition)) {
-          return next().then(handler)
-        }
-
-        return handler()
-      })
+      return endScope(scp)
+        .then(() => checkCharacter(character(), ',', currentPosition))
+        .then(result => {
+          if (result) {
+            return next()
+          }
+        })
+        .then(handler)
     }
   }
 
   function fail (actual, expected, position) {
-    emit(
+    return emit(
       events.error,
       error.create(
         actual,
@@ -337,12 +349,12 @@ function initialise (stream, options = {}) {
   }
 
   function checkCharacter (char, expected, position) {
-    if (char !== expected) {
-      fail(char, expected, position)
-      return false
+    if (char === expected) {
+      return Promise.resolve(true)
     }
 
-    return true
+    return fail(char, expected, position)
+      .then(false)
   }
 
   function object () {
@@ -356,17 +368,16 @@ function initialise (stream, options = {}) {
   }
 
   function propertyName (char) {
-    checkCharacter(char, '"', previousPosition)
-
-    return walkString(events.property)
+    return checkCharacter(char, '"', previousPosition)
+      .then(() => walkString(events.property))
       .then(awaitNonWhitespace)
       .then(next)
       .then(propertyValue)
   }
 
   function propertyValue (char) {
-    checkCharacter(char, ':', previousPosition)
-    return value()
+    return checkCharacter(char, ':', previousPosition)
+      .then(value)
   }
 
   function walkString (event) {
@@ -398,7 +409,7 @@ function initialise (stream, options = {}) {
       }
 
       isWalkingString = false
-      emit(event, str.join(''))
+      return emit(event, str.join(''))
     }
   }
 
@@ -411,8 +422,8 @@ function initialise (stream, options = {}) {
       return escapeHex()
     }
 
-    fail(char, 'escape character', previousPosition)
-    return Promise.resolve(`\\${char}`)
+    return fail(char, 'escape character', previousPosition)
+      .then(() => `\\${char}`)
   }
 
   function escapeHex () {
@@ -435,9 +446,8 @@ function initialise (stream, options = {}) {
         return String.fromCharCode(parseInt(hexits, 16))
       }
 
-      fail(char, 'hex digit', previousPosition)
-
-      return `\\u${hexits}${char}`
+      return fail(char, 'hex digit', previousPosition)
+        .then(() => `\\u${hexits}${char}`)
     }
   }
 
@@ -462,10 +472,12 @@ function initialise (stream, options = {}) {
 
     function checkDecimalPlace () {
       if (character() === '.') {
-        return next().then(char => {
-          digits.push(char)
-          walkDigits().then(addDigits.bind(null, checkExponent))
-        })
+        return next()
+          .then(char => {
+            digits.push(char)
+            return walkDigits()
+          })
+          .then(addDigits.bind(null, checkExponent))
       }
 
       return checkExponent()
@@ -473,12 +485,13 @@ function initialise (stream, options = {}) {
 
     function checkExponent () {
       if (character() === 'e' || character() === 'E') {
-        return next().then(char => {
-          digits.push(char)
-          awaitCharacter()
-            .then(checkSign)
-            .catch(fail.bind(null, 'EOF', 'exponent', currentPosition))
-        })
+        return next()
+          .then(char => {
+            digits.push(char)
+            return awaitCharacter()
+          })
+          .then(checkSign)
+          .catch(fail.bind(null, 'EOF', 'exponent', currentPosition))
       }
 
       return endNumber()
@@ -488,7 +501,7 @@ function initialise (stream, options = {}) {
       if (character() === '+' || character() === '-') {
         return next().then(char => {
           digits.push(char)
-          readExponent()
+          return readExponent()
         })
       }
 
@@ -500,8 +513,8 @@ function initialise (stream, options = {}) {
     }
 
     function endNumber () {
-      emit(events.number, parseFloat(digits.join('')))
-      return endValue()
+      return emit(events.number, parseFloat(digits.join('')))
+        .then(endValue)
     }
   }
 
@@ -556,15 +569,19 @@ function initialise (stream, options = {}) {
     }
 
     function atEnd () {
-      if (invalid) {
-        fail(actual, expected, previousPosition)
-      } else if (expectedCharacters.length > 0) {
-        fail('EOF', expectedCharacters.shift(), currentPosition)
-      } else {
-        done()
-      }
+      return Promise.resolve()
+        .then(() => {
+          if (invalid) {
+            return fail(actual, expected, previousPosition)
+          }
 
-      return endValue()
+          if (expectedCharacters.length > 0) {
+            return fail('EOF', expectedCharacters.shift(), currentPosition)
+          }
+
+          return done()
+        })
+        .then(endValue)
     }
 
     function afterNext (char) {
@@ -579,7 +596,7 @@ function initialise (stream, options = {}) {
     }
 
     function done () {
-      emit(events.literal, val)
+      return emit(events.literal, val)
     }
   }
 
@@ -594,30 +611,11 @@ function initialise (stream, options = {}) {
   function endStream () {
     isStreamEnded = true
 
-    if (!isWalkBegun) {
-      endWalk()
-      return
+    if (isWalkBegun) {
+      return resume()
     }
 
-    resume()
-  }
-
-  function endWalk () {
-    if (isWalkEnded) {
-      return
-    }
-
-    isWalkEnded = true
-
-    if (isWalkingString) {
-      fail('EOF', '"', currentPosition)
-    }
-
-    while (scopes.length > 0) {
-      fail('EOF', terminators[scopes.pop()], currentPosition)
-    }
-
-    emit(events.end)
+    endWalk()
   }
 
   function resume () {
@@ -625,6 +623,32 @@ function initialise (stream, options = {}) {
       resumeFn()
       resumeFn = null
     }
+  }
+
+  function endWalk () {
+    if (isWalkEnded) {
+      return Promise.resolve()
+    }
+
+    isWalkEnded = true
+
+    return Promise.resolve()
+      .then(() => {
+        if (isWalkingString) {
+          return fail('EOF', '"', currentPosition)
+        }
+      })
+      .then(popScopes)
+      .then(() => emit(events.end))
+  }
+
+  function popScopes () {
+    if (scopes.length === 0) {
+      return Promise.resolve()
+    }
+
+    return fail('EOF', terminators[scopes.pop()], currentPosition)
+      .then(popScopes)
   }
 }
 
