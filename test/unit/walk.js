@@ -47,6 +47,16 @@ suite('walk:', () => {
       assert.instanceOf(walk(new Readable()), require('events').EventEmitter)
     })
 
+    test('EventEmitter is decorated with pause method', () => {
+      assert.isFunction(walk(new Readable()).pause)
+      assert.lengthOf(walk(new Readable()).pause, 0)
+    })
+
+    test('pause method returns continue function', () => {
+      assert.isFunction(walk(new Readable()).pause())
+      assert.lengthOf(walk(new Readable()).pause(), 0)
+    })
+
     suite('empty json:', () => {
       let stream, emitter
 
