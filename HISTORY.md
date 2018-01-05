@@ -1,5 +1,11 @@
 # History
 
+## 5.2.0
+
+* fix: extra paragraph about why bfj is slow (e51ca34)
+* fix: expand possible causes of the error event (8d1d352)
+* feature: add a pause method to the walk emitter (a4cd0e0)
+
 ## 5.1.1
 
 * fix: replace old mockery link with proxyquire (e6b3924)
