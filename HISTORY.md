@@ -1,5 +1,17 @@
 # History
 
+## 5.2.1
+
+### Bug fixes
+
+* walk: handle stream errors sanely (9fe21ff)
+
+### Other changes
+
+* deps: update dev dependencies (c1d0518)
+* ci: run tests in node 9 (222356e)
+* deps: update dev dependencies (be54dbf)
+
 ## 5.2.0
 
 * fix: extra paragraph about why bfj is slow (e51ca34)
