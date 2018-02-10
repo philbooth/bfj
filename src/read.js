@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const parse = require('./parse')
-const promise = require('./promise')
 
 module.exports = read
 
@@ -23,11 +22,5 @@ module.exports = read
  * @option Promise:   The promise constructor to use, defaults to bluebird.
  **/
 function read (path, options) {
-  const Promise = promise(options)
-
-  try {
-    return parse(fs.createReadStream(path, options), options)
-  } catch (error) {
-    return Promise.reject(error)
-  }
+  return parse(fs.createReadStream(path, options), options)
 }
