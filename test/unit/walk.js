@@ -2721,5 +2721,44 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.end, 1)
       })
     })
+
+    suite('error occurs on stream:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream)
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        stream.emit('error', new Error('wibble'))
+        stream.push(null)
+
+        emitter.on(events.end, done)
+      })
+
+      test('error event occurred once', () => {
+        assert.strictEqual(log.counts.error, 1)
+      })
+
+      test('error event was dispatched correctly', () => {
+        assert.strictEqual(log.args.error[0][0].message, 'wibble')
+        assert.isUndefined(log.args.error[0][0].actual)
+        assert.isUndefined(log.args.error[0][0].expected)
+        assert.isUndefined(log.args.error[0][0].lineNumber)
+        assert.isUndefined(log.args.error[0][0].columnNumber)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+    })
   })
 })

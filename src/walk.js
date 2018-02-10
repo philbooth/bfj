@@ -72,6 +72,10 @@ function initialise (stream, options = {}) {
   stream.setEncoding('utf8')
   stream.on('data', readStream)
   stream.on('end', endStream)
+  stream.on('error', err => {
+    emitter.emit(events.error, err)
+    endStream()
+  })
 
   emitter.pause = () => {
     let resolve

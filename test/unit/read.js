@@ -100,33 +100,3 @@ suite('read:', () => {
     })
   })
 })
-
-suite('read with error thrown by fs.createReadStream:', () => {
-  let read
-
-  setup(() => {
-    read = proxyquire(modulePath, {
-      fs: {
-        createReadStream () {
-          throw new Error('foo')
-        }
-      },
-      './parse': () => {}
-    })
-  })
-
-  test('read does not throw', () => {
-    assert.doesNotThrow(() => {
-      read().catch(() => {})
-    })
-  })
-
-  test('read rejects', () => {
-    read()
-      .then(() => assert.fail('read should reject'))
-      .catch(error => {
-        assert.instanceOf(error, Error)
-        assert.equal(error.message, 'foo')
-      })
-  })
-})

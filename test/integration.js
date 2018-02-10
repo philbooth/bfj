@@ -16,10 +16,6 @@ suite('integration:', () => {
     log = {}
   })
 
-  teardown(() => {
-    log = undefined
-  })
-
   test('require does not throw', () => {
     assert.doesNotThrow(() => {
       require(modulePath)
@@ -35,10 +31,6 @@ suite('integration:', () => {
 
     setup(() => {
       bfj = require(modulePath)
-    })
-
-    teardown(() => {
-      bfj = undefined
     })
 
     test('walk function is exported', () => {
@@ -124,7 +116,6 @@ suite('integration:', () => {
 
       teardown(() => {
         fs.unlinkSync(file)
-        failed = file = result = error = undefined
       })
 
       test('result was correct', () => {
@@ -161,7 +152,6 @@ suite('integration:', () => {
 
       teardown(() => {
         fs.unlinkSync(file)
-        failed = file = result = error = undefined
       })
 
       test('result was correct', () => {
@@ -188,7 +178,28 @@ suite('integration:', () => {
 
       teardown(() => {
         fs.unlinkSync(file)
-        failed = file = result = error = undefined
+      })
+
+      test('result was correct', () => {
+        assert.isTrue(failed)
+        assert.isUndefined(result)
+        assert.instanceOf(error, Error)
+      })
+    })
+
+    suite('read missing file:', () => {
+      let failed, file, result, error
+
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'missing.json')
+        assert.isFalse(fs.existsSync(file))
+        return bfj.read(file)
+          .then(res => result = res)
+          .catch(err => {
+            failed = true
+            error = err
+          })
       })
 
       test('result was correct', () => {
@@ -227,10 +238,6 @@ suite('integration:', () => {
         .then(res => result = res)
       })
 
-      teardown(() => {
-        result = undefined
-      })
-
       test('result was correct', () => {
         assert.strictEqual(result, '"foo\\t\\"\\nbar"')
       })
@@ -257,7 +264,6 @@ suite('integration:', () => {
 
       teardown(() => {
         fs.unlinkSync(file)
-        failed = file = result = undefined
       })
 
       test('did not fail', () => {
