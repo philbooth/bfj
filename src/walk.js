@@ -286,7 +286,7 @@ function initialise (stream, options) {
   }
 
   function emit () {
-    let args = arguments
+    const args = arguments
 
     return (pause || Promise.resolve())
       .then(() => {
