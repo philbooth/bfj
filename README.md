@@ -437,6 +437,11 @@ of an object,
   has been reached
   and the stream is closed.
 
+If you are using `bfj.walk`
+to sequentially parse items in an array,
+you might also be interested in
+the [bfj-collections] module.
+
 ### bfj.eventify (data, options)
 
 ```js
@@ -768,6 +773,7 @@ under the package name [`bfj-node4`](https://www.npmjs.com/package/bfj-node4).
 [ci-status]: http://travis-ci.org/#!/philbooth/bfj
 [sax]: http://en.wikipedia.org/wiki/Simple_API_for_XML
 [promise]: http://bluebirdjs.com/docs/api-reference.html
+[bfj-collections]: https://github.com/hash-bang/bfj-collections
 [eventemitter]: https://nodejs.org/api/events.html#events_class_eventemitter
 [readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [writable]: https://nodejs.org/api/stream.html#stream_writable_streams
