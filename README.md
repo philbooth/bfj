@@ -21,6 +21,7 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [What options can I specify?](#what-options-can-i-specify)
   * [Options for parsing functions](#options-for-parsing-functions)
   * [Options for serialisation functions](#options-for-serialisation-functions)
+* [Is it possible to pause parsing or serialisation from calling code?](#is-it-possible-to-pause-parsing-or-serialisation-from-calling-code)
 * [Why does it default to bluebird promises?](#why-does-it-default-to-bluebird-promises)
 * [Can I specify a different promise implementation?](#can-i-specify-a-different-promise-implementation)
 * [Is there a change log?](#is-there-a-change-log)
@@ -687,6 +688,35 @@ of an object,
   with out-of-memory exceptions.
   Defaults to [bluebird's implementation][promise],
   which does not have that problem.
+
+## Is it possible to pause parsing or serialisation from calling code?
+
+Yes it is!
+Both [`walk`](#bfjwalk-stream-options)
+and [`eventify`](#bfjeventify-data-options)
+decorate their returned event emitters
+with a `pause` method
+that will prevent any further events being emitted.
+The `pause` method itself
+returns a `resume` function
+that you can call to indicate
+that processing should continue.
+
+For example:
+
+```js
+const bfj = require('bfj');
+const emitter = bfj.walk(fs.createReadStream(path), options);
+
+// Later, when you want to pause parsing:
+
+const resume = emitter.pause();
+
+// Then when you want to resume:
+
+resume();
+```
+
 
 ## Why does it default to bluebird promises?
 
