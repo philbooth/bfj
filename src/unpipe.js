@@ -29,7 +29,7 @@ function unpipe (callback, options) {
 
   const jsonstream = new stream.PassThrough()
 
-  parse(jsonstream, options)
+  parse(jsonstream, Object.assign({}, options, { ndjson: false }))
     .then(data => callback(null, data))
     .catch(error => callback(error))
 

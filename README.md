@@ -753,7 +753,7 @@ discrete JSON values:
   resolves to `undefined`
   (`undefined` is not a valid JSON token).
 
-`bfj.read` will not parse NDJSON.
+`bfj.unpipe` and `bfj.read` will not parse NDJSON.
 
 ## Why does it default to bluebird promises?
 
