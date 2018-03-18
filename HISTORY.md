@@ -1,5 +1,11 @@
 # History
 
+## 5.3.1
+
+### Bug fixes
+
+* unpipe: prohibit unpipe from setting the ndjson option (90b61c6)
+
 ## 5.3.0
 
 ### New features
