@@ -1,5 +1,21 @@
 # History
 
+## 5.3.0
+
+### New features
+
+* walk: add support for NDJSON streams (e87672a)
+
+### Bug fixes
+
+* docs: document the pause and resume functions on event emitters (bfdf152)
+
+### Other changes
+
+* lint: silence warning (761bad4)
+* package: update dev dependencies (396cc40)
+* docs: link to bfj-collections (11eacb8)
+
 ## 5.2.1
 
 ### Bug fixes
