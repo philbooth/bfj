@@ -34,13 +34,13 @@
     "tryer": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "4.17.x",
+    "eslint": "4.19.x",
     "mocha": "5.0.x",
     "chai": "4.1.x",
     "proxyquire": "1.8.x",
     "spooks": "2.0.x",
     "please-release-me": "2.0.x",
-    "request": "2.83.x"
+    "request": "2.85.x"
   },
   "scripts": {
     "lint": "eslint src",
