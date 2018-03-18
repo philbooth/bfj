@@ -14,3 +14,4 @@ module.exports = {
 
 module.exports.endArray = module.exports.endPrefix + module.exports.array
 module.exports.endObject = module.exports.endPrefix + module.exports.object
+module.exports.endLine = `${module.exports.endPrefix}line`

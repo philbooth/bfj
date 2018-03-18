@@ -7,6 +7,8 @@ const walk = require('./walk')
 
 module.exports = parse
 
+const NDJSON_STATE = new Map()
+
 /**
  * Public function `parse`.
  *
@@ -22,6 +24,12 @@ module.exports = parse
  *                    default is 16384.
  *
  * @option Promise:   The promise constructor to use, defaults to bluebird.
+ *
+ * @option ndjson:    Set this to true to parse newline-delimited JSON. In
+ *                    this case, each call will be resolved with one value
+ *                    from the stream. To parse the entire stream, calls
+ *                    should be made sequentially one-at-a-time until the
+ *                    returned promise resolves to `undefined`.
  **/
 function parse (stream, options) {
   options = options || {}
@@ -34,12 +42,20 @@ function parse (stream, options) {
     return Promise.reject(err)
   }
 
-  const emitter = walk(stream, options)
   const errors = []
-  const reviver = options.reviver
   const scopes = []
+  const reviver = options.reviver
+  const shouldHandleNdjson = !! options.ndjson
 
-  let resolve, reject, scopeKey
+  let emitter, resolve, reject, scopeKey
+  if (shouldHandleNdjson && NDJSON_STATE.has(stream)) {
+    const state = NDJSON_STATE.get(stream)
+    NDJSON_STATE.delete(stream)
+    emitter = state.emitter
+    setImmediate(state.resume)
+  } else {
+    emitter = walk(stream, options)
+  }
 
   emitter.on(events.array, array)
   emitter.on(events.object, object)
@@ -51,6 +67,10 @@ function parse (stream, options) {
   emitter.on(events.endObject, endScope)
   emitter.on(events.end, end)
   emitter.on(events.error, error)
+
+  if (shouldHandleNdjson) {
+    emitter.on(events.endLine, endLine)
+  }
 
   return new Promise((res, rej) => {
     resolve = res
@@ -123,6 +143,12 @@ function parse (stream, options) {
   }
 
   function end () {
+    if (shouldHandleNdjson) {
+      const resume = emitter.pause()
+      emitter.removeAllListeners()
+      NDJSON_STATE.set(stream, { emitter, resume })
+    }
+
     if (errors.length > 0) {
       return reject(errors[0])
     }
@@ -146,5 +172,11 @@ function parse (stream, options) {
 
   function error (e) {
     errors.push(e)
+  }
+
+  function endLine () {
+    if (scopes.length > 0) {
+      end()
+    }
   }
 }

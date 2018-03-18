@@ -161,6 +161,61 @@ suite('integration:', () => {
       })
     })
 
+    suite('parse NDJSON:', () => {
+      let failed, file, results
+
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'data.ndjson')
+        results = []
+        fs.writeFileSync(file, [
+          JSON.stringify([ 'b', 'a', 'r' ]),
+          JSON.stringify(null),
+          '',
+          '',
+          JSON.stringify('wibble')
+        ].join('\n'))
+        const stream = fs.createReadStream(file)
+        return bfj.parse(stream, { ndjson: true })
+          .then(result => {
+            results.push(result)
+            return bfj.parse(stream, { ndjson: true })
+          })
+          .then(result => {
+            results.push(result)
+            return bfj.parse(stream, { ndjson: true })
+          })
+          .then(result => {
+            results.push(result)
+            return bfj.parse(stream, { ndjson: true })
+          })
+          .then(result => {
+            results.push(result)
+            return bfj.parse(stream, { ndjson: true })
+          })
+          .then(result => results.push(result))
+          .catch(e => {
+            failed = true
+          })
+      })
+
+      teardown(() => {
+        fs.unlinkSync(file)
+      })
+
+      test('results were correct', () => {
+        assert.isFalse(failed)
+        assert.lengthOf(results, 5)
+        assert.deepEqual(results, [
+          [ 'b', 'a', 'r' ],
+          null,
+          'wibble',
+          undefined,
+          undefined
+        ])
+      })
+    })
+
     suite('read error:', () => {
       let failed, file, result, error
 

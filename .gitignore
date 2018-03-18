@@ -2,6 +2,7 @@
 node_modules
 npm-debug.log
 test/data.json
+test/data.ndjson
 test/mtg.json
 test/mtg-result.json
 test/wpt.json
