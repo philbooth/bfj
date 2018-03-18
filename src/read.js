@@ -22,5 +22,5 @@ module.exports = read
  * @option Promise:   The promise constructor to use, defaults to bluebird.
  **/
 function read (path, options) {
-  return parse(fs.createReadStream(path, options), options)
+  return parse(fs.createReadStream(path, options), Object.assign({}, options, { ndjson: false }))
 }

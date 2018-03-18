@@ -65,7 +65,7 @@ suite('read:', () => {
 
       setup(() => {
         path = {}
-        options = {}
+        options = { foo: 'bar', ndjson: true }
         result = read(path, options)
       })
 
@@ -78,7 +78,7 @@ suite('read:', () => {
         assert.strictEqual(log.args.createReadStream[0][0], path)
         assert.lengthOf(Object.keys(log.args.createReadStream[0][0]), 0)
         assert.strictEqual(log.args.createReadStream[0][1], options)
-        assert.lengthOf(Object.keys(log.args.createReadStream[0][1]), 0)
+        assert.lengthOf(Object.keys(log.args.createReadStream[0][1]), 2)
       })
 
       test('parse was called once', () => {
@@ -90,8 +90,8 @@ suite('read:', () => {
         assert.lengthOf(log.args.parse[0], 2)
         assert.strictEqual(log.args.parse[0][0], results.createReadStream[0])
         assert.lengthOf(Object.keys(log.args.parse[0][0]), 0)
-        assert.strictEqual(log.args.parse[0][1], options)
-        assert.lengthOf(Object.keys(log.args.parse[0][1]), 0)
+        assert.notStrictEqual(log.args.parse[0][1], options)
+        assert.deepEqual(log.args.parse[0][1], { foo: 'bar', ndjson: false })
       })
 
       test('parse result was returned', () => {

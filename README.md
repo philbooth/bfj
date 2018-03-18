@@ -22,6 +22,7 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
   * [Options for parsing functions](#options-for-parsing-functions)
   * [Options for serialisation functions](#options-for-serialisation-functions)
 * [Is it possible to pause parsing or serialisation from calling code?](#is-it-possible-to-pause-parsing-or-serialisation-from-calling-code)
+* [Can it handle newline-delimited JSON (NDJSON)?](#can-it-handle-newline-delimited-json-ndjson)
 * [Why does it default to bluebird promises?](#why-does-it-default-to-bluebird-promises)
 * [Can I specify a different promise implementation?](#can-i-specify-a-different-promise-implementation)
 * [Is there a change log?](#is-there-a-change-log)
@@ -438,6 +439,11 @@ of an object,
   has been reached
   and the stream is closed.
 
+* `bfj.events.endLine`
+  indicates that a root-level newline character
+  has been encountered in an [NDJSON](#can-it-handle-newline-delimited-json-ndjson) stream.
+  Only emitted if the `ndjson` [option](#options-for-parsing-functions) is set.
+
 If you are using `bfj.walk`
 to sequentially parse items in an array,
 you might also be interested in
@@ -597,6 +603,13 @@ of an object,
   Defaults to [bluebird's implementation][promise],
   which does not have that problem.
 
+* `options.ndjson`:
+  If set to `true`,
+  newline characters at the root level
+  will be treated as delimiters between
+  discrete chunks of JSON.
+  See [NDJSON](#can-it-handle-newline-delimited-json-ndjson) for more information.
+
 ### Options for serialisation functions
 
 * `options.space`:
@@ -717,6 +730,30 @@ const resume = emitter.pause();
 resume();
 ```
 
+## Can it handle [newline-delimited JSON (NDJSON)](http://ndjson.org/)?
+
+Yes.
+If you pass the `ndjson` [option](#options-for-parsing-functions)
+to `bfj.walk` or `bfj.parse`,
+newline characters at the root level
+will act as delimiters between
+discrete JSON values:
+
+* `bfj.walk` will emit a `bfj.events.endLine` event
+  each time it encounters a newline character.
+
+* `bfj.parse` will resolve with the first value
+  and pause the underlying stream.
+  If it's called again with the same stream,
+  it will resume processing
+  and resolve with the second value.
+  To parse the entire stream,
+  calls should be made sequentially one-at-a-time
+  until the returned promise
+  resolves to `undefined`
+  (`undefined` is not a valid JSON token).
+
+`bfj.read` will not parse NDJSON.
 
 ## Why does it default to bluebird promises?
 

@@ -123,6 +123,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -196,6 +200,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -273,6 +281,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -343,6 +355,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -417,6 +433,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -487,6 +507,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -560,6 +584,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -629,6 +657,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -1188,6 +1220,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
     })
 
     suite('two arrays inside array:', () => {
@@ -1362,6 +1398,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
       })
     })
 
@@ -1561,6 +1601,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
       })
     })
 
@@ -2758,6 +2802,294 @@ suite('walk:', () => {
 
       test('end event occurred once', () => {
         assert.strictEqual(log.counts.end, 1)
+      })
+    })
+
+    suite('two values separated by newline:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream)
+
+        stream.push('[]\n"foo"')
+        stream.push(null)
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('string event occurred once', () => {
+        assert.strictEqual(log.counts.string, 1)
+      })
+
+      test('error event occurred once', () => {
+        assert.strictEqual(log.counts.error, 1)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
+    })
+
+    suite('two values separated by newline, ndjson=true:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream, { ndjson: true })
+
+        stream.push('[]\n"foo"')
+        stream.push(null)
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('string event occurred once', () => {
+        assert.strictEqual(log.counts.string, 1)
+      })
+
+      test('endLine event occurred once', () => {
+        assert.strictEqual(log.counts.endLine, 1)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
+      })
+    })
+
+    suite('two values separated by newline, ndjson=true, with embedded newlines in a value:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream, { ndjson: true })
+
+        stream.push('[\n\n\n"foo"\n\n,\n"bar"]\n"baz"')
+        stream.push(null)
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('string event occurred three times', () => {
+        assert.strictEqual(log.counts.string, 3)
+      })
+
+      test('endLine event occurred once', () => {
+        assert.strictEqual(log.counts.endLine, 1)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
+      })
+    })
+
+    suite('two values not separated by newline, ndjson=true:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream, { ndjson: true })
+
+        stream.push('[]"foo"')
+        stream.push(null)
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('error event occurred five times', () => {
+        assert.strictEqual(log.counts.error, 5)
+      })
+
+      test('string event did not occurr', () => {
+        assert.strictEqual(log.counts.string, 0)
+      })
+
+      test('endLine event did not occur', () => {
+        assert.strictEqual(log.counts.endLine, 0)
+      })
+    })
+
+    suite('two values separated by two newlines, ndjson=true:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream, { ndjson: true })
+
+        stream.push('[]\r\n\r\n"foo"')
+        stream.push(null)
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('string event occurred once', () => {
+        assert.strictEqual(log.counts.string, 1)
+      })
+
+      test('endLine event occurred twice', () => {
+        assert.strictEqual(log.counts.endLine, 2)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
+      })
+    })
+
+    suite('chunked ndjson:', () => {
+      let stream, emitter
+
+      setup(done => {
+        stream = new Readable()
+        stream._read = () => {}
+
+        emitter = walk(stream, { ndjson: true })
+
+        stream.push('[]')
+
+        Object.keys(events).forEach(key => {
+          emitter.on(events[key], spooks.fn({
+            name: key,
+            log: log
+          }))
+        })
+
+        emitter.on(events.end, done)
+
+        setTimeout(stream.push.bind(stream, ' '), 20)
+        setTimeout(stream.push.bind(stream, '\n'), 40)
+        setTimeout(stream.push.bind(stream, ' '), 60)
+        setTimeout(stream.push.bind(stream, '"'), 80)
+        setTimeout(stream.push.bind(stream, 'foo"'), 100)
+        setTimeout(stream.push.bind(stream, null), 120)
+      })
+
+      test('array event occurred once', () => {
+        assert.strictEqual(log.counts.array, 1)
+      })
+
+      test('endArray event occurred once', () => {
+        assert.strictEqual(log.counts.endArray, 1)
+      })
+
+      test('endLine event occurred once', () => {
+        assert.strictEqual(log.counts.endLine, 1)
+      })
+
+      test('string event occurred once', () => {
+        assert.strictEqual(log.counts.string, 1)
+      })
+
+      test('end event occurred once', () => {
+        assert.strictEqual(log.counts.end, 1)
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
       })
     })
   })

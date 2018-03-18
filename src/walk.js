@@ -39,6 +39,8 @@ module.exports = initialise
  *                    default is 16384.
  *
  * @option Promise:   The promise constructor to use, defaults to bluebird.
+ *
+ * @option ndjson:    Set this to true to parse newline-delimited JSON.
  **/
 function initialise (stream, options = {}) {
   check.assert.instanceStrict(stream, require('stream').Readable, 'Invalid stream argument')
@@ -58,12 +60,14 @@ function initialise (stream, options = {}) {
   const Promise = promise(options)
   const scopes = []
   const yieldRate = options.yieldRate || 16384
+  const shouldHandleNdjson = !! options.ndjson
 
   let index = 0
   let isStreamEnded = false
   let isWalkBegun = false
   let isWalkEnded = false
   let isWalkingString = false
+  let hasEndedLine = true
   let count = 0
   let resumeFn
   let pause
@@ -83,7 +87,12 @@ function initialise (stream, options = {}) {
     return () => {
       pause = null
       count = 0
-      resolve()
+
+      if (shouldHandleNdjson && isStreamEnded && isWalkEnded) {
+        emit(events.end)
+      } else {
+        resolve()
+      }
     }
   }
 
@@ -204,6 +213,21 @@ function initialise (stream, options = {}) {
     }
   }
 
+  function isWhitespace (char) {
+    switch (char) {
+      case '\n':
+        if (shouldHandleNdjson && scopes.length === 0) {
+          return false
+        }
+      case ' ':
+      case '\t':
+      case '\r':
+        return true
+    }
+
+    return false
+  }
+
   function next () {
     return awaitCharacter().then(after)
 
@@ -236,6 +260,21 @@ function initialise (stream, options = {}) {
   }
 
   function handleValue (char) {
+    if (shouldHandleNdjson && scopes.length === 0) {
+      if (char === '\n') {
+        hasEndedLine = true
+        return emit(events.endLine)
+          .then(value)
+      }
+
+      if (! hasEndedLine) {
+        return fail(char, '\n', previousPosition)
+          .then(value)
+      }
+
+      hasEndedLine = false
+    }
+
     switch (char) {
       case '[':
         return array()
@@ -318,6 +357,10 @@ function initialise (stream, options = {}) {
 
     function after () {
       if (scopes.length === 0) {
+        if (shouldHandleNdjson) {
+          return value()
+        }
+
         return fail(character(), 'EOF', currentPosition)
           .then(value)
       }
@@ -330,7 +373,11 @@ function initialise (stream, options = {}) {
       const handler = handlers[scp]
 
       return endScope(scp)
-        .then(() => checkCharacter(character(), ',', currentPosition))
+        .then(() => {
+          if (! shouldHandleNdjson || scopes.length > 0) {
+            return checkCharacter(character(), ',', currentPosition)
+          }
+        })
         .then(result => {
           if (result) {
             return next()
@@ -654,18 +701,6 @@ function initialise (stream, options = {}) {
     return fail('EOF', terminators[scopes.pop()], currentPosition)
       .then(popScopes)
   }
-}
-
-function isWhitespace (character) {
-  switch (character) {
-    case ' ':
-    case '\t':
-    case '\r':
-    case '\n':
-      return true
-  }
-
-  return false
 }
 
 function isHexit (character) {

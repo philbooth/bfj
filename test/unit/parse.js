@@ -25,7 +25,11 @@ suite('parse:', () => {
       log = {}
       results = {
         walk: [
-          { on: spooks.fn({ name: 'on', log: log }) }
+          {
+            on: spooks.fn({ name: 'on', log: log }),
+            pause: spooks.fn({ name: 'pause', log: log, results: [ () => {} ] }),
+            removeAllListeners: spooks.fn({ name: 'removeAllListeners', log: log })
+          }
         ]
       }
       parse = proxyquire(modulePath, {
@@ -795,6 +799,210 @@ suite('parse:', () => {
             assert.lengthOf(Object.keys(log.args.reviver[3][1]), 2)
             assert.strictEqual(log.args.reviver[3][1].foo, 'reviver result')
             assert.strictEqual(log.args.reviver[3][1].baz, 'reviver result')
+          })
+        })
+      })
+    })
+
+    suite('parse with ndjson:', () => {
+      let stream
+
+      setup(() => {
+        stream = {}
+        parse(stream, { ndjson: true })
+          .then(spooks.fn({ name: 'resolve', log: log }))
+          .catch(spooks.fn({ name: 'reject', log: log }))
+      })
+
+      test('walk was called once', () => {
+        assert.strictEqual(log.counts.walk, 1)
+      })
+
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
+        assert.strictEqual(log.these.on[10], results.walk[0])
+      })
+
+      test('EventEmitter.on was called correctly first ten times', () => {
+        assert.strictEqual(log.args.on[0][0], 'arr')
+        assert.strictEqual(log.args.on[1][0], 'obj')
+        assert.strictEqual(log.args.on[2][0], 'pro')
+        assert.strictEqual(log.args.on[3][0], 'str')
+        assert.strictEqual(log.args.on[4][0], 'num')
+        assert.strictEqual(log.args.on[5][0], 'lit')
+        assert.strictEqual(log.args.on[6][0], 'end-arr')
+        assert.strictEqual(log.args.on[7][0], 'end-obj')
+        assert.strictEqual(log.args.on[8][0], 'end')
+        assert.strictEqual(log.args.on[9][0], 'err')
+      })
+
+      test('EventEmitter.on was called correctly eleventh time', () => {
+        assert.lengthOf(log.args.on[10], 2)
+        assert.strictEqual(log.args.on[10][0], 'end-line')
+        assert.isFunction(log.args.on[10][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[0][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[1][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[2][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[3][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[6][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[8][1])
+        assert.notStrictEqual(log.args.on[10][1], log.args.on[9][1])
+      })
+
+      test('emitter.pause was not called', () => {
+        assert.strictEqual(log.counts.pause, 0)
+      })
+
+      test('emitter.removeAllListeners was not called', () => {
+        assert.strictEqual(log.counts.removeAllListeners, 0)
+      })
+
+      suite('array, endArray, endLine:', () => {
+        setup(done => {
+          log.args.on[0][1]()
+          log.args.on[6][1]()
+          log.args.on[10][1]()
+          setImmediate(done)
+        })
+
+        test('resolve was called once', () => {
+          assert.strictEqual(log.counts.resolve, 1)
+        })
+
+        test('resolve was called correctly', () => {
+          assert.lengthOf(log.args.resolve[0], 1)
+          assert.isArray(log.args.resolve[0][0])
+          assert.lengthOf(log.args.resolve[0][0], 0)
+        })
+
+        test('emitter.pause was called once', () => {
+          assert.strictEqual(log.counts.pause, 1)
+        })
+
+        test('emitter.pause was called correctly', () => {
+          assert.lengthOf(log.args.pause[0], 0)
+        })
+
+        test('emitter.removeAllListeners was called once', () => {
+          assert.strictEqual(log.counts.removeAllListeners, 1)
+        })
+
+        test('emitter.removeAllListeners was called correctly', () => {
+          assert.lengthOf(log.args.removeAllListeners[0], 0)
+        })
+
+        test('reject was not called', () => {
+          assert.strictEqual(log.counts.reject, 0)
+        })
+
+        suite('parse with ndjson:', () => {
+          setup(() => {
+            parse(stream, { ndjson: true })
+              .then(spooks.fn({ name: 'resolve2', log: log }))
+              .catch(spooks.fn({ name: 'reject2', log: log }))
+          })
+
+          test('EventEmitter.on was called eleven times', () => {
+            assert.strictEqual(log.counts.on, 22)
+          })
+
+          test('walk was not called', () => {
+            assert.strictEqual(log.counts.walk, 1)
+          })
+
+          suite('string, end:', () => {
+            setup(done => {
+              log.args.on[14][1]('foo')
+              log.args.on[19][1]()
+              setImmediate(done)
+            })
+
+            test('resolve was called once', () => {
+              assert.strictEqual(log.counts.resolve, 1)
+              assert.strictEqual(log.counts.resolve2, 1)
+            })
+
+            test('resolve was called correctly', () => {
+              assert.lengthOf(log.args.resolve2[0], 1)
+              assert.strictEqual(log.args.resolve2[0][0], 'foo')
+            })
+
+            test('emitter.pause was called once', () => {
+              assert.strictEqual(log.counts.pause, 2)
+            })
+
+            test('emitter.removeAllListeners was called once', () => {
+              assert.strictEqual(log.counts.removeAllListeners, 2)
+            })
+
+            test('reject was not called', () => {
+              assert.strictEqual(log.counts.reject, 0)
+              assert.strictEqual(log.counts.reject2, 0)
+            })
+
+            suite('parse with ndjson:', () => {
+              setup(() => {
+                parse(stream, { ndjson: true })
+                  .then(spooks.fn({ name: 'resolve3', log: log }))
+                  .catch(spooks.fn({ name: 'reject3', log: log }))
+              })
+
+              test('EventEmitter.on was called eleven times', () => {
+                assert.strictEqual(log.counts.on, 33)
+              })
+
+              test('walk was not called', () => {
+                assert.strictEqual(log.counts.walk, 1)
+              })
+
+              suite('end:', () => {
+                setup(done => {
+                  log.args.on[30][1]()
+                  setImmediate(done)
+                })
+
+                test('resolve was called once', () => {
+                  assert.strictEqual(log.counts.resolve, 1)
+                  assert.strictEqual(log.counts.resolve2, 1)
+                  assert.strictEqual(log.counts.resolve3, 1)
+                })
+
+                test('resolve was called correctly', () => {
+                  assert.lengthOf(log.args.resolve3[0], 1)
+                  assert.strictEqual(log.args.resolve3[0][0], undefined)
+                })
+
+                test('emitter.pause was called once', () => {
+                  assert.strictEqual(log.counts.pause, 3)
+                })
+
+                test('emitter.removeAllListeners was called once', () => {
+                  assert.strictEqual(log.counts.removeAllListeners, 3)
+                })
+
+                test('reject was not called', () => {
+                  assert.strictEqual(log.counts.reject, 0)
+                  assert.strictEqual(log.counts.reject2, 0)
+                  assert.strictEqual(log.counts.reject3, 0)
+                })
+              })
+            })
+          })
+        })
+
+        suite('parse with ndjson and fresh stream:', () => {
+          setup(() => {
+            parse({}, { ndjson: true })
+              .then(spooks.fn({ name: 'resolve2', log: log }))
+              .catch(spooks.fn({ name: 'reject2', log: log }))
+          })
+
+          test('EventEmitter.on was called eleven times', () => {
+            assert.strictEqual(log.counts.on, 22)
+          })
+
+          test('walk was called once', () => {
+            assert.strictEqual(log.counts.walk, 2)
           })
         })
       })
