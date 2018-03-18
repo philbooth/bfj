@@ -60,7 +60,7 @@ suite('unpipe:', () => {
 
       setup(done => {
         results.parse[0] = Promise.resolve('foo')
-        options = {}
+        options = { foo: 'bar', ndjson: true }
         unpipe((err, res) => {
           error = err
           result = res
@@ -83,8 +83,8 @@ suite('unpipe:', () => {
         assert.isFunction(log.args.parse[0][0]._read)
         assert.isFunction(log.args.parse[0][0].write)
         assert.isFunction(log.args.parse[0][0]._write)
-        assert.strictEqual(log.args.parse[0][1], options)
-        assert.lengthOf(Object.keys(log.args.parse[0][1]), 0)
+        assert.notStrictEqual(log.args.parse[0][1], options)
+        assert.deepEqual(log.args.parse[0][1], { foo: 'bar', ndjson: false })
       })
 
       test('parse result was returned', () => {
