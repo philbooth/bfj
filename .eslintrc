@@ -85,7 +85,7 @@ rules:
   no-extra-label: 2
   no-extra-parens: [ 2, "all" ]
   no-extra-semi: 2
-  no-fallthrough: 1
+  no-fallthrough: 0
   no-floating-decimal: 2
   no-func-assign: 2
   no-implicit-coercion: 0
