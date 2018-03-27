@@ -11,10 +11,11 @@ Big-Friendly JSON. Asynchronous streaming functions for large JSON data sets.
 * [What functions does it implement?](#what-functions-does-it-implement)
 * [How do I install it?](#how-do-i-install-it)
 * [How do I read a JSON file?](#how-do-i-read-a-json-file)
-* [How do I write a JSON file?](#how-do-i-write-a-json-file)
 * [How do I parse a stream of JSON?](#how-do-i-parse-a-stream-of-json)
-* [How do I create a JSON string?](#how-do-i-create-a-json-string)
+* [How do I selectively parse individual items from a JSON stream?](#how-do-i-selectively-parse-individual-items-from-a-json-stream)
+* [How do I write a JSON file?](#how-do-i-write-a-json-file)
 * [How do I create a stream of JSON?](#how-do-i-create-a-stream-of-json)
+* [How do I create a JSON string?](#how-do-i-create-a-json-string)
 * [What other methods are there?](#what-other-methods-are-there)
   * [bfj.walk (stream, options)](#bfjwalk-stream-options)
   * [bfj.eventify (data, options)](#bfjeventify-data-options)
@@ -69,10 +70,10 @@ BFJ is not for you.
 
 ## What functions does it implement?
 
-Eight functions
+Nine functions
 are exported.
 
-Four are
+Five are
 concerned with
 parsing, or
 turning JSON strings
@@ -85,6 +86,10 @@ into JavaScript data:
 * [`parse` and `unpipe`](#how-do-i-parse-a-stream-of-json)
   are for asynchronously parsing
   streams of JSON.
+
+* [`match`](#how-do-i-selectively-parse-individual-items-from-a-json-stream)
+  selectively parses individual items
+  from a JSON stream.
 
 * [`walk`](#bfjwalk-stream-options)
   asynchronously walks
@@ -105,13 +110,13 @@ to JSON:
   asynchronously serialises data
   to a JSON file on disk.
 
-* [`stringify`](#how-do-i-create-a-json-string)
-  asynchronously serialises data
-  to a JSON string.
-
 * [`streamify`](#how-do-i-create-a-stream-of-json)
   asynchronously serialises data
   to a stream of JSON.
+
+* [`stringify`](#how-do-i-create-a-json-string)
+  asynchronously serialises data
+  to a JSON string.
 
 * [`eventify`](#bfjeventify-data-options)
   asynchronously traverses
@@ -169,33 +174,6 @@ with the parsed data.
 If syntax errors occur,
 the promise is rejected
 with the first error.
-
-## How do I write a JSON file?
-
-```js
-const bfj = require('bfj');
-
-bfj.write(path, data, options)
-  .then(() => {
-    // :)
-  })
-  .catch(error => {
-    // :(
-  });
-```
-
-`write` returns a [bluebird promise][promise]
-and asynchronously serialises a data structure
-to a JSON file on disk.
-The promise is resolved
-when the file has been written,
-or rejected with the error
-if writing failed.
-
-It takes three arguments;
-the path to the JSON file,
-the data structure to serialise
-and an [options](#options-for-serialisation-functions) object.
 
 ## How do I parse a stream of JSON?
 
@@ -259,13 +237,57 @@ request({ url }).pipe(bfj.unpipe((error, data) => {
   the callback
   as the first argument.
 
-## How do I create a JSON string?
+## How do I selectively parse individual items from a JSON stream?
 
 ```js
 const bfj = require('bfj');
 
-bfj.stringify(data, options)
-  .then(json => {
+// Call match with your stream and a selector predicate/regex/string
+const dataStream = bfj.match(jsonStream, selector, options);
+
+// Get data out of the returned stream with event handlers
+dataStream.on('data', item => { /* ... */ });
+dataStream.on('end', () => { /* ... */);
+dataStream.on('error', () => { /* ... */);
+
+// ...or you can pipe it to another stream
+dataStream.pipe(someOtherStream);
+```
+
+`match` returns a readable, object-mode stream
+and asynchronously parses individual matching items
+from an input JSON stream.
+
+It takes three arguments:
+a [readable stream][readable]
+from which the JSON will be parsed;
+a selector argument for determining matches,
+which may be a string, a regular expression or a predicate function;
+and an [options](#options-for-parsing-functions) object.
+
+If the selector is a string,
+it will be compared to property keys
+to determine whether
+each item in the data is a match.
+If it is a regular expression,
+the comparison will be made
+by calling the [RegExp `test` method][regexp-test]
+with the property key.
+Predicate functions will be called with both the key and value.
+If the result of the predicate is a truthy value
+then the item will be deemed a match.
+
+If there are
+any errors,
+an `error` event will be emitted.
+
+## How do I write a JSON file?
+
+```js
+const bfj = require('bfj');
+
+bfj.write(path, data, options)
+  .then(() => {
     // :)
   })
   .catch(error => {
@@ -273,14 +295,16 @@ bfj.stringify(data, options)
   });
 ```
 
-`stringify` returns a [bluebird promise][promise] and
-asynchronously serialises a data structure
-to a JSON string.
+`write` returns a [bluebird promise][promise]
+and asynchronously serialises a data structure
+to a JSON file on disk.
 The promise is resolved
-to the JSON string
-when serialisation is complete.
+when the file has been written,
+or rejected with the error
+if writing failed.
 
-It takes two arguments;
+It takes three arguments;
+the path to the JSON file,
 the data structure to serialise
 and an [options](#options-for-serialisation-functions) object.
 
@@ -305,6 +329,31 @@ and asynchronously serialises
 a data structure to JSON,
 pushing the result
 to the returned stream.
+
+It takes two arguments;
+the data structure to serialise
+and an [options](#options-for-serialisation-functions) object.
+
+## How do I create a JSON string?
+
+```js
+const bfj = require('bfj');
+
+bfj.stringify(data, options)
+  .then(json => {
+    // :)
+  })
+  .catch(error => {
+    // :(
+  });
+```
+
+`stringify` returns a [bluebird promise][promise] and
+asynchronously serialises a data structure
+to a JSON string.
+The promise is resolved
+to the JSON string
+when serialisation is complete.
 
 It takes two arguments;
 the data structure to serialise
@@ -610,6 +659,20 @@ of an object,
   discrete chunks of JSON.
   See [NDJSON](#can-it-handle-newline-delimited-json-ndjson) for more information.
 
+* `options.numbers`:
+  For `bfj.match` only,
+  set this to `true`
+  if you wish to match against numbers
+  with a string or regular expression
+  `selector` argument.
+
+* `options.bufferLength`:
+  For `bfj.match` only,
+  the length of the match buffer.
+  Smaller values use less memory
+  but may result in a slower parse time.
+  The default value is `1024`.
+
 ### Options for serialisation functions
 
 * `options.space`:
@@ -734,13 +797,16 @@ resume();
 
 Yes.
 If you pass the `ndjson` [option](#options-for-parsing-functions)
-to `bfj.walk` or `bfj.parse`,
+to `bfj.walk`, `bfj.match` or `bfj.parse`,
 newline characters at the root level
 will act as delimiters between
 discrete JSON values:
 
 * `bfj.walk` will emit a `bfj.events.endLine` event
   each time it encounters a newline character.
+
+* `bfj.match` will just ignore the newlines
+  while it continues looking for matching items.
 
 * `bfj.parse` will resolve with the first value
   and pause the underlying stream.
@@ -845,6 +911,7 @@ under the package name [`bfj-node4`](https://www.npmjs.com/package/bfj-node4).
 [readable]: https://nodejs.org/api/stream.html#stream_readable_streams
 [writable]: https://nodejs.org/api/stream.html#stream_writable_streams
 [pipe]: https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options
+[regexp-test]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test
 [reviver]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter
 [space]: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_space_argument
 [history]: HISTORY.md

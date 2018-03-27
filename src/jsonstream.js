@@ -1,10 +1,10 @@
 'use strict'
 
-const util = require('util')
-const Readable = require('stream').Readable
 const check = require('check-types')
+const BfjStream = require('./stream')
+const util = require('util')
 
-util.inherits(JsonStream, Readable)
+util.inherits(JsonStream, BfjStream)
 
 module.exports = JsonStream
 
@@ -13,11 +13,5 @@ function JsonStream (read) {
     return new JsonStream(read)
   }
 
-  check.assert.function(read, 'Invalid read implementation')
-
-  this._read = function () { // eslint-disable-line no-underscore-dangle
-    read()
-  }
-
-  return Readable.call(this, { encoding: 'utf8' })
+  return BfjStream.call(this, read, { encoding: 'utf8' })
 }

@@ -2,6 +2,7 @@
 
 module.exports = {
   walk: require('./walk'),
+  match: require('./match'),
   parse: require('./parse'),
   unpipe: require('./unpipe'),
   read: require('./read'),

@@ -41,6 +41,14 @@ suite('integration:', () => {
       assert.lengthOf(bfj.walk, 1)
     })
 
+    test('match function is exported', () => {
+      assert.isFunction(bfj.match)
+    })
+
+    test('match expects two arguments', () => {
+      assert.lengthOf(bfj.match, 2)
+    })
+
     test('parse function is exported', () => {
       assert.isFunction(bfj.parse)
     })
@@ -161,6 +169,156 @@ suite('integration:', () => {
       })
     })
 
+    suite('read error:', () => {
+      let failed, file, result, error
+
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'data.json')
+        fs.writeFileSync(file, '"foo" "bar"')
+        return bfj.read(file)
+          .then(res => result = res)
+          .catch(err => {
+            failed = true
+            error = err
+          })
+      })
+
+      teardown(() => {
+        fs.unlinkSync(file)
+      })
+
+      test('result was correct', () => {
+        assert.isTrue(failed)
+        assert.isUndefined(result)
+        assert.instanceOf(error, Error)
+      })
+    })
+
+    suite('read missing file:', () => {
+      let failed, file, result, error
+
+      setup(() => {
+        failed = false
+        file = path.join(__dirname, 'missing.json')
+        assert.isFalse(fs.existsSync(file))
+        return bfj.read(file)
+          .then(res => result = res)
+          .catch(err => {
+            failed = true
+            error = err
+          })
+      })
+
+      test('result was correct', () => {
+        assert.isTrue(failed)
+        assert.isUndefined(result)
+        assert.instanceOf(error, Error)
+      })
+    })
+
+    suite('match predicate:', () => {
+      let file, results, errors
+
+      setup(done => {
+        file = path.join(__dirname, 'data.json')
+        fs.writeFileSync(file, JSON.stringify({
+          foo: 'bar',
+          baz: 'qux',
+          wibble: 'blee'
+        }))
+        results = []
+        errors = []
+        const datastream = bfj.match(fs.createReadStream(file), (k, v) => k === 'baz' || v === 'blee')
+        datastream.on('data', item => results.push(item))
+        datastream.on('error', error => errors.push(error))
+        datastream.on('end', done)
+      })
+
+      test('the correct properties were matched', () => {
+        assert.deepEqual([ 'qux', 'blee' ], results)
+      })
+
+      test('no errors occurred', () => {
+        assert.deepEqual(errors, [])
+      })
+    })
+
+    suite('match nested:', () => {
+      let file, results, errors
+
+      setup(done => {
+        file = path.join(__dirname, 'data.json')
+        fs.writeFileSync(file, JSON.stringify({
+          foo: {
+            bar: 'baz'
+          }
+        }))
+        results = []
+        errors = []
+        const datastream = bfj.match(fs.createReadStream(file), () => true)
+        datastream.on('data', item => results.push(item))
+        datastream.on('error', error => errors.push(error))
+        datastream.on('end', done)
+      })
+
+      test('the correct properties were matched', () => {
+        assert.deepEqual([ 'baz', { bar: 'baz' }, { foo: { bar: 'baz' } } ], results)
+      })
+
+      test('no errors occurred', () => {
+        assert.deepEqual(errors, [])
+      })
+    })
+
+    suite('match ndjson:', () => {
+      let file, results, errors
+
+      setup(done => {
+        file = path.join(__dirname, 'data.ndjson')
+        fs.writeFileSync(file, [
+          JSON.stringify([ 'a', 'b' ]),
+          JSON.stringify(null),
+          '',
+          '',
+          JSON.stringify('wibble')
+        ].join('\n'))
+        results = []
+        errors = []
+        const datastream = bfj.match(fs.createReadStream(file), () => true, { ndjson: true })
+        datastream.on('data', item => results.push(item))
+        datastream.on('error', error => errors.push(error))
+        datastream.on('end', done)
+      })
+
+      test('the correct properties were matched', () => {
+        assert.deepEqual([ 'a', 'b', [ 'a', 'b' ], 'wibble' ], results)
+      })
+
+      test('no errors occurred', () => {
+        assert.deepEqual(errors, [])
+      })
+    })
+
+    suite('parse request:', () => {
+      let error, result
+
+      setup(done => {
+        const jsonstream = new stream.PassThrough()
+        request({ url: 'https://raw.githubusercontent.com/philbooth/bfj/master/package.json' })
+          .pipe(bfj.unpipe((err, res) => {
+            error = err
+            result = res
+            done()
+          }))
+      })
+
+      test('result was correct', () => {
+        assert.isNull(error)
+        assert.deepEqual(result, require('../package.json'))
+      })
+    })
+
     suite('parse NDJSON:', () => {
       let failed, file, results
 
@@ -213,73 +371,6 @@ suite('integration:', () => {
           undefined,
           undefined
         ])
-      })
-    })
-
-    suite('read error:', () => {
-      let failed, file, result, error
-
-      setup(() => {
-        failed = false
-        file = path.join(__dirname, 'data.json')
-        fs.writeFileSync(file, '"foo" "bar"')
-        return bfj.read(file)
-          .then(res => result = res)
-          .catch(err => {
-            failed = true
-            error = err
-          })
-      })
-
-      teardown(() => {
-        fs.unlinkSync(file)
-      })
-
-      test('result was correct', () => {
-        assert.isTrue(failed)
-        assert.isUndefined(result)
-        assert.instanceOf(error, Error)
-      })
-    })
-
-    suite('read missing file:', () => {
-      let failed, file, result, error
-
-      setup(() => {
-        failed = false
-        file = path.join(__dirname, 'missing.json')
-        assert.isFalse(fs.existsSync(file))
-        return bfj.read(file)
-          .then(res => result = res)
-          .catch(err => {
-            failed = true
-            error = err
-          })
-      })
-
-      test('result was correct', () => {
-        assert.isTrue(failed)
-        assert.isUndefined(result)
-        assert.instanceOf(error, Error)
-      })
-    })
-
-    suite('parse request:', () => {
-      let error, result
-
-      setup(done => {
-        const jsonstream = new stream.PassThrough()
-        request({ url: 'https://raw.githubusercontent.com/philbooth/bfj/master/package.json' })
-          .pipe(bfj.unpipe((err, res) => {
-            error = err
-            result = res
-            done()
-          }))
-      })
-
-      test('result was correct', () => {
-        assert.isNull(error)
-        assert.deepEqual(result, require('../package.json'))
       })
     })
 

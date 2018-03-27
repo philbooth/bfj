@@ -374,7 +374,7 @@ function initialise (stream, options = {}) {
 
       return endScope(scp)
         .then(() => {
-          if (! shouldHandleNdjson || scopes.length > 0) {
+          if (scopes.length > 0) {
             return checkCharacter(character(), ',', currentPosition)
           }
         })
