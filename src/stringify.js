@@ -45,6 +45,7 @@ function stringify (data, options) {
 
   stream.on('data', read)
   stream.on('end', end)
+  stream.on('error', error)
   stream.on('dataError', error)
 
   return new Promise((res, rej) => {

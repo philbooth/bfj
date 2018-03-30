@@ -75,6 +75,7 @@ function streamify (data, options = {}) {
   emitter.on(events.endObject, noRacing(endObject))
   emitter.on(events.end, noRacing(end))
   emitter.on(events.error, noRacing(error))
+  emitter.on(events.dataError, noRacing(dataError))
 
   return stream
 
@@ -263,6 +264,10 @@ function streamify (data, options = {}) {
   }
 
   function error (err) {
+    stream.emit('error', err)
+  }
+
+  function dataError (err) {
     stream.emit('dataError', err)
   }
 }

@@ -87,8 +87,8 @@ suite('stringify:', () => {
         assert.lengthOf(Object.keys(log.args.streamify[0][1]), 0)
       })
 
-      test('stream.on was called three times', () => {
-        assert.strictEqual(log.counts.on, 3)
+      test('stream.on was called four times', () => {
+        assert.strictEqual(log.counts.on, 4)
       })
 
       test('stream.on was called correctly first time', () => {
@@ -104,10 +104,16 @@ suite('stringify:', () => {
       })
 
       test('stream.on was called correctly third time', () => {
-        assert.strictEqual(log.args.on[2][0], 'dataError')
+        assert.strictEqual(log.args.on[2][0], 'error')
         assert.isFunction(log.args.on[2][1])
         assert.notStrictEqual(log.args.on[2][1], log.args.on[0][1])
         assert.notStrictEqual(log.args.on[2][1], log.args.on[1][1])
+      })
+
+      test('stream.on was called correctly fourth time', () => {
+        assert.strictEqual(log.args.on[3][0], 'dataError')
+        assert.isFunction(log.args.on[3][1])
+        assert.strictEqual(log.args.on[3][1], log.args.on[2][1])
       })
 
       test('promise is unfulfilled', () => {
@@ -161,10 +167,21 @@ suite('stringify:', () => {
             })
           })
 
-          suite('dataError event:', () => {
+          suite('error event:', () => {
             setup(d => {
               done = d
               log.args.on[2][1]('wibble')
+            })
+
+            test('promise is rejected', () => {
+              assert.strictEqual(rejected, 'wibble')
+            })
+          })
+
+          suite('dataError event:', () => {
+            setup(d => {
+              done = d
+              log.args.on[3][1]('wibble')
             })
 
             test('promise is rejected', () => {

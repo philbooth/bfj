@@ -320,6 +320,7 @@ const stream = bfj.streamify(data, options);
 // Get data out of the stream with event handlers
 stream.on('data', chunk => { /* ... */ });
 stream.on('end', () => { /* ... */);
+stream.on('error', () => { /* ... */);
 stream.on('dataError', () => { /* ... */);
 
 // ...or you can pipe it to another stream
@@ -335,6 +336,12 @@ to the returned stream.
 It takes two arguments;
 the data structure to serialise
 and an [options](#options-for-serialisation-functions) object.
+
+If there a circular reference is encountered in the data
+and `options.circular` is not set to `'ignore'`,
+a `dataError` event will be emitted.
+If any other errors occur,
+an `error` event will be emitted.
 
 ## How do I create a JSON string?
 
@@ -524,7 +531,8 @@ emitter.on(bfj.events.number, value => { /* ... */ });
 emitter.on(bfj.events.literal, value => { /* ... */ });
 emitter.on(bfj.events.endArray, () => { /* ... */ });
 emitter.on(bfj.events.endObject, () => { /* ... */ });
-emitter.on(bfj.events.error, () => { /* ... */ });
+emitter.on(bfj.events.error, error => { /* ... */ });
+emitter.on(bfj.events.dataError, error => { /* ... */ });
 emitter.on(bfj.events.end, () => { /* ... */ });
 ```
 
@@ -611,15 +619,21 @@ of an object,
 
 * `bfj.events.error`
   indicates that
-  an error has occurred.
-  The error may be due to
-  a circular reference
-  encountered in the data
-  or caught from one of the event handlers
+  an error was caught
+  from one of the event handlers
   in user code.
   The listener
   will be passed
   the `Error` instance
+  as its argument.
+
+* `bfj.events.dataError`
+  indicates that
+  a circular reference was encountered in the data
+  and the `circular` option was not set to `'ignore'`.
+  The listener
+  will be passed
+  an `Error` instance
   as its argument.
 
 * `bfj.events.end`

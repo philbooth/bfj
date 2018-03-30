@@ -249,7 +249,7 @@ function eventify (data, options = {}) {
           ignoreThisItem = ignoreItems = true
 
           if (! ignoreCircularReferences) {
-            return emit(events.error, new Error('Circular reference.'))
+            return emit(events.dataError, new Error('Circular reference.'))
           }
         } else {
           references.set(obj, true)

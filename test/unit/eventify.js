@@ -110,6 +110,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -169,6 +173,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -226,6 +234,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -297,6 +309,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -366,6 +382,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -430,6 +450,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -460,6 +484,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -520,6 +548,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -586,6 +618,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -620,6 +656,10 @@ suite('eventify:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('null:', () => {
@@ -650,6 +690,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -709,6 +753,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -773,6 +821,10 @@ suite('eventify:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('nested array:', () => {
@@ -823,6 +875,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -903,6 +959,10 @@ suite('eventify:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('promise:', () => {
@@ -968,6 +1028,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -1029,6 +1093,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -1097,6 +1165,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -1156,6 +1228,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -1224,6 +1300,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -1288,6 +1368,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -1367,6 +1451,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -1426,6 +1514,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -1497,6 +1589,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -1556,6 +1652,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endPrefix event did not occur', () => {
@@ -1637,6 +1737,10 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endPrefix event did not occur', () => {
         assert.strictEqual(log.counts.endPrefix, 0)
       })
@@ -1678,14 +1782,18 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.end, 1)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.lengthOf(log.args.error[0], 1)
-        assert.instanceOf(log.args.error[0][0], Error)
-        assert.strictEqual(log.args.error[0][0].message, 'Circular reference.')
+      test('dataError event was dispatched correctly', () => {
+        assert.lengthOf(log.args.dataError[0], 1)
+        assert.instanceOf(log.args.dataError[0][0], Error)
+        assert.strictEqual(log.args.dataError[0][0].message, 'Circular reference.')
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
       })
     })
 
@@ -1729,12 +1837,16 @@ suite('eventify:', () => {
         assert.strictEqual(log.counts.end, 1)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].message, 'Circular reference.')
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].message, 'Circular reference.')
+      })
+
+      test('error event did not occur', () => {
+        assert.strictEqual(log.counts.error, 0)
       })
     })
 
@@ -1773,6 +1885,10 @@ suite('eventify:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('object circular reference with ignore set:', () => {
@@ -1810,6 +1926,10 @@ suite('eventify:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('parallel array reference:', () => {
@@ -1846,6 +1966,10 @@ suite('eventify:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('parallel object reference:', () => {
@@ -1881,6 +2005,10 @@ suite('eventify:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -1940,6 +2068,10 @@ suite('eventify:', () => {
 
       test('error event occured eleven times', () => {
         assert.strictEqual(log.counts.error, 11)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
   })
