@@ -1,5 +1,21 @@
 # History
 
+## 6.0.0
+
+### Breaking changes
+
+* eventify: distinguish between syntax and operational errors (e7bc23d)
+* walk: distinguish between syntax and operational errors (419ddae)
+
+### New features
+
+* streams: expose a highWaterMark option (626f755)
+* match: implement a streaming match api (e2e320d)
+
+### Other changes
+
+* docs: note the end of node-4 maintenance (0a32090)
+
 ## 5.3.1
 
 ### Bug fixes
