@@ -17,35 +17,43 @@ module.exports = match
  * that match the argument. Note that if a value is `null`, it won't be matched
  * because `null` is used to signify end-of-stream in node.
  *
- * @param stream:        Readable instance representing the incoming JSON.
+ * @param stream:         Readable instance representing the incoming JSON.
  *
- * @param selector:      Regular expression, string or predicate function used to
- *                       identify matches. If a regular expression or string is
- *                       passed, only property keys are tested. If a predicate is
- *                       passed, both the key and the value are passed to it as
- *                       arguments.
+ * @param selector:       Regular expression, string or predicate function used to
+ *                        identify matches. If a regular expression or string is
+ *                        passed, only property keys are tested. If a predicate is
+ *                        passed, both the key and the value are passed to it as
+ *                        arguments.
  *
- * @option numbers:      Boolean, indicating whether numerical keys (e.g. array
- *                       indices) should be coerced to strings before testing the
- *                       match. Only applies if the `selector` argument is a string
- *                       or regular expression.
+ * @option numbers:       Boolean, indicating whether numerical keys (e.g. array
+ *                        indices) should be coerced to strings before testing the
+ *                        match. Only applies if the `selector` argument is a string
+ *                        or regular expression.
  *
- * @option yieldRate:    The number of data items to process per timeslice,
- *                       default is 16384.
+ * @option ndjson:        Set this to true to parse newline-delimited JSON,
+ *                        default is `false`.
  *
- * @option bufferLength: The length of the match buffer, default is 1024.
+ * @option yieldRate:     The number of data items to process per timeslice,
+ *                        default is 16384.
  *
- * @option Promise:      The promise constructor to use, defaults to bluebird.
+ * @option bufferLength:  The length of the match buffer, default is 1024.
  *
- * @option ndjson:       Set this to true to parse newline-delimited JSON,
- *                       default is `false`.
+ * @option highWaterMark: If set, will be passed to the readable stream constructor
+ *                        as the value for the highWaterMark option.
+ *
+ * @option Promise:       The promise constructor to use, defaults to bluebird.
  **/
 function match (stream, selector, options = {}) {
   const scopes = []
   const properties = []
   const emitter = walk(stream, options)
   const matches = new Hoopy(options.bufferLength || DEFAULT_BUFFER_LENGTH)
-  const results = new DataStream(read)
+  let streamOptions
+  const { highWaterMark } = options
+  if (highWaterMark) {
+    streamOptions = { highWaterMark }
+  }
+  const results = new DataStream(read, streamOptions)
 
   let selectorFunction, selectorString, resume
   let coerceNumbers = false

@@ -18,34 +18,42 @@ module.exports = streamify
  * Asynchronously serialises a data structure to a stream of JSON
  * data. Sanely handles promises, buffers, maps and other iterables.
  *
- * @param data:         The data to transform.
+ * @param data:           The data to transform.
  *
- * @option space:       Indentation string, or the number of spaces
- *                      to indent each nested level by.
+ * @option space:         Indentation string, or the number of spaces
+ *                        to indent each nested level by.
  *
- * @option promises:    'resolve' or 'ignore', default is 'resolve'.
+ * @option promises:      'resolve' or 'ignore', default is 'resolve'.
  *
- * @option buffers:     'toString' or 'ignore', default is 'toString'.
+ * @option buffers:       'toString' or 'ignore', default is 'toString'.
  *
- * @option maps:        'object' or 'ignore', default is 'object'.
+ * @option maps:          'object' or 'ignore', default is 'object'.
  *
- * @option iterables:   'array' or 'ignore', default is 'array'.
+ * @option iterables:     'array' or 'ignore', default is 'array'.
  *
- * @option circular:    'error' or 'ignore', default is 'error'.
+ * @option circular:      'error' or 'ignore', default is 'error'.
  *
- * @option yieldRate:    The number of data items to process per timeslice,
- *                       default is 16384.
+ * @option yieldRate:     The number of data items to process per timeslice,
+ *                        default is 16384.
  *
- * @option bufferLength: The length of the buffer, default is 1024.
+ * @option bufferLength:  The length of the buffer, default is 1024.
  *
- * @option Promise:      The promise constructor to use, defaults to bluebird.
+ * @option highWaterMark: If set, will be passed to the readable stream constructor
+ *                        as the value for the highWaterMark option.
+ *
+ * @option Promise:       The promise constructor to use, defaults to bluebird.
  **/
 function streamify (data, options = {}) {
   const emitter = eventify(data, options)
   const json = new Hoopy(options.bufferLength || DEFAULT_BUFFER_LENGTH)
   const Promise = promise(options)
   const space = normaliseSpace(options)
-  const stream = new JsonStream(read)
+  let streamOptions
+  const { highWaterMark } = options
+  if (highWaterMark) {
+    streamOptions = { highWaterMark }
+  }
+  const stream = new JsonStream(read, streamOptions)
 
   let awaitPush = true
   let index = 0

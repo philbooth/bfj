@@ -3,9 +3,9 @@
 const assert = require('chai').assert
 const spooks = require('spooks')
 
-const modulePath = '../../src/jsonstream'
+const modulePath = '../../src/datastream'
 
-suite('jsonstream:', () => {
+suite('datastream:', () => {
   let log
 
   setup(() => {
@@ -58,27 +58,27 @@ suite('jsonstream:', () => {
     })
 
     suite('instantiate:', () => {
-      let jsonstream
+      let datastream
 
       setup(() => {
-        jsonstream = new Stream(spooks.fn({ name: 'read', log: log }))
+        datastream = new Stream(spooks.fn({ name: 'read', log: log }))
       })
 
-      test('jsonstream has _read method', () => {
-        assert.isFunction(jsonstream._read)
+      test('datastream has _read method', () => {
+        assert.isFunction(datastream._read)
       })
 
       test('_read expects no arguments', () => {
-        assert.lengthOf(jsonstream._read, 0)
+        assert.lengthOf(datastream._read, 0)
       })
 
       test('read was not called', () => {
         assert.strictEqual(log.counts.read, 0)
       })
 
-      suite('jsonstream._read:', () => {
+      suite('datastream._read:', () => {
         setup(() => {
-          jsonstream._read()
+          datastream._read()
         })
 
         test('read was called once', () => {

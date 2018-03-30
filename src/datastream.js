@@ -8,10 +8,10 @@ util.inherits(DataStream, BfjStream)
 
 module.exports = DataStream
 
-function DataStream (read) {
+function DataStream (read, options) {
   if (check.not.instanceStrict(this, DataStream)) {
-    return new DataStream(read)
+    return new DataStream(read, options)
   }
 
-  return BfjStream.call(this, read, { objectMode: true })
+  return BfjStream.call(this, read, Object.assign({ objectMode: true }, options))
 }

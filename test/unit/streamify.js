@@ -75,7 +75,7 @@ suite('streamify:', () => {
 
       setup(() => {
         data = {}
-        options = {}
+        options = { foo: 'bar', highWaterMark: 42 }
         result = streamify(data, options)
       })
 
@@ -85,8 +85,9 @@ suite('streamify:', () => {
       })
 
       test('JsonStream was called correctly', () => {
-        assert.lengthOf(log.args.JsonStream[0], 1)
+        assert.lengthOf(log.args.JsonStream[0], 2)
         assert.isFunction(log.args.JsonStream[0][0])
+        assert.deepEqual(log.args.JsonStream[0][1], { highWaterMark: 42 })
       })
 
       test('eventify was called once', () => {
@@ -99,7 +100,7 @@ suite('streamify:', () => {
         assert.strictEqual(log.args.eventify[0][0], data)
         assert.lengthOf(Object.keys(log.args.eventify[0][0]), 0)
         assert.strictEqual(log.args.eventify[0][1], options)
-        assert.lengthOf(Object.keys(log.args.eventify[0][1]), 0)
+        assert.lengthOf(Object.keys(log.args.eventify[0][1]), 2)
       })
 
       test('EventEmitter.on was called ten times', () => {

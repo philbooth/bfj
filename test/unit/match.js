@@ -98,7 +98,7 @@ suite('match:', () => {
       setup(() => {
         stream = {}
         predicate = spooks.fn({ name: 'predicate', log, results: [ true ] })
-        options = {}
+        options = { foo: 'bar', highWaterMark: 42 }
         result = match(stream, predicate, options)
       })
 
@@ -108,8 +108,9 @@ suite('match:', () => {
       })
 
       test('DataStream was called correctly', () => {
-        assert.lengthOf(log.args.DataStream[0], 1)
+        assert.lengthOf(log.args.DataStream[0], 2)
         assert.isFunction(log.args.DataStream[0][0])
+        assert.deepEqual(log.args.DataStream[0][1], { highWaterMark: 42 })
       })
 
       test('walk was called once', () => {
@@ -122,7 +123,7 @@ suite('match:', () => {
         assert.strictEqual(log.args.walk[0][0], stream)
         assert.lengthOf(Object.keys(log.args.walk[0][0]), 0)
         assert.strictEqual(log.args.walk[0][1], options)
-        assert.lengthOf(Object.keys(log.args.walk[0][1]), 0)
+        assert.lengthOf(Object.keys(log.args.walk[0][1]), 2)
       })
 
       test('EventEmitter.on was called eleven times', () => {

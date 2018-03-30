@@ -8,10 +8,10 @@ util.inherits(JsonStream, BfjStream)
 
 module.exports = JsonStream
 
-function JsonStream (read) {
+function JsonStream (read, options) {
   if (check.not.instanceStrict(this, JsonStream)) {
-    return new JsonStream(read)
+    return new JsonStream(read, options)
   }
 
-  return BfjStream.call(this, read, { encoding: 'utf8' })
+  return BfjStream.call(this, read, Object.assign({ encoding: 'utf8' }, options))
 }

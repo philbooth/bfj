@@ -684,6 +684,12 @@ of an object,
   but may result in a slower parse time.
   The default value is `1024`.
 
+* `options.highWaterMark`:
+  For `bfj.match` only,
+  set this if you would like to
+  pass a value for the `highWaterMark` option
+  to the readable stream constructor.
+
 ### Options for serialisation functions
 
 * `options.space`:
@@ -754,6 +760,11 @@ of an object,
   Smaller values use less memory
   but may result in a slower serialisation time.
   The default value is `1024`.
+
+* `options.highWaterMark`:
+  Set this if you would like to
+  pass a value for the `highWaterMark` option
+  to the readable stream constructor.
 
 * `options.yieldRate`:
   The number of data items to process
