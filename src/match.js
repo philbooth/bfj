@@ -79,6 +79,7 @@ function match (stream, selector, options = {}) {
   emitter.on(events.literal, value)
   emitter.on(events.end, end)
   emitter.on(events.error, error)
+  emitter.on(events.dataError, dataError)
 
   return results
 
@@ -201,5 +202,9 @@ function match (stream, selector, options = {}) {
 
   function error (e) {
     results.emit('error', e)
+  }
+
+  function dataError (e) {
+    results.emit('dataError', e)
   }
 }

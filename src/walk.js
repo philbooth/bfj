@@ -389,7 +389,7 @@ function initialise (stream, options = {}) {
 
   function fail (actual, expected, position) {
     return emit(
-      events.error,
+      events.dataError,
       error.create(
         actual,
         expected,

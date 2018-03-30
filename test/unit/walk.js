@@ -123,6 +123,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -200,6 +204,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endLine event did not occur', () => {
@@ -281,6 +289,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -355,6 +367,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endLine event did not occur', () => {
@@ -433,6 +449,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -507,6 +527,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
 
       test('endLine event did not occur', () => {
@@ -584,6 +608,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -659,6 +687,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -694,24 +726,24 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.array, 1)
       })
 
-      test('error event occurred twice', () => {
-        assert.strictEqual(log.counts.error, 2)
+      test('dataError event occurred twice', () => {
+        assert.strictEqual(log.counts.dataError, 2)
       })
 
-      test('error event was dispatched correctly first time', () => {
-        assert.lengthOf(log.args.error[0], 1)
-        assert.instanceOf(log.args.error[0][0], Error)
-        assert.strictEqual(log.args.error[0][0].actual, '}')
-        assert.strictEqual(log.args.error[0][0].expected, 'value')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 2)
+      test('dataError event was dispatched correctly first time', () => {
+        assert.lengthOf(log.args.dataError[0], 1)
+        assert.instanceOf(log.args.dataError[0][0], Error)
+        assert.strictEqual(log.args.dataError[0][0].actual, '}')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'value')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 2)
       })
 
-      test('error event was dispatched correctly second time', () => {
-        assert.strictEqual(log.args.error[1][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[1][0].expected, ']')
-        assert.strictEqual(log.args.error[1][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[1][0].columnNumber, 3)
+      test('dataError event was dispatched correctly second time', () => {
+        assert.strictEqual(log.args.dataError[1][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[1][0].expected, ']')
+        assert.strictEqual(log.args.dataError[1][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[1][0].columnNumber, 3)
       })
 
       test('end event occurred once', () => {
@@ -757,29 +789,29 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.object, 1)
       })
 
-      test('error event occurred three times', () => {
-        assert.strictEqual(log.counts.error, 3)
+      test('dataError event occurred three times', () => {
+        assert.strictEqual(log.counts.dataError, 3)
       })
 
-      test('error event was dispatched correctly first time', () => {
-        assert.strictEqual(log.args.error[0][0].actual, ']')
-        assert.strictEqual(log.args.error[0][0].expected, '"')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 2)
+      test('dataError event was dispatched correctly first time', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, ']')
+        assert.strictEqual(log.args.dataError[0][0].expected, '"')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 2)
       })
 
-      test('error event was dispatched correctly second time', () => {
-        assert.strictEqual(log.args.error[1][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[1][0].expected, '"')
-        assert.strictEqual(log.args.error[1][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[1][0].columnNumber, 3)
+      test('dataError event was dispatched correctly second time', () => {
+        assert.strictEqual(log.args.dataError[1][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[1][0].expected, '"')
+        assert.strictEqual(log.args.dataError[1][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[1][0].columnNumber, 3)
       })
 
-      test('error event was dispatched correctly third time', () => {
-        assert.strictEqual(log.args.error[2][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[2][0].expected, '}')
-        assert.strictEqual(log.args.error[2][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[2][0].columnNumber, 3)
+      test('dataError event was dispatched correctly third time', () => {
+        assert.strictEqual(log.args.dataError[2][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[2][0].expected, '}')
+        assert.strictEqual(log.args.dataError[2][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[2][0].columnNumber, 3)
       })
 
       test('end event occurred once', () => {
@@ -821,15 +853,15 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'x')
-        assert.strictEqual(log.args.error[0][0].expected, 'escape character')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 2)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 23)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'x')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'escape character')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 2)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 23)
       })
 
       test('string event occurred once', () => {
@@ -867,15 +899,15 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'g')
-        assert.strictEqual(log.args.error[0][0].expected, 'hex digit')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 7)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'g')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'hex digit')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 7)
       })
 
       test('string event occurred once', () => {
@@ -913,15 +945,15 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[0][0].expected, '"')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 5)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[0][0].expected, '"')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 5)
       })
 
       test('end event occurred once', () => {
@@ -959,15 +991,15 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.number, 0)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly first time', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[0][0].expected, 'exponent')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 3)
+      test('dataError event was dispatched correctly first time', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'exponent')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 3)
       })
 
       test('end event occurred once', () => {
@@ -1009,22 +1041,22 @@ suite('walk:', () => {
         assert.strictEqual(log.args.number[0][0], 42)
       })
 
-      test('error event occurred twice', () => {
-        assert.strictEqual(log.counts.error, 2)
+      test('dataError event occurred twice', () => {
+        assert.strictEqual(log.counts.dataError, 2)
       })
 
-      test('error event was dispatched correctly first time', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'f')
-        assert.strictEqual(log.args.error[0][0].expected, 'EOF')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 3)
+      test('dataError event was dispatched correctly first time', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'f')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'EOF')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 3)
       })
 
-      test('error event was dispatched correctly second time', () => {
-        assert.strictEqual(log.args.error[1][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[1][0].expected, 'a')
-        assert.strictEqual(log.args.error[1][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[1][0].columnNumber, 4)
+      test('dataError event was dispatched correctly second time', () => {
+        assert.strictEqual(log.args.dataError[1][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[1][0].expected, 'a')
+        assert.strictEqual(log.args.dataError[1][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[1][0].columnNumber, 4)
       })
 
       test('end event occurred once', () => {
@@ -1058,15 +1090,15 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'd')
-        assert.strictEqual(log.args.error[0][0].expected, 'e')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 5)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'd')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'e')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 5)
       })
 
       test('end event occurred once', () => {
@@ -1100,15 +1132,15 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[0][0].expected, 'l')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 4)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'l')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 4)
       })
 
       test('end event occurred once', () => {
@@ -1142,36 +1174,36 @@ suite('walk:', () => {
         emitter.on(events.end, done)
       })
 
-      test('error event occurred four times', () => {
-        assert.strictEqual(log.counts.error, 4)
+      test('dataError event occurred four times', () => {
+        assert.strictEqual(log.counts.dataError, 4)
       })
 
-      test('error event was dispatched correctly first time', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'R')
-        assert.strictEqual(log.args.error[0][0].expected, 'r')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 2)
+      test('dataError event was dispatched correctly first time', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'R')
+        assert.strictEqual(log.args.dataError[0][0].expected, 'r')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 2)
       })
 
-      test('error event was dispatched correctly second time', () => {
-        assert.strictEqual(log.args.error[1][0].actual, 'u')
-        assert.strictEqual(log.args.error[1][0].expected, 'EOF')
-        assert.strictEqual(log.args.error[1][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[1][0].columnNumber, 3)
+      test('dataError event was dispatched correctly second time', () => {
+        assert.strictEqual(log.args.dataError[1][0].actual, 'u')
+        assert.strictEqual(log.args.dataError[1][0].expected, 'EOF')
+        assert.strictEqual(log.args.dataError[1][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[1][0].columnNumber, 3)
       })
 
-      test('error event was dispatched correctly third time', () => {
-        assert.strictEqual(log.args.error[2][0].actual, 'u')
-        assert.strictEqual(log.args.error[2][0].expected, 'value')
-        assert.strictEqual(log.args.error[2][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[2][0].columnNumber, 3)
+      test('dataError event was dispatched correctly third time', () => {
+        assert.strictEqual(log.args.dataError[2][0].actual, 'u')
+        assert.strictEqual(log.args.dataError[2][0].expected, 'value')
+        assert.strictEqual(log.args.dataError[2][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[2][0].columnNumber, 3)
       })
 
-      test('error event was dispatched correctly fourth time', () => {
-        assert.strictEqual(log.args.error[3][0].actual, 'e')
-        assert.strictEqual(log.args.error[3][0].expected, 'value')
-        assert.strictEqual(log.args.error[3][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[3][0].columnNumber, 4)
+      test('dataError event was dispatched correctly fourth time', () => {
+        assert.strictEqual(log.args.dataError[3][0].actual, 'e')
+        assert.strictEqual(log.args.dataError[3][0].expected, 'value')
+        assert.strictEqual(log.args.dataError[3][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[3][0].columnNumber, 4)
       })
 
       test('end event occurred once', () => {
@@ -1221,6 +1253,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -1263,6 +1299,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two arrays inside array with whitespace:', () => {
@@ -1302,6 +1342,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two arrays inside array without comma:', () => {
@@ -1334,15 +1378,15 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.endArray, 3)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, '[')
-        assert.strictEqual(log.args.error[0][0].expected, ',')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 4)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, '[')
+        assert.strictEqual(log.args.dataError[0][0].expected, ',')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 4)
       })
 
       test('end event occurred once', () => {
@@ -1400,6 +1444,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -1450,6 +1498,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two objects inside array with whitespace:', () => {
@@ -1497,6 +1549,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two objects inside array without comma:', () => {
@@ -1533,15 +1589,15 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.endObject, 2)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, '{')
-        assert.strictEqual(log.args.error[0][0].expected, ',')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 6)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, '{')
+        assert.strictEqual(log.args.dataError[0][0].expected, ',')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 6)
       })
 
       test('endArray event occurred once', () => {
@@ -1603,6 +1659,10 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.error, 0)
       })
 
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
+
       test('endLine event did not occur', () => {
         assert.strictEqual(log.counts.endLine, 0)
       })
@@ -1657,6 +1717,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two strings inside array with whitespace:', () => {
@@ -1708,6 +1772,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('literal inside array:', () => {
@@ -1754,6 +1822,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -1806,6 +1878,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two literals inside array with whitespace:', () => {
@@ -1857,6 +1933,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('number inside array:', () => {
@@ -1903,6 +1983,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -1955,6 +2039,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two numbers inside array with whitespace:', () => {
@@ -2006,6 +2094,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('object inside object:', () => {
@@ -2053,6 +2145,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2112,6 +2208,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2192,6 +2292,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two objects inside object without comma:', () => {
@@ -2232,15 +2336,15 @@ suite('walk:', () => {
         assert.strictEqual(log.args.property[1][0], 'bar')
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
-      test('error event was dispatched correctly', () => {
-        assert.strictEqual(log.args.error[0][0].actual, '"')
-        assert.strictEqual(log.args.error[0][0].expected, ',')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 10)
+      test('dataError event was dispatched correctly', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, '"')
+        assert.strictEqual(log.args.dataError[0][0].expected, ',')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 10)
       })
 
       test('endObject event occurred three times', () => {
@@ -2278,29 +2382,29 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.object, 1)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 3)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 3)
       })
 
-      test('error event was dispatched correctly first time', () => {
-        assert.strictEqual(log.args.error[0][0].actual, 'f')
-        assert.strictEqual(log.args.error[0][0].expected, '"')
-        assert.strictEqual(log.args.error[0][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[0][0].columnNumber, 2)
+      test('dataError event was dispatched correctly first time', () => {
+        assert.strictEqual(log.args.dataError[0][0].actual, 'f')
+        assert.strictEqual(log.args.dataError[0][0].expected, '"')
+        assert.strictEqual(log.args.dataError[0][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[0][0].columnNumber, 2)
       })
 
-      test('error event was dispatched correctly second time', () => {
-        assert.strictEqual(log.args.error[1][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[1][0].expected, '"')
-        assert.strictEqual(log.args.error[1][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[1][0].columnNumber, 9)
+      test('dataError event was dispatched correctly second time', () => {
+        assert.strictEqual(log.args.dataError[1][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[1][0].expected, '"')
+        assert.strictEqual(log.args.dataError[1][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[1][0].columnNumber, 9)
       })
 
-      test('error event was dispatched correctly third time', () => {
-        assert.strictEqual(log.args.error[2][0].actual, 'EOF')
-        assert.strictEqual(log.args.error[2][0].expected, '}')
-        assert.strictEqual(log.args.error[2][0].lineNumber, 1)
-        assert.strictEqual(log.args.error[2][0].columnNumber, 9)
+      test('dataError event was dispatched correctly third time', () => {
+        assert.strictEqual(log.args.dataError[2][0].actual, 'EOF')
+        assert.strictEqual(log.args.dataError[2][0].expected, '}')
+        assert.strictEqual(log.args.dataError[2][0].lineNumber, 1)
+        assert.strictEqual(log.args.dataError[2][0].columnNumber, 9)
       })
 
       test('end event occurred once', () => {
@@ -2374,6 +2478,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('empty array containing whitespace:', () => {
@@ -2412,6 +2520,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2452,6 +2564,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2498,6 +2614,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2547,6 +2667,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('chunked number:', () => {
@@ -2594,6 +2718,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('chunked literal:', () => {
@@ -2636,6 +2764,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2696,6 +2828,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
 
@@ -2764,6 +2900,10 @@ suite('walk:', () => {
       test('end event occurred once', () => {
         assert.strictEqual(log.counts.end, 1)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('error occurs on stream:', () => {
@@ -2803,6 +2943,10 @@ suite('walk:', () => {
       test('end event occurred once', () => {
         assert.strictEqual(log.counts.end, 1)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two values separated by newline:', () => {
@@ -2839,8 +2983,8 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.string, 1)
       })
 
-      test('error event occurred once', () => {
-        assert.strictEqual(log.counts.error, 1)
+      test('dataError event occurred once', () => {
+        assert.strictEqual(log.counts.dataError, 1)
       })
 
       test('end event occurred once', () => {
@@ -2897,6 +3041,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two values separated by newline, ndjson=true, with embedded newlines in a value:', () => {
@@ -2944,6 +3092,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('two values not separated by newline, ndjson=true:', () => {
@@ -2980,8 +3132,8 @@ suite('walk:', () => {
         assert.strictEqual(log.counts.end, 1)
       })
 
-      test('error event occurred five times', () => {
-        assert.strictEqual(log.counts.error, 5)
+      test('dataError event occurred five times', () => {
+        assert.strictEqual(log.counts.dataError, 5)
       })
 
       test('string event did not occurr', () => {
@@ -3038,6 +3190,10 @@ suite('walk:', () => {
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
       })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
+      })
     })
 
     suite('chunked ndjson:', () => {
@@ -3090,6 +3246,10 @@ suite('walk:', () => {
 
       test('error event did not occur', () => {
         assert.strictEqual(log.counts.error, 0)
+      })
+
+      test('dataError event did not occur', () => {
+        assert.strictEqual(log.counts.dataError, 0)
       })
     })
   })

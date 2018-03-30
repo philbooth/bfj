@@ -65,6 +65,7 @@ function parse (stream, options = {}) {
   emitter.on(events.endObject, endScope)
   emitter.on(events.end, end)
   emitter.on(events.error, error)
+  emitter.on(events.dataError, error)
 
   if (shouldHandleNdjson) {
     emitter.on(events.endLine, endLine)

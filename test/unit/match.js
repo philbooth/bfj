@@ -125,8 +125,8 @@ suite('match:', () => {
         assert.lengthOf(Object.keys(log.args.walk[0][1]), 0)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
         assert.strictEqual(log.these.on[0], results.walk[0])
         assert.strictEqual(log.these.on[1], results.walk[0])
         assert.strictEqual(log.these.on[2], results.walk[0])
@@ -137,6 +137,7 @@ suite('match:', () => {
         assert.strictEqual(log.these.on[7], results.walk[0])
         assert.strictEqual(log.these.on[8], results.walk[0])
         assert.strictEqual(log.these.on[9], results.walk[0])
+        assert.strictEqual(log.these.on[10], results.walk[0])
       })
 
       test('EventEmitter.on was called correctly first time', () => {
@@ -197,6 +198,12 @@ suite('match:', () => {
         assert.lengthOf(log.args.on[9], 2)
         assert.strictEqual(log.args.on[9][0], 'err')
         assert.isFunction(log.args.on[9][1])
+      })
+
+      test('EventEmitter.on was called correctly eleventh time', () => {
+        assert.lengthOf(log.args.on[10], 2)
+        assert.strictEqual(log.args.on[10][0], 'err-data')
+        assert.isFunction(log.args.on[10][1])
       })
 
       suite('array event:', () => {
@@ -295,9 +302,9 @@ suite('match:', () => {
             })
           })
 
-          suite('error event:', () => {
+          suite('dataError event:', () => {
             setup(() => {
-              log.args.on[9][1]('foo')
+              log.args.on[10][1]('foo')
             })
 
             test('results.push was not called', () => {
@@ -310,7 +317,7 @@ suite('match:', () => {
 
             test('results.emit was called correctly', () => {
               assert.lengthOf(log.args.emit[0], 2)
-              assert.strictEqual(log.args.emit[0][0], 'error')
+              assert.strictEqual(log.args.emit[0][0], 'dataError')
               assert.strictEqual(log.args.emit[0][1], 'foo')
             })
           })
@@ -615,8 +622,8 @@ suite('match:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
       })
 
       suite('read events:', () => {
@@ -663,8 +670,8 @@ suite('match:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
       })
 
       suite('read events:', () => {
@@ -718,8 +725,8 @@ suite('match:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
       })
 
       suite('read events:', () => {
@@ -773,8 +780,8 @@ suite('match:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
       })
 
       suite('read events:', () => {
@@ -831,8 +838,8 @@ suite('match:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
       })
 
       suite('two matching events:', () => {

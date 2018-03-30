@@ -249,6 +249,7 @@ const dataStream = bfj.match(jsonStream, selector, options);
 dataStream.on('data', item => { /* ... */ });
 dataStream.on('end', () => { /* ... */);
 dataStream.on('error', () => { /* ... */);
+dataStream.on('dataError', () => { /* ... */);
 
 // ...or you can pipe it to another stream
 dataStream.pipe(someOtherStream);
@@ -277,8 +278,9 @@ Predicate functions will be called with both the key and value.
 If the result of the predicate is a truthy value
 then the item will be deemed a match.
 
-If there are
-any errors,
+If there are any syntax errors in the JSON,
+a `dataError` event will be emitted.
+If any other errors occur,
 an `error` event will be emitted.
 
 ## How do I write a JSON file?
@@ -377,6 +379,7 @@ emitter.on(bfj.events.literal, value => { /* ... */ });
 emitter.on(bfj.events.endArray, () => { /* ... */ });
 emitter.on(bfj.events.endObject, () => { /* ... */ });
 emitter.on(bfj.events.error, error => { /* ... */ });
+emitter.on(bfj.events.dataError, error => { /* ... */ });
 emitter.on(bfj.events.end, () => { /* ... */ });
 ```
 
@@ -472,14 +475,22 @@ of an object,
 
 * `bfj.events.error`
   indicates that
-  an error has occurred.
-  The error may be due to
-  invalid syntax on the incoming stream
-  or caught from one of the event handlers
+  an error was caught
+  from one of the event handlers
   in user code.
   The listener
   will be passed
   the `Error` instance
+  as its argument.
+
+* `bfj.events.dataError`
+  indicates that
+  a syntax error was encountered
+  in the incoming JSON stream.
+  The listener
+  will be passed
+  an `Error` instance
+  decorated with `actual`, `expected`, `lineNumber` and `columnNumber` properties
   as its argument.
 
 * `bfj.events.end`

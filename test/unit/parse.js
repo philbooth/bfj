@@ -116,8 +116,8 @@ suite('parse:', () => {
         assert.lengthOf(Object.keys(log.args.walk[0][1]), 0)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
         assert.strictEqual(log.these.on[0], results.walk[0])
         assert.strictEqual(log.these.on[1], results.walk[0])
         assert.strictEqual(log.these.on[2], results.walk[0])
@@ -128,6 +128,7 @@ suite('parse:', () => {
         assert.strictEqual(log.these.on[7], results.walk[0])
         assert.strictEqual(log.these.on[8], results.walk[0])
         assert.strictEqual(log.these.on[9], results.walk[0])
+        assert.strictEqual(log.these.on[10], results.walk[0])
       })
 
       test('EventEmitter.on was called correctly first time', () => {
@@ -212,6 +213,13 @@ suite('parse:', () => {
         assert.notStrictEqual(log.args.on[9][1], log.args.on[3][1])
         assert.notStrictEqual(log.args.on[9][1], log.args.on[6][1])
         assert.notStrictEqual(log.args.on[9][1], log.args.on[8][1])
+      })
+
+      test('EventEmitter.on was called correctly eleventh time', () => {
+        assert.lengthOf(log.args.on[10], 2)
+        assert.strictEqual(log.args.on[10][0], 'err-data')
+        assert.isFunction(log.args.on[10][1])
+        assert.strictEqual(log.args.on[10][1], log.args.on[9][1])
       })
 
       suite('array event:', () => {
@@ -653,8 +661,8 @@ suite('parse:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called ten times', () => {
-        assert.strictEqual(log.counts.on, 10)
+      test('EventEmitter.on was called eleven times', () => {
+        assert.strictEqual(log.counts.on, 11)
       })
 
       suite('populated array events:', () => {
@@ -818,12 +826,12 @@ suite('parse:', () => {
         assert.strictEqual(log.counts.walk, 1)
       })
 
-      test('EventEmitter.on was called eleven times', () => {
-        assert.strictEqual(log.counts.on, 11)
-        assert.strictEqual(log.these.on[10], results.walk[0])
+      test('EventEmitter.on was called twelve times', () => {
+        assert.strictEqual(log.counts.on, 12)
+        assert.strictEqual(log.these.on[11], results.walk[0])
       })
 
-      test('EventEmitter.on was called correctly first ten times', () => {
+      test('EventEmitter.on was called correctly first eleven times', () => {
         assert.strictEqual(log.args.on[0][0], 'arr')
         assert.strictEqual(log.args.on[1][0], 'obj')
         assert.strictEqual(log.args.on[2][0], 'pro')
@@ -834,19 +842,20 @@ suite('parse:', () => {
         assert.strictEqual(log.args.on[7][0], 'end-obj')
         assert.strictEqual(log.args.on[8][0], 'end')
         assert.strictEqual(log.args.on[9][0], 'err')
+        assert.strictEqual(log.args.on[10][0], 'err-data')
       })
 
-      test('EventEmitter.on was called correctly eleventh time', () => {
-        assert.lengthOf(log.args.on[10], 2)
-        assert.strictEqual(log.args.on[10][0], 'end-line')
-        assert.isFunction(log.args.on[10][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[0][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[1][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[2][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[3][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[6][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[8][1])
-        assert.notStrictEqual(log.args.on[10][1], log.args.on[9][1])
+      test('EventEmitter.on was called correctly twelfth time', () => {
+        assert.lengthOf(log.args.on[11], 2)
+        assert.strictEqual(log.args.on[11][0], 'end-line')
+        assert.isFunction(log.args.on[11][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[0][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[1][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[2][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[3][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[6][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[8][1])
+        assert.notStrictEqual(log.args.on[11][1], log.args.on[9][1])
       })
 
       test('emitter.pause was not called', () => {
@@ -861,7 +870,7 @@ suite('parse:', () => {
         setup(done => {
           log.args.on[0][1]()
           log.args.on[6][1]()
-          log.args.on[10][1]()
+          log.args.on[11][1]()
           setImmediate(done)
         })
 
@@ -902,8 +911,8 @@ suite('parse:', () => {
               .catch(spooks.fn({ name: 'reject2', log: log }))
           })
 
-          test('EventEmitter.on was called eleven times', () => {
-            assert.strictEqual(log.counts.on, 22)
+          test('EventEmitter.on was called twelve times', () => {
+            assert.strictEqual(log.counts.on, 24)
           })
 
           test('walk was not called', () => {
@@ -912,8 +921,8 @@ suite('parse:', () => {
 
           suite('string, end:', () => {
             setup(done => {
-              log.args.on[14][1]('foo')
-              log.args.on[19][1]()
+              log.args.on[15][1]('foo')
+              log.args.on[20][1]()
               setImmediate(done)
             })
 
@@ -947,8 +956,8 @@ suite('parse:', () => {
                   .catch(spooks.fn({ name: 'reject3', log: log }))
               })
 
-              test('EventEmitter.on was called eleven times', () => {
-                assert.strictEqual(log.counts.on, 33)
+              test('EventEmitter.on was called twelve times', () => {
+                assert.strictEqual(log.counts.on, 36)
               })
 
               test('walk was not called', () => {
@@ -957,7 +966,7 @@ suite('parse:', () => {
 
               suite('end:', () => {
                 setup(done => {
-                  log.args.on[30][1]()
+                  log.args.on[32][1]()
                   setImmediate(done)
                 })
 
@@ -997,8 +1006,8 @@ suite('parse:', () => {
               .catch(spooks.fn({ name: 'reject2', log: log }))
           })
 
-          test('EventEmitter.on was called eleven times', () => {
-            assert.strictEqual(log.counts.on, 22)
+          test('EventEmitter.on was called twelve times', () => {
+            assert.strictEqual(log.counts.on, 24)
           })
 
           test('walk was called once', () => {
