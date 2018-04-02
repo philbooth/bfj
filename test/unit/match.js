@@ -238,6 +238,10 @@ suite('match:', () => {
               assert.lengthOf(log.args.push[0], 1)
               assert.isNull(log.args.push[0][0])
             })
+
+            test('predicate was not called', () => {
+              assert.strictEqual(log.counts.predicate, 0)
+            })
           })
         })
 
@@ -245,6 +249,17 @@ suite('match:', () => {
           setup(() => {
             log.args.on[3][1]()
             log.args.on[8][1]()
+          })
+
+          test('predicate was called once', () => {
+            assert.strictEqual(log.counts.predicate, 1)
+          })
+
+          test('predicate was called correctly', () => {
+            assert.lengthOf(log.args.predicate[0], 3)
+            assert.isUndefined(log.args.predicate[0][0])
+            assert.deepEqual(log.args.predicate[0][1], [])
+            assert.strictEqual(log.args.predicate[0][2], 0)
           })
 
           test('results.push was not called', () => {
@@ -321,11 +336,26 @@ suite('match:', () => {
               assert.strictEqual(log.args.emit[0][0], 'dataError')
               assert.strictEqual(log.args.emit[0][1], 'foo')
             })
+
+            test('predicate was not called', () => {
+              assert.strictEqual(log.counts.predicate, 0)
+            })
           })
 
           suite('string event:', () => {
             setup(() => {
               log.args.on[5][1]('foo')
+            })
+
+            test('predicate was called once', () => {
+              assert.strictEqual(log.counts.predicate, 1)
+            })
+
+            test('predicate was called correctly', () => {
+              assert.lengthOf(log.args.predicate[0], 3)
+              assert.strictEqual(log.args.predicate[0][0], 0)
+              assert.strictEqual(log.args.predicate[0][1], 'foo')
+              assert.strictEqual(log.args.predicate[0][2], 1)
             })
 
             test('results.push was called once', () => {
@@ -339,6 +369,16 @@ suite('match:', () => {
             suite('string event:', () => {
               setup(() => {
                 log.args.on[5][1]('bar')
+              })
+
+              test('predicate was called once', () => {
+                assert.strictEqual(log.counts.predicate, 2)
+              })
+
+              test('predicate was called correctly', () => {
+                assert.strictEqual(log.args.predicate[1][0], 1)
+                assert.strictEqual(log.args.predicate[1][1], 'bar')
+                assert.strictEqual(log.args.predicate[1][2], 1)
               })
 
               test('results.push was called once', () => {
@@ -355,6 +395,10 @@ suite('match:', () => {
                 log.args.on[0][1]()
               })
 
+              test('predicate was not called', () => {
+                assert.strictEqual(log.counts.predicate, 1)
+              })
+
               test('results.push was not called', () => {
                 assert.strictEqual(log.counts.push, 1)
               })
@@ -362,6 +406,16 @@ suite('match:', () => {
               suite('endArray event:', () => {
                 setup(() => {
                   log.args.on[3][1]()
+                })
+
+                test('predicate was called once', () => {
+                  assert.strictEqual(log.counts.predicate, 2)
+                })
+
+                test('predicate was called correctly', () => {
+                  assert.strictEqual(log.args.predicate[1][0], 1)
+                  assert.deepEqual(log.args.predicate[1][1], [])
+                  assert.strictEqual(log.args.predicate[1][2], 1)
                 })
 
                 test('results.push was called once', () => {
@@ -375,6 +429,16 @@ suite('match:', () => {
                 suite('endArray event:', () => {
                   setup(() => {
                     log.args.on[3][1]()
+                  })
+
+                  test('predicate was called once', () => {
+                    assert.strictEqual(log.counts.predicate, 3)
+                  })
+
+                  test('predicate was called correctly', () => {
+                    assert.isUndefined(log.args.predicate[2][0])
+                    assert.deepEqual(log.args.predicate[2][1], [ 'foo', [] ])
+                    assert.strictEqual(log.args.predicate[2][2], 0)
                   })
 
                   test('results.push was called once', () => {
@@ -406,6 +470,10 @@ suite('match:', () => {
                   log.args.on[2][1]('bar')
                 })
 
+                test('predicate was not called', () => {
+                  assert.strictEqual(log.counts.predicate, 1)
+                })
+
                 test('results.push was not called', () => {
                   assert.strictEqual(log.counts.push, 1)
                 })
@@ -413,6 +481,16 @@ suite('match:', () => {
                 suite('string event:', () => {
                   setup(() => {
                     log.args.on[5][1]('baz')
+                  })
+
+                  test('predicate was called once', () => {
+                    assert.strictEqual(log.counts.predicate, 2)
+                  })
+
+                  test('predicate was called correctly', () => {
+                    assert.strictEqual(log.args.predicate[1][0], 'bar')
+                    assert.strictEqual(log.args.predicate[1][1], 'baz')
+                    assert.strictEqual(log.args.predicate[1][2], 2)
                   })
 
                   test('results.push was called once', () => {
@@ -437,6 +515,10 @@ suite('match:', () => {
                         log.args.on[1][1]()
                       })
 
+                      test('predicate was not called', () => {
+                        assert.strictEqual(log.counts.predicate, 2)
+                      })
+
                       test('results.push was not called', () => {
                         assert.strictEqual(log.counts.push, 2)
                       })
@@ -444,6 +526,16 @@ suite('match:', () => {
                       suite('endObject event:', () => {
                         setup(() => {
                           log.args.on[4][1]()
+                        })
+
+                        test('predicate was called once', () => {
+                          assert.strictEqual(log.counts.predicate, 3)
+                        })
+
+                        test('predicate was called correctly', () => {
+                          assert.strictEqual(log.args.predicate[2][0], 'nested')
+                          assert.deepEqual(log.args.predicate[2][1], {})
+                          assert.strictEqual(log.args.predicate[2][2], 2)
                         })
 
                         test('results.push was called once', () => {
@@ -457,6 +549,16 @@ suite('match:', () => {
                         suite('endObject event:', () => {
                           setup(() => {
                             log.args.on[4][1]()
+                          })
+
+                          test('predicate was called once', () => {
+                            assert.strictEqual(log.counts.predicate, 4)
+                          })
+
+                          test('predicate was called correctly', () => {
+                            assert.strictEqual(log.args.predicate[3][0], 1)
+                            assert.deepEqual(log.args.predicate[3][1], { bar: 'baz', nested: {} })
+                            assert.strictEqual(log.args.predicate[3][2], 1)
                           })
 
                           test('results.push was called once', () => {
@@ -488,6 +590,10 @@ suite('match:', () => {
 
             teardown(() => {
               results.push[0] = true
+            })
+
+            test('predicate was called twice', () => {
+              assert.strictEqual(log.counts.predicate, 2)
             })
 
             test('results.push was called once', () => {
@@ -549,6 +655,46 @@ suite('match:', () => {
             log.args.on[3][1]()
             log.args.on[8][1]()
             log.args.DataStream[0][0]()
+          })
+
+          test('predicate was called six times', () => {
+            assert.strictEqual(log.counts.predicate, 6)
+          })
+
+          test('predicate was called correctly first time', () => {
+            assert.strictEqual(log.args.predicate[0][0], 'foo')
+            assert.strictEqual(log.args.predicate[0][1], 'bar')
+            assert.strictEqual(log.args.predicate[0][2], 2)
+          })
+
+          test('predicate was called correctly second time', () => {
+            assert.strictEqual(log.args.predicate[1][0], 0)
+            assert.deepEqual(log.args.predicate[1][1], { foo: 'bar' })
+            assert.strictEqual(log.args.predicate[1][2], 1)
+          })
+
+          test('predicate was called correctly third time', () => {
+            assert.strictEqual(log.args.predicate[2][0], 1)
+            assert.strictEqual(log.args.predicate[2][1], '')
+            assert.strictEqual(log.args.predicate[2][2], 1)
+          })
+
+          test('predicate was called correctly fourth time', () => {
+            assert.strictEqual(log.args.predicate[3][0], 2)
+            assert.strictEqual(log.args.predicate[3][1], 0)
+            assert.strictEqual(log.args.predicate[3][2], 1)
+          })
+
+          test('predicate was called correctly fifth time', () => {
+            assert.strictEqual(log.args.predicate[4][0], 4)
+            assert.strictEqual(log.args.predicate[4][1], false)
+            assert.strictEqual(log.args.predicate[4][2], 1)
+          })
+
+          test('predicate was called correctly sixth time', () => {
+            assert.isUndefined(log.args.predicate[5][0])
+            assert.deepEqual(log.args.predicate[5][1], [ { foo: 'bar' }, '', 0, null, false ])
+            assert.strictEqual(log.args.predicate[5][2], 0)
           })
 
           test('results.push was called seven times', () => {

@@ -274,7 +274,8 @@ If it is a regular expression,
 the comparison will be made
 by calling the [RegExp `test` method][regexp-test]
 with the property key.
-Predicate functions will be called with both the key and value.
+Predicate functions will be called with three arguments:
+`key`, `value` and `depth`.
 If the result of the predicate is a truthy value
 then the item will be deemed a match.
 

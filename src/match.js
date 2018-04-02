@@ -179,7 +179,7 @@ function match (stream, selector, options = {}) {
     }
 
     if (selectorFunction) {
-      if (selectorFunction(key, v)) {
+      if (selectorFunction(key, v, scopes.length)) {
         push(v)
       }
     } else {
