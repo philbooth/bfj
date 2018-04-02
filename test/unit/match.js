@@ -657,7 +657,7 @@ suite('match:', () => {
     })
 
     suite('match with string:', () => {
-      let stream, predicate, options, result
+      let stream, options, result
 
       setup(() => {
         result = match({}, 'foo', {})
@@ -712,7 +712,7 @@ suite('match:', () => {
     })
 
     suite('match with regular expression:', () => {
-      let stream, predicate, options, result
+      let stream, options, result
 
       setup(() => {
         result = match({}, /oo/, {})
@@ -767,7 +767,7 @@ suite('match:', () => {
     })
 
     suite('match with numbers=true:', () => {
-      let stream, predicate, options, result
+      let stream, options, result
 
       setup(() => {
         result = match({}, '1', { numbers: true })
@@ -825,7 +825,7 @@ suite('match:', () => {
     })
 
     suite('match with bufferLength=3:', () => {
-      let stream, predicate, options, result
+      let stream, options, result
 
       setup(() => {
         result = match({}, 'foo', { bufferLength: 3 })
