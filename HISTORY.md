@@ -1,5 +1,17 @@
 # History
 
+## 6.1.0
+
+### New features
+
+* match: pass a depth argument to selector predicates (af15939)
+
+### Other changes
+
+* tests: delete unused var (f10902a)
+* ci: reinstate tests in node 9 (7cd2594)
+* ci: temporarily disable tests in node 9 (e27ccd0)
+
 ## 6.0.0
 
 ### Breaking changes
